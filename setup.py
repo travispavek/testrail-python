@@ -18,6 +18,8 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Software Development :: Quality Assurance',
+        'Topic :: Software Development :: Testing',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
