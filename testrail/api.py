@@ -28,7 +28,7 @@ class API(object):
 
     def __init__(self):
         self.__dict__ = self._shared_state
-        with open('%s/.testrail-python-client.conf' % expanduser('~'), 'r') as f:
+        with open('%s/.testrail.conf' % expanduser('~'), 'r') as f:
             config = yaml.load(f)
         self._auth = (config['testrail']['user_email'], config['testrail']['user_pass'])
         self._url = config['testrail']['url']
