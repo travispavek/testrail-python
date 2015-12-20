@@ -260,6 +260,7 @@ class API(object):
         return self._configs['value']
 
     def _get(self, uri, params=None):
+        uri = '/index.php?/api/v2/%s' % uri
         r = requests.get(self._url+uri, params=params, auth=self._auth,
                          headers=self.headers)
         content = r.json()
@@ -273,6 +274,7 @@ class API(object):
             raise TestRailError(content)
 
     def _post(self, uri, data={}):
+        uri = '/index.php?/api/v2/%s' % uri
         r = requests.post(self._url+uri, json=data, auth=self._auth)
         if r.status_code == 200:
             try:
