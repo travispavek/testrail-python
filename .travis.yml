@@ -7,4 +7,4 @@ python:
 install:
   - pip install -r requirements.txt
   - cp tests/testrail.conf ~/.testrail.conf
-script: nosetests ./tests
+script: nosetests -v ./tests
