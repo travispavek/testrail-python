@@ -88,6 +88,8 @@ class TestUser(unittest.TestCase):
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         actual_response = self.client.users()
+        timeout = self.client._timeout
+        self.client._users['ts'] = datetime.now() - timedelta(seconds=timeout-1)  # set timeout to 1 second from now
         actual_response = self.client.users()  # second call to verify cache hit
         mock_get.assert_called_once_with(url, headers={'Content-Type': 'application/json'}, params=None, auth=('user@yourdomain.com', 'your_api_key'))
         self.assertEqual(1, mock_response.json.call_count)
