@@ -56,6 +56,38 @@ class TestHTTPMethod(unittest.TestCase):
         self.assertEqual(expected_response, ast.literal_eval(str(e.exception)))
 
 
+class TestUser(unittest.TestCase):
+    def setUp(self):
+        self.client = API()
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_users(self, mock_get):
+        mock_response = mock.Mock()
+        return_value = [
+            {
+                "email": "han@example.com",
+                "id": 1,
+                "is_active": 'true',
+                "name": "Han Solo"
+            },
+            {
+                "email": "jabba@example.com",
+                "id": 2,
+                "is_active": 'true',
+                "name": "Jabba the Hutt"
+            }
+        ]
+        expected_response = copy.deepcopy(return_value)
+        url = 'https://<server>/index.php?/api/v2/get_users'
+        mock_response.json.return_value = return_value
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        actual_response = self.client.users()
+        mock_get.assert_called_once_with(url, headers={'Content-Type': 'application/json'}, params=None, auth=('user@yourdomain.com', 'your_api_key'))
+        self.assertEqual(1, mock_response.json.call_count)
+        self.assertEqual(expected_response, actual_response)
+
+
 if __name__ == "__main__":
     unittest.main()
 
