@@ -83,9 +83,11 @@ class TestUser(unittest.TestCase):
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         actual_response = self.client.users()
+        actual_response = self.client.users()  # second call to verify cache hit
         mock_get.assert_called_once_with(url, headers={'Content-Type': 'application/json'}, params=None, auth=('user@yourdomain.com', 'your_api_key'))
         self.assertEqual(1, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
+
 
 
 if __name__ == "__main__":
