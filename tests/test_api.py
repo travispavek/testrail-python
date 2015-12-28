@@ -61,14 +61,7 @@ class TestHTTPMethod(unittest.TestCase):
 class TestUser(unittest.TestCase):
     def setUp(self):
         self.client = API()
-
-    def tearDown(self):
-        util.reset_shared_state(self.client)
-
-    @mock.patch('testrail.api.requests.get')
-    def test_get_users(self, mock_get):
-        mock_response = mock.Mock()
-        return_value = [
+        self.mock_user_data = [
             {
                 "email": "han@example.com",
                 "id": 1,
@@ -82,9 +75,16 @@ class TestUser(unittest.TestCase):
                 "name": "Jabba the Hutt"
             }
         ]
-        expected_response = copy.deepcopy(return_value)
+
+    def tearDown(self):
+        util.reset_shared_state(self.client)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_users(self, mock_get):
+        mock_response = mock.Mock()
+        expected_response = copy.deepcopy(self.mock_user_data)
         url = 'https://<server>/index.php?/api/v2/get_users'
-        mock_response.json.return_value = return_value
+        mock_response.json.return_value = self.mock_user_data
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         actual_response = self.client.users()
@@ -99,23 +99,9 @@ class TestUser(unittest.TestCase):
     def test_get_users_cache_timeout(self, mock_get):
         self.client = API()
         mock_response = mock.Mock()
-        return_value = [
-            {
-                "email": "han@example.com",
-                "id": 1,
-                "is_active": 'true',
-                "name": "Han Solo"
-            },
-            {
-                "email": "jabba@example.com",
-                "id": 2,
-                "is_active": 'true',
-                "name": "Jabba the Hutt"
-            }
-        ]
-        expected_response = copy.deepcopy(return_value)
+        expected_response = copy.deepcopy(self.mock_user_data)
         url = 'https://<server>/index.php?/api/v2/get_users'
-        mock_response.json.return_value = return_value
+        mock_response.json.return_value = self.mock_user_data
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         actual_response = self.client.users()
