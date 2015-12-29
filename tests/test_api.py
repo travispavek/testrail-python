@@ -32,7 +32,12 @@ class TestHTTPMethod(unittest.TestCase):
 
         url = 'https://<server>/index.php?/api/v2/get_project/1'
         actual_response = self.client._get('get_project/1')
-        mock_get.assert_called_once_with(url, headers={'Content-Type': 'application/json'}, params=None, auth=('user@yourdomain.com', 'your_api_key'))
+        mock_get.assert_called_once_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
         self.assertEqual(1, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
 
@@ -46,14 +51,21 @@ class TestHTTPMethod(unittest.TestCase):
             'error': 'Invalid or unknown test plan'
         }
         url = 'https://<server>/index.php?/api/v2/get_plan/200'
-        mock_response.json.return_value = {'error': 'Invalid or unknown test plan'}
+        mock_response.json.return_value = {
+            'error': 'Invalid or unknown test plan'
+        }
         mock_response.status_code = 400
         mock_response.url = url
         mock_get.return_value = mock_response
 
         with self.assertRaises(TestRailError) as e:
             self.client._get('get_plan/200')
-        mock_get.assert_called_once_with(url, headers={'Content-Type': 'application/json'}, params=None, auth=('user@yourdomain.com', 'your_api_key'))
+        mock_get.assert_called_once_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
         self.assertEqual(1, mock_response.json.call_count)
         self.assertEqual(expected_response, ast.literal_eval(str(e.exception)))
 
@@ -89,9 +101,16 @@ class TestUser(unittest.TestCase):
         mock_get.return_value = mock_response
         actual_response = self.client.users()
         timeout = self.client._timeout
-        self.client._users['ts'] = datetime.now() - timedelta(seconds=timeout-1)  # set timeout to 1 second from now
-        actual_response = self.client.users()  # second call to verify cache hit
-        mock_get.assert_called_once_with(url, headers={'Content-Type': 'application/json'}, params=None, auth=('user@yourdomain.com', 'your_api_key'))
+        # set timeout to 1 second from now
+        delta = timedelta(seconds=timeout-1)
+        self.client._users['ts'] = datetime.now() - delta
+        actual_response = self.client.users()  # verify cache hit
+        mock_get.assert_called_once_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
         self.assertEqual(1, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
 
@@ -108,7 +127,12 @@ class TestUser(unittest.TestCase):
         timeout = self.client._timeout
         self.client._users['ts'] = datetime.now() - timedelta(seconds=timeout)
         actual_response = self.client.users()  # verity cache timed out
-        mock_get.assert_called_twice_with(url, headers={'Content-Type': 'application/json'}, params=None, auth=('user@yourdomain.com', 'your_api_key'))
+        mock_get.assert_called_twice_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
         self.assertEqual(2, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
 
