@@ -51,10 +51,16 @@ class API(object):
         return self._users['value']
 
     def user_with_id(self, user_id):
-        return filter(lambda x: x['id'] == user_id, self.users())[0]
+        try:
+            return filter(lambda x: x['id'] == user_id, self.users())[0]
+        except IndexError:
+            raise TestRailError("User ID '%s' was not found" % user_id)
 
     def user_with_email(self, user_email):
-        return filter(lambda x: x['email'] == user_email, self.users())[0]
+        try:
+            return filter(lambda x: x['email'] == user_email, self.users())[0]
+        except IndexError:
+            raise TestRailError("User email '%s' was not found" % user_email)
 
     # Project Requests
     def projects(self):

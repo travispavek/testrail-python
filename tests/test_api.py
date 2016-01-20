@@ -88,13 +88,15 @@ class TestUser(unittest.TestCase):
             }
         ]
 
+        self.users = copy.deepcopy(self.mock_user_data)
+
     def tearDown(self):
         util.reset_shared_state(self.client)
 
     @mock.patch('testrail.api.requests.get')
     def test_get_users(self, mock_get):
         mock_response = mock.Mock()
-        expected_response = copy.deepcopy(self.mock_user_data)
+        expected_response = self.users
         url = 'https://<server>/index.php?/api/v2/get_users'
         mock_response.json.return_value = self.mock_user_data
         mock_response.status_code = 200
@@ -118,7 +120,7 @@ class TestUser(unittest.TestCase):
     def test_get_users_cache_timeout(self, mock_get):
         self.client = API()
         mock_response = mock.Mock()
-        expected_response = copy.deepcopy(self.mock_user_data)
+        expected_response = self.users
         url = 'https://<server>/index.php?/api/v2/get_users'
         mock_response.json.return_value = self.mock_user_data
         mock_response.status_code = 200
@@ -136,6 +138,69 @@ class TestUser(unittest.TestCase):
         self.assertEqual(2, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
 
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_with_id(self, mock_get):
+        mock_response = mock.Mock()
+        expected_response = filter(
+            lambda x: x if x['id'] == 2 else None, self.users)[0]
+        url = 'https://<server>/index.php?/api/v2/get_users'
+        mock_response.json.return_value = self.mock_user_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        actual_response = self.client.user_with_id(2)
+        actual_response = self.client.user_with_id(2)  # verify cache hit
+        mock_get.assert_called_once_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
+        self.assertEqual(1, mock_response.json.call_count)
+        self.assertEqual(expected_response, actual_response)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_invalid_id(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_user_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        with self.assertRaises(TestRailError) as e:
+            self.client.user_with_id(300)
+        err_msg = "User ID '300' was not found"
+        self.assertEqual(err_msg, str(e.exception))
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_with_email(self, mock_get):
+        mock_response = mock.Mock()
+        expected_response = filter(
+            lambda x: x if x['email'] == 'han@example.com' else None,
+            self.users)[0]
+        url = 'https://<server>/index.php?/api/v2/get_users'
+        mock_response.json.return_value = self.mock_user_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        actual_response = self.client.user_with_email('han@example.com')
+        # verify cache hit
+        actual_response = self.client.user_with_email('han@example.com')
+        mock_get.assert_called_once_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
+        self.assertEqual(1, mock_response.json.call_count)
+        self.assertEqual(expected_response, actual_response)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_invalid_email(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_user_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        with self.assertRaises(TestRailError) as e:
+            self.client.user_with_email('invalid@example.com')
+        err_msg = "User email 'invalid@example.com' was not found"
+        self.assertEqual(err_msg, str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()
