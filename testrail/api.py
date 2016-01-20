@@ -30,7 +30,8 @@ class API(object):
         self.__dict__ = self._shared_state
         with open('%s/.testrail.conf' % expanduser('~'), 'r') as f:
             config = yaml.load(f)
-        self._auth = (config['testrail']['user_email'], config['testrail']['user_pass'])
+        self._auth = (config['testrail']['user_email'],
+                      config['testrail']['user_pass'])
         self._url = config['testrail']['url']
         self.headers = {'Content-Type': 'application/json'}
 
@@ -71,7 +72,10 @@ class API(object):
         return self._projects['value']
 
     def project_with_id(self, project_id):
-        return filter(lambda x: x['id'] == project_id, self.projects())[0]
+        try:
+            return filter(lambda x: x['id'] == project_id, self.projects())[0]
+        except IndexError:
+            raise TestRailError("Project ID '%s' was not found" % project_id)
 
     # Suite Requests
     def suites(self, project_id=None):
@@ -87,7 +91,7 @@ class API(object):
         try:
             return filter(lambda x: x['id'] == suite_id, self.suites())[0]
         except IndexError:
-            return None
+            raise TestRailError("Suite ID '%s' was not found" % suite_id)
 
     # Case Requests
     def cases(self, project_id=None, suite_id=10):
@@ -101,7 +105,10 @@ class API(object):
         return self._cases[project_id][suite_id]['value']
 
     def case_with_id(self, case_id):
-        return filter(lambda x: x['id'] == case_id, self.cases())[0]
+        try:
+            return filter(lambda x: x['id'] == case_id, self.cases())[0]
+        except IndexError:
+            raise TestRailError("Case ID '%s' was not found" % case_id)
 
     def case_types(self):
         if self._refresh(self._case_types['ts']):
@@ -113,9 +120,11 @@ class API(object):
 
     def case_type_with_id(self, case_type_id):
         try:
-            return filter(lambda x: x['id'] == case_type_id, self.case_types())[0]
+            return filter(
+                lambda x: x['id'] == case_type_id, self.case_types())[0]
         except IndexError:
-            return None
+            return TestRailError(
+                "Case Type ID '%s' was not found" % case_type_id)
 
     # Milestone Requests
     def milestones(self, project_id):
@@ -131,9 +140,11 @@ class API(object):
             return self._get('get_milestone/%s' % milestone_id)
         else:
             try:
-                return filter(lambda x: x['id'] == milestone_id, self.milestones(project_id))[0]
+                return filter(lambda x: x['id'] == milestone_id,
+                              self.milestones(project_id))[0]
             except IndexError:
-                return None
+                raise TestRailError(
+                    "Milestone ID '%s' was not found" % milestone_id)
 
     def add_milestone(self, milestone):
         fields = ['name', 'description', 'due_on']
@@ -160,15 +171,17 @@ class API(object):
 
     def priority_with_id(self, priority_id):
         try:
-            return filter(lambda x: x['id'] == priority_id, self.priorities())[0]
+            return filter(
+                lambda x: x['id'] == priority_id, self.priorities())[0]
         except IndexError:
-            return None
+            raise TestRailError("Priority ID '%s' was not found")
 
     # Section Requests
     def sections(self, project_id, suite_id=-1):
         if self._refresh(self._sections[project_id][suite_id]['ts']):
             params = {'suite_id': suite_id} if suite_id != -1 else None
-            _sections = self._get('get_sections/%s' % project_id, params=params)
+            _sections = self._get(
+                'get_sections/%s' % project_id, params=params)
             self._sections[project_id][suite_id]['value'] = _sections
             self._sections[project_id][suite_id]['ts'] = datetime.now()
         return self._sections[project_id][suite_id]['value']
@@ -177,7 +190,7 @@ class API(object):
         try:
             return filter(lambda x: x['id'] == section_id, self.sections())[0]
         except IndexError:
-            return None
+            raise TestRailError("Section ID '%s' was not found" % section_id)
 
     # Plan Requests
     def plans(self, project_id):
@@ -208,7 +221,7 @@ class API(object):
         try:
             return filter(lambda x: x['id'] == run_id, self.runs())[0]
         except IndexError:
-            return None
+            raise TestRailError("Run ID '%s' was not found" % run_id)
 
     # Test Requests
     def tests(self, run_id):
@@ -222,7 +235,7 @@ class API(object):
         try:
             return filter(lambda x: x['id'] == test_id, self.tests())[0]
         except IndexError:
-            return None
+            raise TestRailError("Test ID '%s' was not found" % test_id)
 
     # Result Requests
     def results(self, test_id):
@@ -233,12 +246,25 @@ class API(object):
         return self._results[test_id]['value']
 
     def add_result(self, data):
-        fields = ['status_id', 'comment', 'version', 'elapsed', 'defects', 'assignedto_id']
+        fields = ['status_id',
+                  'comment',
+                  'version',
+                  'elapsed',
+                  'defects',
+                  'assignedto_id']
+
         payload = self._payload_gen(fields, data)
         self._post('add_result/%s' % data['test_id'], payload)
 
     def add_results(self, results, run_id):
-        fields = ['status_id', 'test_id', 'comment', 'version', 'elapsed', 'defects', 'assignedto_id']
+        fields = ['status_id',
+                  'test_id',
+                  'comment',
+                  'version',
+                  'elapsed',
+                  'defects',
+                  'assignedto_id']
+
         payload = {'results': list()}
         for result in results:
             payload['results'].append(self._payload_gen(fields, result))
@@ -256,7 +282,7 @@ class API(object):
         try:
             return filter(lambda x: x['id'] == status_id, self.statuses())[0]
         except IndexError:
-            return None
+            raise TestRailError("Status ID '%s' was not found" % status_id)
 
     def configs(self):
         if self._refresh(self._configs['ts']):
