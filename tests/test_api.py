@@ -8,6 +8,15 @@ from datetime import datetime, timedelta
 import util
 
 
+class TestBase(unittest.TestCase):
+    def setUp(self):
+        self.client = API()
+
+    def test_set_project_id(self):
+        self.client.set_project_id(20)
+        self.assertEqual(self.client._project_id, 20)
+
+
 class TestHTTPMethod(unittest.TestCase):
     def setUp(self):
         self.client = API()
@@ -214,7 +223,7 @@ class TestProject(unittest.TestCase):
                 "is_completed": False,
                 "name": "Project1",
                 "show_announcement": True,
-                "url": "http://<server>/testrail/index.php?/projects/overview/1"
+                "url": "http://<server>/index.php?/projects/overview/1"
             },
             {
                 "announcement": "..",
@@ -223,7 +232,7 @@ class TestProject(unittest.TestCase):
                 "is_completed": True,
                 "name": "Project2",
                 "show_announcement": True,
-                "url": "http://<server>/testrail/index.php?/projects/overview/2"
+                "url": "http://<server>/index.php?/projects/overview/2"
             }
         ]
 
@@ -308,24 +317,25 @@ class TestProject(unittest.TestCase):
         err_msg = "Project ID '300' was not found"
         self.assertEqual(err_msg, str(e.exception))
 
+
 class TestSuite(unittest.TestCase):
     def setUp(self):
         self.client = API()
-        self.client._project_id = 1
+        self.client.set_project_id(1)
         self.mock_suites_data_1 = [
             {
                 "description": "..",
                 "id": 1,
                 "name": "Setup & Installation",
                 "project_id": 1,
-                "url": "http://<server>/testrail/index.php?/suites/view/1"
+                "url": "http://<server>/index.php?/suites/view/1"
             },
             {
                 "description": "..",
                 "id": 2,
                 "name": "Setup & Installation",
                 "project_id": 1,
-                "url": "http://<server>/testrail/index.php?/suites/view/2"
+                "url": "http://<server>/index.php?/suites/view/2"
             }]
         self.mock_suites_data_2 = [
             {
@@ -333,14 +343,14 @@ class TestSuite(unittest.TestCase):
                 "id": 3,
                 "name": "Setup & Installation",
                 "project_id": 2,
-                "url": "http://<server>/testrail/index.php?/suites/view/1"
+                "url": "http://<server>/index.php?/suites/view/1"
             },
             {
                 "description": "..",
                 "id": 4,
                 "name": "Setup & Installation",
                 "project_id": 2,
-                "url": "http://<server>/testrail/index.php?/suites/view/2"
+                "url": "http://<server>/index.php?/suites/view/2"
             }
         ]
 
