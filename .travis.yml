@@ -9,6 +9,6 @@ install:
   - pip install coveralls
   - pip install coverage
   - cp tests/testrail.conf ~/.testrail.conf
-script: nosetests --with-coverage -v ./tests
+script: nosetests --cover-package=testrail -v ./tests
 after_success:
   - coveralls
