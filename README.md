@@ -1,4 +1,6 @@
 # TestRail Python Library
+[![Build Status](https://travis-ci.org/travispavek/testrail-python.svg?branch=master)](https://travis-ci.org/travispavek/testrail-python)
+[![Coverage Status](https://coveralls.io/repos/github/travispavek/testrail-python/badge.svg?branch=master)](https://coveralls.io/github/travispavek/testrail-python?branch=master)
 
 This Python Library allows you to easily publish results and manage your TestRail instance.  
 
