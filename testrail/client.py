@@ -148,7 +148,7 @@ class TestRail(object):
     # Plan Methods
     @methdispatch
     def plans(self):
-        return map(Plan, self.api.plans(self._project_id))
+        return PlanContainer(map(Plan, self.api.plans(self._project_id)))
 
     @plans.register(Milestone)
     def _plans_for_milestone(self, obj):
