@@ -1,24 +1,23 @@
-
-from project import Project
-from user import User
-from case import Case
-from suite import Suite
-from plan import Plan, PlanContainer
-from run import Run, RunContainer
-from test import Test
-from result import Result
-from milestone import Milestone
-from status import Status
-from configuration import Config, ConfigContainer
-import api
-from helper import methdispatch, singleresult
 import re
+
+import api
+from case import Case
+from configuration import Config, ConfigContainer
+from helper import methdispatch, singleresult
+from milestone import Milestone
+from plan import Plan, PlanContainer
+from project import Project
+from result import Result
+from run import Run, RunContainer
+from status import Status
+from suite import Suite
+from test import Test
+from user import User
 
 
 class TestRail(object):
     def __init__(self, project_id=0):
         self.api = api.API()
-        #project_id = self.project(project)
         self.api.set_project_id(project_id)
         self._project_id = project_id
 
@@ -41,10 +40,12 @@ class TestRail(object):
 
     # Project Methods
     def completed_projects(self):
-        return map(Project, filter(lambda x: x['is_completed'] is True, self.api.projects()))
+        return map(Project, filter(
+            lambda x: x['is_completed'] is True, self.api.projects()))
 
     def active_projects(self):
-        return map(Project, filter(lambda x: x['is_completed'] is False, self.api.projects()))
+        return map(Project, filter(
+            lambda x: x['is_completed'] is False, self.api.projects()))
 
     def projects(self):
         return map(Project, self.api.projects())
@@ -125,7 +126,8 @@ class TestRail(object):
     @milestone.register(str)
     @singleresult
     def _milestone_by_name(self, name):
-        return filter(lambda m: m.name.lower() == name.lower(), self.milestones())
+        return filter(
+            lambda m: m.name.lower() == name.lower(), self.milestones())
 
     @milestone.register(int)
     @singleresult
@@ -152,7 +154,8 @@ class TestRail(object):
 
     @plans.register(Milestone)
     def _plans_for_milestone(self, obj):
-        return PlanContainer(filter(lambda p: p.milestone.id == obj.id, self.plans()))
+        return PlanContainer(filter(
+            lambda p: p.milestone.id == obj.id, self.plans()))
 
     @methdispatch
     def plan(self):
@@ -181,7 +184,8 @@ class TestRail(object):
 
     @runs.register(Milestone)
     def _runs_for_milestone(self, obj):
-        return RunContainer(filter(lambda r: r.milestone.id == obj.id, self.runs()))
+        return RunContainer(filter(
+            lambda r: r.milestone.id == obj.id, self.runs()))
 
     @methdispatch
     def run(self):
@@ -208,7 +212,8 @@ class TestRail(object):
     @case.register(str)
     @singleresult
     def _case_by_title(self, title, suite):
-        return filter(lambda c: c.title.lower() == title.lower(), self.cases(suite))
+        return filter(
+            lambda c: c.title.lower() == title.lower(), self.cases(suite))
 
     @case.register(int)
     @singleresult
@@ -234,7 +239,8 @@ class TestRail(object):
     @test.register(int)
     @singleresult
     def _test_by_id(self, test_id, run):
-        return filter(lambda t: t.raw_data()['case_id'] == test_id, self.tests(run))
+        return filter(
+            lambda t: t.raw_data()['case_id'] == test_id, self.tests(run))
 
     # Result Methods
     def results(self, test_id):

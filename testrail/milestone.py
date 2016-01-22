@@ -1,8 +1,8 @@
 from datetime import datetime
-from project import Project
-import api
 import time
-from helper import ContainerIter
+
+import api
+from project import Project
 
 
 class Milestone(object):
@@ -59,7 +59,8 @@ class Milestone(object):
     @property
     def project(self):
         try:
-            return Project(self.api.project_with_id(self._content.get('project_id')))
+            return Project(
+                self.api.project_with_id(self._content.get('project_id')))
         except IndexError:
             return None
 

@@ -1,10 +1,11 @@
+from datetime import datetime
+
 import api
-from user import User
+import entry
+from helper import ContainerIter
 from milestone import Milestone
 from project import Project
-from datetime import datetime
-from helper import ContainerIter
-import entry
+from user import User
 
 
 class Plan(object):
@@ -23,7 +24,8 @@ class Plan(object):
     @property
     def completed_on(self):
         try:
-            return datetime.fromtimestamp(int(self._content.get('completed_on')))
+            return datetime.fromtimestamp(int(
+                self._content.get('completed_on')))
         except TypeError:
             return None
 
@@ -50,7 +52,8 @@ class Plan(object):
     def entries(self):
         # ToDo convert entries to run objects
         if self._content.get('entries') is None:
-            self._content['entries'] = self.api.plan_with_id(self.id).get('entries')
+            self._content['entries'] = self.api.plan_with_id(
+                self.id).get('entries')
         return map(entry.Entry, self._content.get('entries'))
 
     @property
@@ -67,7 +70,8 @@ class Plan(object):
 
     @property
     def milestone(self):
-        return Milestone(self.api.milestone_with_id(self._content.get('milestone_id'), self._content.get('project_id')))
+        return Milestone(self.api.milestone_with_id(self._content.get(
+            'milestone_id'), self._content.get('project_id')))
 
     @property
     def name(self):
@@ -79,7 +83,8 @@ class Plan(object):
 
     @property
     def project(self):
-        return Project(self.api.project_with_id(self._content.get('project_id')))
+        return Project(
+            self.api.project_with_id(self._content.get('project_id')))
 
     @property
     def retest_count(self):

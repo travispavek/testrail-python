@@ -1,10 +1,11 @@
-import api
-from user import User
-from milestone import Milestone
-from project import Project
-import plan
 from datetime import datetime
+
+import api
 from helper import ContainerIter
+from milestone import Milestone
+import plan
+from project import Project
+from user import User
 
 
 class Run(object):
@@ -23,7 +24,8 @@ class Run(object):
     @property
     def completed_on(self):
         try:
-            return datetime.fromtimestamp(int(self._content.get('completed_on')))
+            return datetime.fromtimestamp(
+                int(self._content.get('completed_on')))
         except TypeError:
             return None
 
@@ -72,7 +74,8 @@ class Run(object):
 
     @property
     def milestone(self):
-        return Milestone(self.api.milestone_with_id(self._content.get('milestone_id'), self._content.get('project_id')))
+        return Milestone(self.api.milestone_with_id(self._content.get(
+            'milestone_id'), self._content.get('project_id')))
 
     @property
     def plan(self):

@@ -1,5 +1,5 @@
-from project import Project
 from helper import ContainerIter, methdispatch, singleresult
+from project import Project
 
 
 class _InnerConfig(object):
@@ -37,7 +37,8 @@ class Config(object):
 
     @property
     def configs(self):
-        return _InnerConfigContainer(map(_InnerConfig, self._content.get('configs')))
+        return _InnerConfigContainer(
+            map(_InnerConfig, self._content.get('configs')))
 
 
 class ConfigContainer(ContainerIter):

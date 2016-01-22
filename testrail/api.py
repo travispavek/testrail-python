@@ -1,11 +1,13 @@
-from datetime import datetime, timedelta
-import requests
 import collections
+from datetime import datetime, timedelta
 from os.path import expanduser
-import yaml
-from helper import TestRailError
-nested_dict = lambda: collections.defaultdict(nested_dict)
 
+import requests
+import yaml
+
+from helper import TestRailError
+
+nested_dict = lambda: collections.defaultdict(nested_dict)
 
 class API(object):
     _ts = datetime.now() - timedelta(days=1)

@@ -1,5 +1,5 @@
-import run
 from api import API
+import run
 from suite import Suite
 
 

@@ -1,6 +1,7 @@
-from singledispatch import singledispatch
 from functools import update_wrapper
 import inspect
+
+from singledispatch import singledispatch
 
 
 class TestRailError(Exception):
@@ -30,7 +31,8 @@ def singleresult(func):
     def func_wrapper(*args, **kw):
         items = func(*args)
         if len(items) > 1:
-            raise TestRailError('identifier "%s" returned multiple results' % args[1])
+            raise TestRailError(
+                'identifier "%s" returned multiple results' % args[1])
         elif len(items) == 0:
             raise TestRailError('identifier "%s" returned no result' % args[1])
         return items[0]

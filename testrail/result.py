@@ -1,8 +1,9 @@
-import api
 import datetime
-from user import User
+
+import api
 from status import Status
 from test import Test
+from user import User
 
 
 class Result(object):

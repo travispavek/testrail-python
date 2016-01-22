@@ -1,11 +1,11 @@
 import api
-from user import User
 from case import Case
+from casetype import CaseType
 from milestone import Milestone
 from project import Project
 from run import Run
 from status import Status
-from casetype import CaseType
+from user import User
 
 
 class Test(object):
@@ -35,11 +35,13 @@ class Test(object):
 
     @property
     def milestone(self):
-        return Milestone(self.api.milestone_with_id(self._content.get('milestone_id'), self._content.get('project_id')))
+        return Milestone(self.api.milestone_with_id(self._content.get(
+            'milestone_id'), self._content.get('project_id')))
 
     @property
     def project(self):
-        return Project(self.api.project_with_id(self._content.get('project_id')))
+        return Project(
+            self.api.project_with_id(self._content.get('project_id')))
 
     @property
     def refs(self):
@@ -59,7 +61,8 @@ class Test(object):
 
     @property
     def case_type(self):
-        return CaseType(self.api.case_type_with_id(self._content.get('type_id')))
+        return CaseType(self.api.case_type_with_id(
+            self._content.get('type_id')))
 
     def raw_data(self):
         return self._content

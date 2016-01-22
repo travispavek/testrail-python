@@ -1,11 +1,12 @@
-from user import User
+from datetime import datetime
+
+import api
+from casetype import CaseType
 from milestone import Milestone
 from priority import Priority
-from suite import Suite
 from section import Section
-from casetype import CaseType
-import api
-from datetime import datetime
+from suite import Suite
+from user import User
 
 
 class Case(object):

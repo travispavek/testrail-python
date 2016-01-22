@@ -1,6 +1,7 @@
+from datetime import datetime
+
 import api
 from project import Project
-from datetime import datetime
 
 
 class Suite(object):
@@ -15,7 +16,8 @@ class Suite(object):
     @property
     def completed_on(self):
         try:
-            return datetime.fromtimestamp(int(self._content.get('completed_on')))
+            return datetime.fromtimestamp(
+                int(self._content.get('completed_on')))
         except TypeError:
             return None
 
@@ -41,7 +43,8 @@ class Suite(object):
 
     @property
     def project(self):
-        return Project(self.api.project_with_id(self._content.get('project_id')))
+        return Project(
+            self.api.project_with_id(self._content.get('project_id')))
 
     @property
     def url(self):
