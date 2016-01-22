@@ -1,3 +1,8 @@
+from datetime import datetime
+
+from helper import ContainerIter
+
+
 class Project(object):
     def __init__(self, response={}):
         self._content = response
@@ -5,7 +10,7 @@ class Project(object):
     @property
     def announcement(self):
         """The description/announcement of the project"""
-        return self._content.get('annoucement')
+        return self._content.get('announcement')
 
     @announcement.setter
     def announcement(self, value):
@@ -15,8 +20,11 @@ class Project(object):
     @property
     def completed_on(self):
         """The date/time when the project was marked as completed"""
-        # ToDo convert to datetime?
-        return self._content.get('completed_on')
+        try:
+            return datetime.fromtimestamp(int(
+                self._content.get('completed_on')))
+        except TypeError:
+            return None
 
     @completed_on.setter
     def completed_on(self, value):
@@ -81,3 +89,21 @@ class Project(object):
     @url.setter
     def url(self, value):
         self._content['url'] = value
+
+
+class ProjectContainer(ContainerIter):
+    def __init__(self, projects):
+        super(ProjectContainer, self).__init__(projects)
+        self._projects = projects
+
+    def __len__(self):
+        return len(self._projects)
+
+    def __getitem__(self, i):
+        return self._projects[i]
+
+    def completed(self):
+        return filter(lambda p: p.is_completed is True, self._projects)
+
+    def active(self):
+        return filter(lambda p: p.is_completed is False, self._projects)

@@ -6,7 +6,7 @@ from configuration import Config, ConfigContainer
 from helper import methdispatch, singleresult
 from milestone import Milestone
 from plan import Plan, PlanContainer
-from project import Project
+from project import Project, ProjectContainer
 from result import Result
 from run import Run, RunContainer
 from status import Status
@@ -39,16 +39,8 @@ class TestRail(object):
         raise NotImplementedError
 
     # Project Methods
-    def completed_projects(self):
-        return map(Project, filter(
-            lambda x: x['is_completed'] is True, self.api.projects()))
-
-    def active_projects(self):
-        return map(Project, filter(
-            lambda x: x['is_completed'] is False, self.api.projects()))
-
     def projects(self):
-        return map(Project, self.api.projects())
+        return ProjectContainer(map(Project, self.api.projects()))
 
     @methdispatch
     def project(self):
