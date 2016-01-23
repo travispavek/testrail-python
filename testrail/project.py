@@ -1,6 +1,7 @@
 from datetime import datetime
+from time import mktime
 
-from helper import ContainerIter
+from helper import ContainerIter, TestRailError
 
 
 class Project(object):
@@ -27,9 +28,11 @@ class Project(object):
             return None
 
     @completed_on.setter
-    def completed_on(self, value):
-        # ToDo figure out what type should be and convert to unix timestamp
-        self._content['completed_on'] = value
+    def completed_on(self, date):
+        try:
+            self._content['completed_on'] = mktime(date.timetuple())
+        except AttributeError:
+            raise TestRailError('input must be datetime object')
 
     @property
     def id(self):
