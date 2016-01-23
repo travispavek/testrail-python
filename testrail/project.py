@@ -14,19 +14,16 @@ class Project(object):
 
     @announcement.setter
     def announcement(self, msg):
-        if type(msg) == str:
-            self._content['announcement'] = msg
-        else:
+        if type(msg) != str:
             raise TestRailError('input must be a string')
+        self._content['announcement'] = msg
 
     @property
     def completed_on(self):
         """The date/time when the project was marked as completed"""
-        try:
-            return datetime.fromtimestamp(int(
-                self._content.get('completed_on')))
-        except TypeError:
-            return None
+        if self.is_completed:
+            return datetime.fromtimestamp(self._content.get('completed_on'))
+        return None
 
     @property
     def id(self):
@@ -40,6 +37,8 @@ class Project(object):
 
     @is_completed.setter
     def is_completed(self, value):
+        if type(value) != bool:
+            raise TestRailError('input must be a boolean')
         self._content['is_completed'] = value
 
     @property
@@ -49,10 +48,9 @@ class Project(object):
 
     @name.setter
     def name(self, value):
-        if type(value) == str:
-            self._content['name'] = value
-        else:
+        if type(value) != str:
             raise TestRailError('input must be a string')
+        self._content['name'] = value
 
     @property
     def show_announcement(self):
@@ -61,10 +59,9 @@ class Project(object):
 
     @show_announcement.setter
     def show_announcement(self, value):
-        if type(value) == bool:
-            self._content['show_announcement'] = value
-        else:
+        if type(value) != bool:
             raise TestRailError('input must be a boolean')
+        self._content['show_announcement'] = value
 
     @property
     def suite_mode(self):
