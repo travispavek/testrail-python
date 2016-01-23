@@ -9,7 +9,7 @@ class TestProject(unittest.TestCase):
     def setUp(self):
         self.mock_data_completed = {
             "announcement": "..",
-            "completed_on": "1453504099",
+            "completed_on": 1453504099,
             "id": 1,
             "is_completed": True,
             "name": "Project1",
@@ -69,6 +69,16 @@ class TestProject(unittest.TestCase):
     def test_get_is_completed(self):
         self.assertEqual(self.project.is_completed, True)
 
+    def test_set_is_completed_type(self):
+        with self.assertRaises(TestRailError) as e:
+            self.project.is_completed = 1
+        self.assertEqual(str(e.exception), 'input must be a boolean')
+
+    def test_set_is_completed(self):
+        self.project.is_completed = False
+        self.assertEqual(self.project.is_completed, False)
+        self.assertEqual(self.project._content['is_completed'], False)
+
     def test_get_name_type(self):
         self.assertEqual(type(self.project.name), str)
 
@@ -122,6 +132,7 @@ class TestProject(unittest.TestCase):
     def test_get_url(self):
         self.assertEqual(
             self.project.url, 'http://<server>/index.php?/projects/overview/1')
+
 
 class TestProjectContainer(unittest.TestCase):
     def setUp(self):
