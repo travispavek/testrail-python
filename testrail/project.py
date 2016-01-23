@@ -14,9 +14,11 @@ class Project(object):
         return self._content.get('announcement')
 
     @announcement.setter
-    def announcement(self, value):
-        # ToDo verify value is string
-        self._content['announcement'] = value
+    def announcement(self, msg):
+        if type(msg) == str:
+            self._content['announcement'] = msg
+        else:
+            raise TestRailError('input must be a string')
 
     @property
     def completed_on(self):
@@ -38,10 +40,6 @@ class Project(object):
     def id(self):
         """The unique ID of the project"""
         return self._content.get('id')
-
-    @id.setter
-    def id(self, value):
-        self._content['id'] = value
 
     @property
     def is_completed(self):
