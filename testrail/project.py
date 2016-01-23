@@ -29,13 +29,6 @@ class Project(object):
         except TypeError:
             return None
 
-    @completed_on.setter
-    def completed_on(self, date):
-        try:
-            self._content['completed_on'] = mktime(date.timetuple())
-        except AttributeError:
-            raise TestRailError('input must be datetime object')
-
     @property
     def id(self):
         """The unique ID of the project"""
@@ -57,8 +50,10 @@ class Project(object):
 
     @name.setter
     def name(self, value):
-        # ToDo verity it is a string?
-        self._content['name'] = value
+        if type(value) == str:
+            self._content['name'] = value
+        else:
+            raise TestRailError('input must be a string')
 
     @property
     def show_announcement(self):
@@ -67,8 +62,10 @@ class Project(object):
 
     @show_announcement.setter
     def show_announcement(self, value):
-        # Verify boolean
-        self._content['show_announcement'] = value
+        if type(value) == bool:
+            self._content['show_announcement'] = value
+        else:
+            raise TestRailError('input must be a boolean')
 
     @property
     def suite_mode(self):
@@ -79,8 +76,12 @@ class Project(object):
         return self._content.get('suite_mode')
 
     @suite_mode.setter
-    def suite_mode(self, value):
-        self._content['suite_mode'] = value
+    def suite_mode(self, mode):
+        if type(mode) != int:
+            raise TestRailError('input must be an integer')
+        if mode not in [1, 2, 3]:
+            raise TestRailError('input must be a 1, 2, or 3')
+        self._content['suite_mode'] = mode
 
     @property
     def url(self):
