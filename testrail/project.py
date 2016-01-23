@@ -89,10 +89,6 @@ class Project(object):
         """The address/URL of the project in the user interface"""
         return self._content.get('url')
 
-    @url.setter
-    def url(self, value):
-        self._content['url'] = value
-
 
 class ProjectContainer(ContainerIter):
     def __init__(self, projects):
