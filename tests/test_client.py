@@ -1,10 +1,10 @@
 import unittest
-from datetime import datetime
 
 import mock
 
-from testrail.project import Project, ProjectContainer
+from testrail.project import Project
 import testrail
+
 
 class TestProject(unittest.TestCase):
     def setUp(self):
@@ -36,7 +36,6 @@ class TestProject(unittest.TestCase):
     @mock.patch('testrail.api.requests.get')
     def test_get_projects(self, mock_get):
         mock_response = mock.Mock()
-        url = 'https://<server>/index.php?/api/v2/get_projects'
         mock_response.json.return_value = self.mock_project_data
         mock_response.status_code = 200
         mock_get.return_value = mock_response
@@ -44,12 +43,3 @@ class TestProject(unittest.TestCase):
         self.assertEqual(len(projects), 2)
         for project in projects:
             assert isinstance(project, Project)
-
-    def test_project_announcement(self):
-        project = Project(self.mock_project_data[0])
-        self.assertEqual(project.announcement, '..')
-
-    def test_project_completed_on(self):
-        project = Project(self.mock_project_data[0])
-        timestamp = datetime.fromtimestamp(1453504099)
-        self.assertEqual(project.completed_on, timestamp)
