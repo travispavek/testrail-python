@@ -1,5 +1,4 @@
 from datetime import datetime
-from time import mktime
 
 from helper import ContainerIter, TestRailError
 
