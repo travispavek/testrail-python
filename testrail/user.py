@@ -12,7 +12,7 @@ class User(object):
 
     @property
     def is_active(self):
-        return bool(self._content.get('is_active'))
+        return self._content.get('is_active')
 
     @property
     def name(self):
