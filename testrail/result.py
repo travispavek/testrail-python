@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime
 
 import api
+from helper import TestRailError
 from status import Status
 from test import Test
 from user import User
@@ -17,6 +18,12 @@ class Result(object):
 
     @assigned_to.setter
     def assigned_to(self, user):
+        if type(user) != User:
+            raise TestRailError('input must be a User object')
+        try:
+            self.api.user_with_id(user.id)
+        except TestRailError:
+            raise TestRailError("User with ID '%s' is not valid" % user.id)
         self._content['assignedto_id'] = user.id
 
     @property
@@ -25,6 +32,8 @@ class Result(object):
 
     @comment.setter
     def comment(self, value):
+        if type(value) != str:
+            raise TestRailError('input must be a string')
         self._content['comment'] = value
 
     @property
@@ -40,11 +49,19 @@ class Result(object):
 
     @property
     def defects(self):
-        return self._content.get('defects').split(',')
+        defects = self._content.get('defects')
+        return defects.split(',') if defects else list()
 
     @defects.setter
     def defects(self, values):
-        self._content['defects'] = ','.join('values')
+        if type(values) != list:
+            raise TestRailError('input must be a list of strings')
+        if not all(map(lambda x: type(x) == str, values)):
+            raise TestRailError('input must be a list of strings')
+        if len(values) > 0:
+            self._content['defects'] = ','.join(values)
+        else:
+            self._content['defects'] = None
 
     @property
     def elapsed(self):
