@@ -97,6 +97,7 @@ class Result(object):
 
     @status.setter
     def status(self, status_obj):
+        # TODO: Should I accept string name as well?
         if type(status_obj) != Status:
             raise TestRailError('input must be a Status')
         # verify id is valid
@@ -105,11 +106,17 @@ class Result(object):
 
     @property
     def test(self):
-        return Test(self.api.test_with_id(self._content.get('test_id')))
+        return Test(self.api.test_with_id(
+            self._content.get('test_id'), self._content.get('run_id')))
 
     @test.setter
-    def test(self, obj):
-        self._content['test_id'] = obj.id
+    def test(self, test_obj):
+        if type(test_obj) != Test:
+            raise TestRailError('input must be a Test')
+        # verify id is valid
+        self.api.test_with_id(
+            test_obj._content['id'], test_obj._content['run_id'])
+        self._content['id'] = test_obj.id
 
     @property
     def version(self):
