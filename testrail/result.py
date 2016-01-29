@@ -15,7 +15,10 @@ class Result(object):
 
     @property
     def assigned_to(self):
-        return User(self.api.user_with_id(self._content.get('assignedto_id')))
+        user_id = self._content.get('assignedto_id')
+        if user_id is None:
+            return None
+        return User(self.api.user_with_id(user_id))
 
     @assigned_to.setter
     def assigned_to(self, user):
