@@ -223,10 +223,9 @@ class TestUser(unittest.TestCase):
     def test_get_elapsed_type(self):
         self.assertEqual(type(self.result.elapsed), timedelta)
 
-    def test_get_elapsed_weed(self):
-        self.result._content['elapsed'] = '10w'
-        td = timedelta(weeks=10)
-        self.assertEqual(self.result.elapsed, td)
+    def test_get_elapsed_null(self):
+        self.result._content['elapsed'] = None
+        self.assertEqual(self.result.elapsed, None)
 
     def test_get_elapsed_weeks(self):
         self.result._content['elapsed'] = '10w'
