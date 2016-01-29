@@ -233,9 +233,9 @@ class API(object):
             self._tests[run_id]['ts'] = datetime.now()
         return self._tests[run_id]['value']
 
-    def test_with_id(self, test_id):
+    def test_with_id(self, test_id, run_id):
         try:
-            return filter(lambda x: x['id'] == test_id, self.tests())[0]
+            return filter(lambda x: x['id'] == test_id, self.tests(run_id))[0]
         except IndexError:
             raise TestRailError("Test ID '%s' was not found" % test_id)
 

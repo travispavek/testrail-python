@@ -1,6 +1,8 @@
-import datetime
+from datetime import datetime, timedelta
+import re
 
 import api
+from helper import TestRailError
 from status import Status
 from test import Test
 from user import User
@@ -13,10 +15,19 @@ class Result(object):
 
     @property
     def assigned_to(self):
-        return User(self.api.user_with_id(self._content.get('assignedto_id')))
+        user_id = self._content.get('assignedto_id')
+        if user_id is None:
+            return None
+        return User(self.api.user_with_id(user_id))
 
     @assigned_to.setter
     def assigned_to(self, user):
+        if type(user) != User:
+            raise TestRailError('input must be a User object')
+        try:
+            self.api.user_with_id(user.id)
+        except TestRailError:
+            raise TestRailError("User with ID '%s' is not valid" % user.id)
         self._content['assignedto_id'] = user.id
 
     @property
@@ -25,6 +36,8 @@ class Result(object):
 
     @comment.setter
     def comment(self, value):
+        if type(value) != str:
+            raise TestRailError('input must be a string')
         self._content['comment'] = value
 
     @property
@@ -40,19 +53,42 @@ class Result(object):
 
     @property
     def defects(self):
-        return self._content.get('defects').split(',')
+        defects = self._content.get('defects')
+        return defects.split(',') if defects else list()
 
     @defects.setter
     def defects(self, values):
-        self._content['defects'] = ','.join('values')
+        if type(values) != list:
+            raise TestRailError('input must be a list of strings')
+        if not all(map(lambda x: type(x) == str, values)):
+            raise TestRailError('input must be a list of strings')
+        if len(values) > 0:
+            self._content['defects'] = ','.join(values)
+        else:
+            self._content['defects'] = None
 
     @property
     def elapsed(self):
-        return self._content.get('elapsed')
+        span = lambda x: int(x.group(0)[:-1]) if x else 0
+        ts = self._content.get('elapsed')
+        if ts is None:
+            return None
+        duration = {
+            'weeks': span(re.search('\d+w', ts)),
+            'days': span(re.search('\d+d', ts)),
+            'hours': span(re.search('\d+h', ts)),
+            'minutes': span(re.search('\d+m', ts)),
+            'seconds': span(re.search('\d+s', ts))
+        }
+        return timedelta(**duration)
 
     @elapsed.setter
-    def elapsed(self, value):
-        self._content['elapsed'] = value
+    def elapsed(self, td):
+        if type(td) != timedelta:
+            raise TestRailError('input must be a timedelta')
+        if td > timedelta(weeks=10):
+            raise TestRailError('maximum elapsed time is 10 weeks')
+        self._content['elapsed'] = td.seconds
 
     @property
     def id(self):
@@ -63,24 +99,37 @@ class Result(object):
         return Status(self.api.status_with_id(self._content.get('status_id')))
 
     @status.setter
-    def status(self, obj):
-        self._content['status_id'] = obj.id
+    def status(self, status_obj):
+        # TODO: Should I accept string name as well?
+        if type(status_obj) != Status:
+            raise TestRailError('input must be a Status')
+        # verify id is valid
+        self.api.status_with_id(status_obj.id)
+        self._content['status_id'] = status_obj.id
 
     @property
     def test(self):
-        return Test(self.api.test_with_id(self._content.get('test_id')))
+        return Test(self.api.test_with_id(
+            self._content.get('test_id'), self._content.get('run_id')))
 
     @test.setter
-    def test(self, obj):
-        self._content['test_id'] = obj.id
+    def test(self, test_obj):
+        if type(test_obj) != Test:
+            raise TestRailError('input must be a Test')
+        # verify id is valid
+        self.api.test_with_id(
+            test_obj._content['id'], test_obj._content['run_id'])
+        self._content['id'] = test_obj.id
 
     @property
     def version(self):
         return self._content.get('version')
 
     @version.setter
-    def version(self, value):
-        self._content['version'] = value
+    def version(self, ver):
+        if type(ver) != str:
+            raise TestRailError('input must be a string')
+        self._content['version'] = ver
 
     def raw_data(self):
         return self._content
