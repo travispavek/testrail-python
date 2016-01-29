@@ -96,8 +96,12 @@ class Result(object):
         return Status(self.api.status_with_id(self._content.get('status_id')))
 
     @status.setter
-    def status(self, obj):
-        self._content['status_id'] = obj.id
+    def status(self, status_obj):
+        if type(status_obj) != Status:
+            raise TestRailError('input must be a Status')
+        # verify id is valid
+        self.api.status_with_id(status_obj.id)
+        self._content['status_id'] = status_obj.id
 
     @property
     def test(self):
