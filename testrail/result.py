@@ -123,8 +123,10 @@ class Result(object):
         return self._content.get('version')
 
     @version.setter
-    def version(self, value):
-        self._content['version'] = value
+    def version(self, ver):
+        if type(ver) != str:
+            raise TestRailError('input must be a string')
+        self._content['version'] = ver
 
     def raw_data(self):
         return self._content
