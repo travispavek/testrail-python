@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import re
 
 import api
 from helper import TestRailError
@@ -65,11 +66,26 @@ class Result(object):
 
     @property
     def elapsed(self):
-        return self._content.get('elapsed')
+        span = lambda x: int(x.group(0)[:-1]) if x else 0
+        ts = self._content.get('elapsed')
+        if ts is None:
+            return None
+        duration = {
+            'weeks': span(re.search('\d+w', ts)),
+            'days': span(re.search('\d+d', ts)),
+            'hours': span(re.search('\d+h', ts)),
+            'minutes': span(re.search('\d+m', ts)),
+            'seconds': span(re.search('\d+s', ts))
+        }
+        return timedelta(**duration)
 
     @elapsed.setter
-    def elapsed(self, value):
-        self._content['elapsed'] = value
+    def elapsed(self, td):
+        if type(td) != timedelta:
+            raise TestRailError('input must be a timedelta')
+        if td > timedelta(weeks=10):
+            raise TestRailError('maximum elapsed time is 10 weeks')
+        self._content['elapsed'] = td.seconds
 
     @property
     def id(self):
