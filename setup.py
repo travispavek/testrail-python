@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name = 'testrail',
     packages = ['testrail'],
-    version = '0.2.0',
+    version = '0.2.1',
     description = 'Python library for interacting with TestRail via REST APIs.',
     author = 'Travis Pavek',
     author_email = 'travis.pavek@gmail.com',
