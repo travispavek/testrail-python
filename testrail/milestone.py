@@ -39,7 +39,13 @@ class Milestone(object):
 
     @due_on.setter
     def due_on(self, value):
-        self._content['due_on'] = int(time.mktime(value.timetuple()))
+        if value is None:
+            due = None
+        else:
+            if type(value) != datetime:
+                raise TestRailError('input must be a datetime or None')
+            due = int(time.mktime(value.timetuple()))
+        self._content['due_on'] = due
 
     @property
     def id(self):
@@ -51,6 +57,8 @@ class Milestone(object):
 
     @is_completed.setter
     def is_completed(self, value):
+        if type(value) != bool:
+            raise TestRailError('input must be a boolean')
         self._content['is_completed'] = value
 
     @property
@@ -59,18 +67,20 @@ class Milestone(object):
 
     @name.setter
     def name(self, value):
+        if type(value) != str:
+            raise TestRailError('input must be a string')
         self._content['name'] = value
 
     @property
     def project(self):
-        try:
-            return Project(
-                self.api.project_with_id(self._content.get('project_id')))
-        except IndexError:
-            return None
+        return Project(
+            self.api.project_with_id(self._content.get('project_id')))
 
     @project.setter
     def project(self, value):
+        if type(value) != Project:
+            raise TestRailError('input must be a Project')
+        self.api.project_with_id(value.id)  # verify project is valid
         self._content['project_id'] = value.id
 
     @property
