@@ -13,7 +13,8 @@ class Milestone(object):
     @property
     def completed_on(self):
         try:
-            return datetime.fromtimestamp(int(self._content.get('created_on')))
+            return datetime.fromtimestamp(
+                int(self._content.get('completed_on')))
         except TypeError:
             return None
 
