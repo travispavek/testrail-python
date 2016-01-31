@@ -3,6 +3,7 @@ import time
 
 import api
 from project import Project
+from testrail.helper import TestRailError
 
 
 class Milestone(object):
@@ -24,6 +25,9 @@ class Milestone(object):
 
     @description.setter
     def description(self, value):
+        if value is not None:
+            if type(value) != str:
+                raise TestRailError('input must be string or None')
         self._content['description'] = value
 
     @property
