@@ -1,6 +1,6 @@
 class User(object):
-    def __init__(self, content={}):
-        self._content = content
+    def __init__(self, content=None):
+        self._content = content or dict()
 
     @property
     def email(self):

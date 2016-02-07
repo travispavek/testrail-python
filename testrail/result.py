@@ -10,7 +10,7 @@ from user import User
 
 class Result(object):
     def __init__(self, content=None):
-        self._content = content or {}
+        self._content = content or dict()
         self.api = api.API()
 
     @property
