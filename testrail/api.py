@@ -9,6 +9,7 @@ from helper import TestRailError
 
 nested_dict = lambda: collections.defaultdict(nested_dict)
 
+
 class API(object):
     _ts = datetime.now() - timedelta(days=1)
     _shared_state = {'_users': nested_dict(),
@@ -179,7 +180,8 @@ class API(object):
             raise TestRailError("Priority ID '%s' was not found")
 
     # Section Requests
-    def sections(self, project_id, suite_id=-1):
+    def sections(self, project_id=None, suite_id=-1):
+        project_id = project_id or self._project_id
         if self._refresh(self._sections[project_id][suite_id]['ts']):
             params = {'suite_id': suite_id} if suite_id != -1 else None
             _sections = self._get(
