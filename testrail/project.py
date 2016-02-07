@@ -4,8 +4,8 @@ from helper import ContainerIter, TestRailError
 
 
 class Project(object):
-    def __init__(self, response={}):
-        self._content = response
+    def __init__(self, response=None):
+        self._content = response or dict()
 
     @property
     def announcement(self):

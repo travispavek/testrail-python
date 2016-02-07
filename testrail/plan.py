@@ -9,8 +9,8 @@ from user import User
 
 
 class Plan(object):
-    def __init__(self, content):
-        self._content = content
+    def __init__(self, content=None):
+        self._content = content or dict()
         self.api = api.API()
 
     @property

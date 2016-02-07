@@ -3,8 +3,8 @@ from project import Project
 
 
 class _InnerConfig(object):
-    def __init__(self, content=dict()):
-        self._content = content
+    def __init__(self, content=None):
+        self._content = content or dict()
 
     @property
     def id(self):
