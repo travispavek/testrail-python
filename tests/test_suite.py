@@ -12,11 +12,11 @@ class TestSuite(unittest.TestCase):
     def setUp(self):
 
         self.mock_suite_data = {
-        	"description": "suite description",
-        	"id": 1,
-        	"name": "Setup & Installation",
-        	"project_id": 1,
-        	"url": "http://<server>/index.php?/suites/view/1",
+            "description": "suite description",
+            "id": 1,
+            "name": "Setup & Installation",
+            "project_id": 1,
+            "url": "http://<server>/index.php?/suites/view/1",
             "is_baseline": False,
             "is_completed": True,
             "is_master": True,
