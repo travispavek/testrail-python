@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import api
+from helper import TestRailError
 from project import Project
 
 
@@ -25,6 +26,12 @@ class Suite(object):
     def description(self):
         return self._content.get('description')
 
+    @description.setter
+    def description(self, value):
+        if type(value) != str:
+            raise TestRailError('input must be a string')
+        self._content['description'] = value
+
     @property
     def is_baseline(self):
         return self._content.get('is_baseline')
@@ -41,11 +48,27 @@ class Suite(object):
     def name(self):
         return self._content.get('name')
 
+    @name.setter
+    def name(self, value):
+        if type(value) != str:
+            raise TestRailError('input must be a string')
+        self._content['name'] = value
+
     @property
     def project(self):
         return Project(
             self.api.project_with_id(self._content.get('project_id')))
 
+    @project.setter
+    def project(self, value):
+        if type(value) != Project:
+            raise TestRailError('input must be a Project')
+        self.api.project_with_id(value.id)  # verify project is valid
+        self._content['project_id'] = value.id
+
     @property
     def url(self):
         return self._content.get('url')
+
+    def raw_data(self):
+        return self._content
