@@ -192,16 +192,9 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(str(e.exception),
                          "Suite ID '5' was not found")
 
-    @mock.patch('testrail.api.requests.get')
-    def test_set_suite_empty_suite(self, mock_get):
-        mock_response = mock.Mock()
-        mock_response.json.return_value = copy.deepcopy(self.mock_suite_data)
-        mock_response.status_code = 200
-        mock_get.return_value = mock_response
-        with self.assertRaises(TestRailError) as e:
-            self.section.suite = Suite()
-        self.assertEqual(str(e.exception),
-                         "Suite ID 'None' was not found")
+    def test_set_suite_empty_suite(self):
+        s = Section({})
+        self.assertEqual(s.suite, None)
 
     @mock.patch('testrail.api.requests.get')
     def test_get_parent_type(self, mock_get):
