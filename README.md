@@ -22,9 +22,15 @@ Create '.testrail.conf' in your home directory with the following:
 ```
 testrail:
     user_email: 'your email address'
-    user_pass: 'your API key or password'
+    user_key: 'your API key or password'
     url: 'domain for TestRail instance'
 ```
+
+You can override the config file with the following environment variables:
+
+* TESTRAIL_USER_EMAIL
+* TESTRAIL_USER_KEY
+* TESTRAIL_URL
 
 ## Installation
 The easiest and recommended way to install testrail is through [pip](https://pip.pypa.io):
