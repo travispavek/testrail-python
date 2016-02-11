@@ -1,11 +1,14 @@
+import ast
+import copy
+from datetime import datetime, timedelta
 import mock
+import os
+import shutil
 import unittest
+import util
+
 from testrail.api import API
 from testrail.helper import TestRailError
-import copy
-import ast
-from datetime import datetime, timedelta
-import util
 
 
 class TestBase(unittest.TestCase):
@@ -15,6 +18,107 @@ class TestBase(unittest.TestCase):
     def test_set_project_id(self):
         self.client.set_project_id(20)
         self.assertEqual(self.client._project_id, 20)
+
+
+class TestConfig(unittest.TestCase):
+    def setUp(self):
+        home = os.path.expanduser('~')
+        self.config_path = '%s/.testrail.conf' % home
+        self.config_backup = '%s/.testrail.conf_test_orig' % home
+        self.test_dir = os.path.dirname(os.path.abspath(__file__))
+        if os.path.isfile(self.config_path):
+            shutil.move(self.config_path, self.config_backup)
+        shutil.copyfile('%s/testrail.conf' % self.test_dir, self.config_path)
+
+    def tearDown(self):
+        if os.path.isfile(self.config_path):
+            os.remove(self.config_path)
+        if os.path.isfile(self.config_backup):
+            shutil.move(self.config_backup, self.config_path)
+        if os.environ.get('TESTRAIL_USER_EMAIL'):
+            del os.environ['TESTRAIL_USER_EMAIL']
+        if os.environ.get('TESTRAIL_USER_KEY'):
+            del os.environ['TESTRAIL_USER_KEY']
+        if os.environ.get('TESTRAIL_URL'):
+            del os.environ['TESTRAIL_URL']
+
+    def test_no_env(self):
+        client = API()
+        config = client._conf()
+        self.assertEqual(config['email'], 'user@yourdomain.com')
+        self.assertEqual(config['key'], 'your_api_key')
+        self.assertEqual(config['url'], 'https://<server>')
+
+    def test_user_env(self):
+        email = 'user@example.com'
+        os.environ['TESTRAIL_USER_EMAIL'] = email
+        client = API()
+        config = client._conf()
+        self.assertEqual(config['email'], email)
+        self.assertEqual(config['key'], 'your_api_key')
+        self.assertEqual(config['url'], 'https://<server>')
+
+    def test_key_env(self):
+        key = 'itgiwiht84inf92GWT'
+        os.environ['TESTRAIL_USER_KEY'] = key
+        client = API()
+        config = client._conf()
+        self.assertEqual(config['email'], 'user@yourdomain.com')
+        self.assertEqual(config['key'], key)
+        self.assertEqual(config['url'], 'https://<server>')
+
+    def test_url_env(self):
+        url = 'https://example.com'
+        os.environ['TESTRAIL_URL'] = url
+        client = API()
+        config = client._conf()
+        self.assertEqual(config['email'], 'user@yourdomain.com')
+        self.assertEqual(config['key'], 'your_api_key')
+        self.assertEqual(config['url'], url)
+
+    def test_no_config_file(self):
+        os.remove(self.config_path)
+        key = 'itgiwiht84inf92GWT'
+        email = 'user@example.com'
+        url = 'https://example.com'
+        os.environ['TESTRAIL_URL'] = url
+        os.environ['TESTRAIL_USER_KEY'] = key
+        os.environ['TESTRAIL_USER_EMAIL'] = email
+        client = API()
+        config = client._conf()
+        self.assertEqual(config['url'], url)
+        self.assertEqual(config['key'], key)
+        self.assertEqual(config['email'], email)
+
+    def test_config_no_email(self):
+        os.remove(self.config_path)
+        shutil.copyfile('%s/testrail.conf-noemail' % self.test_dir,
+                        self.config_path)
+        with self.assertRaises(TestRailError) as e:
+            API()
+        self.assertEqual(str(e.exception),
+                         ('A user email must be set in environment ' +
+                          'variable TESTRAIL_USER_EMAIL or in testrail.conf'))
+
+    def test_config_no_key(self):
+        os.remove(self.config_path)
+        shutil.copyfile('%s/testrail.conf-nokey' % self.test_dir,
+                        self.config_path)
+        with self.assertRaises(TestRailError) as e:
+            API()
+        self.assertEqual(str(e.exception),
+                         ('A password or API key must be set in environment ' +
+                          'variable TESTRAIL_USER_KEY or in testrail.conf'))
+
+    def test_config_no_url(self):
+        os.remove(self.config_path)
+        shutil.copyfile('%s/testrail.conf-nourl' % self.test_dir,
+                        self.config_path)
+        with self.assertRaises(TestRailError) as e:
+            API()
+        self.assertEqual(str(e.exception),
+                         ('A URL must be set in environment ' +
+                          'variable TESTRAIL_URL or in testrail.conf'))
 
 
 class TestHTTPMethod(unittest.TestCase):
