@@ -1,6 +1,6 @@
 import collections
 from datetime import datetime, timedelta
-from os.path import expanduser
+import os
 
 import requests
 import yaml
@@ -31,12 +31,36 @@ class API(object):
 
     def __init__(self):
         self.__dict__ = self._shared_state
-        with open('%s/.testrail.conf' % expanduser('~'), 'r') as f:
-            config = yaml.load(f)
-        self._auth = (config['testrail']['user_email'],
-                      config['testrail']['user_pass'])
-        self._url = config['testrail']['url']
+        config = self._conf()
+        self._auth = (config['email'], config['key'])
+        self._url = config['url']
         self.headers = {'Content-Type': 'application/json'}
+
+    def _conf(self):
+        _email = os.environ.get('TESTRAIL_USER_EMAIL')
+        _key = os.environ.get('TESTRAIL_USER_KEY')
+        _url = os.environ.get('TESTRAIL_URL')
+        try:
+            with open('%s/.testrail.conf' % os.path.expanduser('~'), 'r') as f:
+                config = yaml.load(f)
+                _email = _email or config['testrail'].get('user_email')
+                _key = _key or config['testrail'].get('user_key')
+                _url = _url or config['testrail'].get('url')
+        except IOError:
+            pass
+        if _email is None:
+            raise TestRailError('A user email must be set in environment ' +
+                                'variable TESTRAIL_USER_EMAIL or in ' +
+                                'testrail.conf')
+        if _key is None:
+            raise TestRailError('A password or API key must be set in ' +
+                                'environment variable TESTRAIL_USER_KEY or ' +
+                                'in testrail.conf')
+        if _url is None:
+            raise TestRailError('A URL must be set in environment variable ' +
+                                'TESTRAIL_URL or in testrail.conf')
+
+        return {'email': _email, 'key': _key, 'url': _url}
 
     def _refresh(self, ts):
         if not ts:
