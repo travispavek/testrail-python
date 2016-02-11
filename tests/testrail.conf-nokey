@@ -1,4 +1,3 @@
 testrail:
     user_email: 'user@yourdomain.com'
-    user_key: 'your_api_key'
     url: 'https://<server>'
