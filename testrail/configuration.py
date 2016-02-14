@@ -68,4 +68,6 @@ class _InnerConfigContainer(ContainerIter):
 
     @singleresult
     def name(self, name):
+        if name is None:
+            return list()
         return filter(lambda c: c.name.lower() == name.lower(), self._configs)
