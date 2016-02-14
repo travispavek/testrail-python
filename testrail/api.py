@@ -259,11 +259,14 @@ class API(object):
             self._tests[run_id]['ts'] = datetime.now()
         return self._tests[run_id]['value']
 
-    def test_with_id(self, test_id, run_id):
-        try:
-            return filter(lambda x: x['id'] == test_id, self.tests(run_id))[0]
-        except IndexError:
-            raise TestRailError("Test ID '%s' was not found" % test_id)
+    def test_with_id(self, test_id, run_id=None):
+        if run_id is not None:
+            try:
+                return filter(lambda x: x['id'] == test_id, self.tests(run_id))[0]
+            except IndexError:
+                raise TestRailError("Test ID '%s' was not found" % test_id)
+        else:
+            return self._get('get_test/%s' % test_id)
 
     # Result Requests
     def results(self, test_id):
@@ -336,6 +339,7 @@ class API(object):
     def _post(self, uri, data={}):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.post(self._url+uri, json=data, auth=self._auth)
+        # TODO if 429 wait 5 seconds and try again.
         if r.status_code == 200:
             try:
                 return r.json()
