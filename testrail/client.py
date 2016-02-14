@@ -146,8 +146,8 @@ class TestRail(object):
 
     @plans.register(Milestone)
     def _plans_for_milestone(self, obj):
-        return PlanContainer(filter(
-            lambda p: p.milestone.id == obj.id, self.plans()))
+        plans = filter(lambda p: p.milestone is not None, self.plans())
+        return PlanContainer(filter(lambda p: p.milestone.id == obj.id, plans))
 
     @methdispatch
     def plan(self):
