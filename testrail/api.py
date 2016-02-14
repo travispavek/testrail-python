@@ -266,7 +266,10 @@ class API(object):
             except IndexError:
                 raise TestRailError("Test ID '%s' was not found" % test_id)
         else:
-            return self._get('get_test/%s' % test_id)
+            try:
+                return self._get('get_test/%s' % test_id)
+            except TestRailError:
+                raise TestRailError("Test ID '%s' was not found" % test_id)
 
     # Result Requests
     def results(self, test_id):

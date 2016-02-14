@@ -109,8 +109,10 @@ class Result(object):
 
     @property
     def test(self):
-        return Test(self.api.test_with_id(
-            self._content.get('test_id'), self._content.get('run_id')))
+        test_id = self._content.get('test_id')
+        if test_id is None:
+            return None
+        return Test(self.api.test_with_id(test_id))
 
     @test.setter
     def test(self, test_obj):
@@ -119,7 +121,7 @@ class Result(object):
         # verify id is valid
         self.api.test_with_id(
             test_obj._content['id'], test_obj._content['run_id'])
-        self._content['id'] = test_obj.id
+        self._content['test_id'] = test_obj.id
 
     @property
     def version(self):

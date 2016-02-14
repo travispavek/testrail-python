@@ -338,7 +338,7 @@ class TestUser(unittest.TestCase):
     @mock.patch('testrail.api.requests.get')
     def test_get_test(self, mock_get):
         mock_response = mock.Mock()
-        mock_response.json.return_value = copy.deepcopy(self.mock_test_data)
+        mock_response.json.return_value = copy.deepcopy(self.mock_test_data[0])
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         self.assertEqual(self.result.test.id, 5)
@@ -346,8 +346,8 @@ class TestUser(unittest.TestCase):
     @mock.patch('testrail.api.requests.get')
     def test_get_test_invalid_id(self, mock_get):
         mock_response = mock.Mock()
-        mock_response.json.return_value = copy.deepcopy(self.mock_test_data)
-        mock_response.status_code = 200
+        mock_response.json.return_value = {u'error': u'Field :test_id is not a valid test.'}
+        mock_response.status_code = 400
         mock_get.return_value = mock_response
         self.result._content['test_id'] = 100
         with self.assertRaises(TestRailError) as e:
