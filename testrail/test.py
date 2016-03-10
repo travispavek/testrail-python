@@ -1,4 +1,4 @@
-import testrail.api
+from testrail import api
 from testrail.case import Case
 from testrail.casetype import CaseType
 from testrail.milestone import Milestone

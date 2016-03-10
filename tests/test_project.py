@@ -168,12 +168,12 @@ class TestProjectContainer(unittest.TestCase):
         self.assertEqual(len(self.projects),  2)
 
     def test_completed(self):
-        self.assertEqual(len(self.projects.completed()), 1)
-        self.assertEqual(self.projects.completed()[0].id, 1)
+        self.assertEqual(len(list(self.projects.completed())), 1)
+        self.assertEqual(list(self.projects.completed())[0].id, 1)
 
     def test_active(self):
-        self.assertEqual(len(self.projects.active()), 1)
-        self.assertEqual(self.projects.active()[0].id, 2)
+        self.assertEqual(len(list(self.projects.active())), 1)
+        self.assertEqual(list(self.projects.active())[0].id, 2)
 
     def test_getitem(self):
         self.assertEqual(self.projects[0].id, 1)

@@ -1,7 +1,7 @@
 from datetime import datetime
 import time
 
-import testrail.api
+from testrail import api
 from testrail.project import Project
 from testrail.helper import TestRailError
 

@@ -1,6 +1,6 @@
 import re
 
-import testrail.api
+from testrail import api
 from testrail.case import Case
 from testrail.configuration import Config, ConfigContainer
 from testrail.helper import methdispatch, singleresult
@@ -40,7 +40,7 @@ class TestRail(object):
 
     # Project Methods
     def projects(self):
-        return ProjectContainer(map(Project, self.api.projects()))
+        return ProjectContainer(list(map(Project, self.api.projects())))
 
     @methdispatch
     def project(self):

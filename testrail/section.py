@@ -1,4 +1,4 @@
-import testrail.api
+from testrail import api
 from testrail.helper import TestRailError
 from testrail.suite import Suite
 

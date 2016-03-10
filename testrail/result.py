@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import re
 
-import testrail.api
+from testrail import api
 from testrail.helper import TestRailError
 from testrail.status import Status
 from testrail.test import Test
