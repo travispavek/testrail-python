@@ -4,8 +4,13 @@ from datetime import datetime, timedelta
 import mock
 import os
 import shutil
-import unittest
 import util
+
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 try:
     from itertools import ifilter as filter
 except ImportError:

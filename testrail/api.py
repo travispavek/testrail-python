@@ -1,3 +1,5 @@
+from __future__ import division
+
 import collections
 from datetime import datetime, timedelta
 import os
@@ -65,7 +67,11 @@ class API(object):
     def _refresh(self, ts):
         if not ts:
             return True
-        return (datetime.now() - ts).total_seconds() > self._timeout
+
+        td = (datetime.now() - ts) # .total_seconds() > self._timeout
+        since_last =  (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+
+        return since_last > self._timeout
 
     def set_project_id(self, project_id):
         self._project_id = project_id

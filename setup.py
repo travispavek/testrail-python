@@ -1,4 +1,14 @@
+import sys
 from setuptools import setup
+
+install_requires=[
+    'requests>=2.6.0',
+    'singledispatch>=3.4.0',
+    'pyyaml>=3.1.1',
+]
+
+if sys.version_info[:3] < (2, 7, 0):
+    install_requires.append('ordereddict')
 
 setup(
     name='testrail',
@@ -10,6 +20,7 @@ setup(
     url='https://github.com/travispavek/testrail-python',
     download_url='https://github.com/travispavek/testrail-python/tarball/0.2.2',
     keywords=['testrail', 'api', 'client', 'library', 'rest'],
+    install_requires=install_requires,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
@@ -22,16 +33,11 @@ setup(
         'Topic :: Software Development :: Testing',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-    ],
-    install_requires=[
-        'requests>=2.6.0',
-        'singledispatch>=3.4.0',
-        'pyyaml>=3.1.1',
     ],
 )

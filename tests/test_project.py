@@ -1,5 +1,8 @@
-import unittest
 from datetime import datetime
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from testrail.helper import TestRailError
 from testrail.project import Project, ProjectContainer
