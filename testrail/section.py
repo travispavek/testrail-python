@@ -1,6 +1,6 @@
-import api
-from helper import TestRailError
-from suite import Suite
+import testrail.api
+from testrail.helper import TestRailError
+from testrail.suite import Suite
 
 
 class Section(object):

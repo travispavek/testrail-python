@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from helper import ContainerIter, TestRailError
+from testrail.helper import ContainerIter, TestRailError
 
 
 class Project(object):

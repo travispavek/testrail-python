@@ -1,12 +1,12 @@
 from datetime import datetime
 
-import api
-from casetype import CaseType
-from milestone import Milestone
-from priority import Priority
-from section import Section
-from suite import Suite
-from user import User
+import testrail.api
+from testrail.casetype import CaseType
+from testrail.milestone import Milestone
+from testrail.priority import Priority
+from testrail.section import Section
+from testrail.suite import Suite
+from testrail.user import User
 
 
 class Case(object):

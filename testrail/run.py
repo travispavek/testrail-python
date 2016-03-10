@@ -1,11 +1,11 @@
 from datetime import datetime
 
-import api
-from helper import ContainerIter
-from milestone import Milestone
-import plan
-from project import Project
-from user import User
+import testrail.api
+from testrail.helper import ContainerIter
+from testrail.milestone import Milestone
+import testrail.plan
+from testrail.project import Project
+from testrail.user import User
 
 
 class Run(object):

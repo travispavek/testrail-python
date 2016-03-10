@@ -5,7 +5,7 @@ import os
 import requests
 import yaml
 
-from helper import TestRailError
+from testrail.helper import TestRailError
 
 nested_dict = lambda: collections.defaultdict(nested_dict)
 
