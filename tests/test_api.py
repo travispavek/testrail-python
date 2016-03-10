@@ -6,6 +6,10 @@ import os
 import shutil
 import unittest
 import util
+try:
+    from itertools import ifilter as filter
+except ImportError:
+    pass
 
 from testrail.api import API
 from testrail.helper import TestRailError
