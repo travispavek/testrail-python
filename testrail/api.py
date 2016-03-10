@@ -68,7 +68,7 @@ class API(object):
         if not ts:
             return True
 
-        td = (datetime.now() - ts) # .total_seconds() > self._timeout
+        td = (datetime.now() - ts)
         since_last =  (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
 
         return since_last > self._timeout
