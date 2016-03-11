@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import testrail.api
+from testrail.api import API
 from testrail.casetype import CaseType
 from testrail.milestone import Milestone
 from testrail.priority import Priority
@@ -12,7 +12,7 @@ from testrail.user import User
 class Case(object):
     def __init__(self, content):
         self._content = content
-        self.api = api.API()
+        self.api = API()
 
     @property
     def created_by(self):

@@ -1,6 +1,6 @@
 import re
 
-from testrail import api
+from testrail.api import API
 from testrail.case import Case
 from testrail.configuration import Config, ConfigContainer
 from testrail.helper import methdispatch, singleresult
@@ -17,13 +17,13 @@ from testrail.user import User
 
 class TestRail(object):
     def __init__(self, project_id=0):
-        self.api = api.API()
+        self.api = API()
         self.api.set_project_id(project_id)
         self._project_id = project_id
 
     def set_project_id(self, project_id):
         self._project_id = project_id
-        self._api.set_project_id(project_id)
+        self.api.set_project_id(project_id)
 
     # Post generics
     @methdispatch

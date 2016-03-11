@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import testrail.api
+from testrail.api import API
 import testrail.entry
 from testrail.helper import ContainerIter
 from testrail.milestone import Milestone
@@ -11,7 +11,7 @@ from testrail.user import User
 class Plan(object):
     def __init__(self, content=None):
         self._content = content or dict()
-        self.api = api.API()
+        self.api = API()
 
     @property
     def assigned_to(self):
