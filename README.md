@@ -5,7 +5,7 @@
 This Python Library allows you to easily publish results and manage your TestRail instance.  
 
 ### Warning
-This library is still in an alpha release.  This means little to no testing and future releases may break compatibility.  Please evaluate and report bugs/enhancements.
+This library is still in beta.  This means little to no testing and future releases may break compatibility.  Please evaluate and report bugs/enhancements.
 
 ## Quick Start
 ```python
