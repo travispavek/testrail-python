@@ -30,6 +30,8 @@ def class_name(meth):
 def singleresult(func):
     def func_wrapper(*args, **kw):
         items = func(*args)
+        if hasattr(items, '__iter__'):
+            items = list(items)
         if len(items) > 1:
             raise TestRailError(
                 'identifier "%s" returned multiple results' % args[1])
