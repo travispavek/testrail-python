@@ -1,29 +1,29 @@
 import re
 
-import api
-from case import Case
-from configuration import Config, ConfigContainer
-from helper import methdispatch, singleresult
-from milestone import Milestone
-from plan import Plan, PlanContainer
-from project import Project, ProjectContainer
-from result import Result
-from run import Run, RunContainer
-from status import Status
-from suite import Suite
-from test import Test
-from user import User
+from testrail.api import API
+from testrail.case import Case
+from testrail.configuration import Config, ConfigContainer
+from testrail.helper import methdispatch, singleresult
+from testrail.milestone import Milestone
+from testrail.plan import Plan, PlanContainer
+from testrail.project import Project, ProjectContainer
+from testrail.result import Result
+from testrail.run import Run, RunContainer
+from testrail.status import Status
+from testrail.suite import Suite
+from testrail.test import Test
+from testrail.user import User
 
 
 class TestRail(object):
     def __init__(self, project_id=0):
-        self.api = api.API()
+        self.api = API()
         self.api.set_project_id(project_id)
         self._project_id = project_id
 
     def set_project_id(self, project_id):
         self._project_id = project_id
-        self._api.set_project_id(project_id)
+        self.api.set_project_id(project_id)
 
     # Post generics
     @methdispatch
@@ -40,7 +40,7 @@ class TestRail(object):
 
     # Project Methods
     def projects(self):
-        return ProjectContainer(map(Project, self.api.projects()))
+        return ProjectContainer(list(map(Project, self.api.projects())))
 
     @methdispatch
     def project(self):

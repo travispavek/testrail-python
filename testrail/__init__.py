@@ -1,1 +1,1 @@
-from client import TestRail
+from testrail.client import TestRail

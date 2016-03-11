@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 import re
 
-import api
-from helper import TestRailError
-from status import Status
-from test import Test
-from user import User
+from testrail import api
+from testrail.helper import TestRailError
+from testrail.status import Status
+from testrail.test import Test
+from testrail.user import User
 
 
 class Result(object):

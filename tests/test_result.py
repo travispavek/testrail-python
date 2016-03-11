@@ -1,7 +1,10 @@
 import copy
 from datetime import datetime, timedelta
 import mock
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from testrail.helper import TestRailError
 from testrail.result import Result

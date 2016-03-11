@@ -1,11 +1,11 @@
-import api
-from case import Case
-from casetype import CaseType
-from milestone import Milestone
-from project import Project
-from run import Run
-from status import Status
-from user import User
+from testrail import api
+from testrail.case import Case
+from testrail.casetype import CaseType
+from testrail.milestone import Milestone
+from testrail.project import Project
+from testrail.run import Run
+from testrail.status import Status
+from testrail.user import User
 
 
 class Test(object):

@@ -4,8 +4,17 @@ from datetime import datetime, timedelta
 import mock
 import os
 import shutil
-import unittest
 import util
+
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
+try:
+    from itertools import ifilter as filter
+except ImportError:
+    pass
 
 from testrail.api import API
 from testrail.helper import TestRailError
@@ -242,20 +251,21 @@ class TestUser(unittest.TestCase):
         timeout = self.client._timeout
         self.client._users['ts'] = datetime.now() - timedelta(seconds=timeout)
         actual_response = self.client.users()  # verity cache timed out
-        mock_get.assert_called_twice_with(
-            url,
-            headers={'Content-Type': 'application/json'},
-            params=None,
-            auth=('user@yourdomain.com', 'your_api_key')
-        )
+        c = mock.call(
+                url,
+                headers={'Content-Type': 'application/json'},
+                params=None,
+                auth=('user@yourdomain.com', 'your_api_key')
+            )
+        mock_get.assert_has_calls([c, mock.call().json()] * 2)
         self.assertEqual(2, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
 
     @mock.patch('testrail.api.requests.get')
     def test_get_user_with_id(self, mock_get):
         mock_response = mock.Mock()
-        expected_response = filter(
-            lambda x: x if x['id'] == 2 else None, self.users)[0]
+        expected_response = next(filter(
+            lambda x: x if x['id'] == 2 else None, self.users))
         url = 'https://<server>/index.php?/api/v2/get_users'
         mock_response.json.return_value = self.mock_user_data
         mock_response.status_code = 200
@@ -285,9 +295,9 @@ class TestUser(unittest.TestCase):
     @mock.patch('testrail.api.requests.get')
     def test_get_user_with_email(self, mock_get):
         mock_response = mock.Mock()
-        expected_response = filter(
+        expected_response = next(filter(
             lambda x: x if x['email'] == 'han@example.com' else None,
-            self.users)[0]
+            self.users))
         url = 'https://<server>/index.php?/api/v2/get_users'
         mock_response.json.return_value = self.mock_user_data
         mock_response.status_code = 200
@@ -381,20 +391,21 @@ class TestProject(unittest.TestCase):
         self.client._projects['ts'] = datetime.now() - timedelta(
             seconds=timeout)
         actual_response = self.client.projects()  # verify cache hit
-        mock_get.assert_called_twice_with(
-            url,
-            headers={'Content-Type': 'application/json'},
-            params=None,
-            auth=('user@yourdomain.com', 'your_api_key')
-        )
+        c = mock.call(
+                url,
+                headers={'Content-Type': 'application/json'},
+                params=None,
+                auth=('user@yourdomain.com', 'your_api_key')
+            )
+        mock_get.assert_has_calls([c, mock.call().json()] * 2)
         self.assertEqual(2, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
 
     @mock.patch('testrail.api.requests.get')
     def test_get_project_id(self, mock_get):
         mock_response = mock.Mock()
-        expected_response = filter(
-            lambda x: x if x['id'] == 1 else None, self.projects)[0]
+        expected_response = next(filter(
+            lambda x: x if x['id'] == 1 else None, self.projects))
         url = 'https://<server>/index.php?/api/v2/get_projects'
         mock_response.json.return_value = self.mock_project_data
         mock_response.status_code = 200
@@ -524,12 +535,13 @@ class TestSuite(unittest.TestCase):
         self.client._suites[1]['ts'] = datetime.now() - timedelta(
             seconds=timeout)
         actual_response = self.client.suites()  # verify cache timeout
-        mock_get.assert_called_twice_with(
-            url,
-            headers={'Content-Type': 'application/json'},
-            params=None,
-            auth=('user@yourdomain.com', 'your_api_key')
-        )
+        c = mock.call(
+                url,
+                headers={'Content-Type': 'application/json'},
+                params=None,
+                auth=('user@yourdomain.com', 'your_api_key')
+            )
+        mock_get.assert_has_calls([c, mock.call().json()]  * 2)
         self.assertEqual(2, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
 
@@ -538,25 +550,34 @@ class TestSuite(unittest.TestCase):
         mock_response = mock.Mock()
         expected_response = self.suites_1
         url = 'https://<server>/index.php?/api/v2/get_suites/1'
+        url2 = 'https://<server>/index.php?/api/v2/get_suites/2'
         mock_response.json.return_value = self.mock_suites_data_1
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         actual_response = self.client.suites()
         actual_response = self.client.suites(2)  # verify cache not hit
-        mock_get.assert_called_twice_with(
-            url,
-            headers={'Content-Type': 'application/json'},
-            params=None,
-            auth=('user@yourdomain.com', 'your_api_key')
-        )
+        c1 = mock.call(
+                url,
+                headers={'Content-Type': 'application/json'},
+                params=None,
+                auth=('user@yourdomain.com', 'your_api_key')
+            )
+        c2 = mock.call(
+                url2,
+                headers={'Content-Type': 'application/json'},
+                params=None,
+                auth=('user@yourdomain.com', 'your_api_key')
+            )
+        mock_get.assert_has_calls(
+            [c1, mock.call().json(), c2, mock.call().json()])
         self.assertEqual(2, mock_response.json.call_count)
         self.assertEqual(expected_response, actual_response)
 
     @mock.patch('testrail.api.requests.get')
     def test_get_suite_with_id(self, mock_get):
         mock_response = mock.Mock()
-        expected_response = filter(
-            lambda x: x if x['id'] == 2 else None, self.suites_1)[0]
+        expected_response = next(filter(
+            lambda x: x if x['id'] == 2 else None, self.suites_1))
         url = 'https://<server>/index.php?/api/v2/get_suites/1'
         mock_response.json.return_value = self.mock_suites_data_1
         mock_response.status_code = 200

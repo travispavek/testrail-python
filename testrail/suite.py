@@ -1,8 +1,8 @@
 from datetime import datetime
 
-import api
-from helper import TestRailError
-from project import Project
+from testrail import api
+from testrail.helper import TestRailError
+from testrail.project import Project
 
 
 class Suite(object):

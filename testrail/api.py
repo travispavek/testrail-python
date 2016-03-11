@@ -1,3 +1,5 @@
+from __future__ import division
+
 import collections
 from datetime import datetime, timedelta
 import os
@@ -5,7 +7,7 @@ import os
 import requests
 import yaml
 
-from helper import TestRailError
+from testrail.helper import TestRailError
 
 nested_dict = lambda: collections.defaultdict(nested_dict)
 
@@ -46,8 +48,8 @@ class API(object):
                 _email = _email or config['testrail'].get('user_email')
                 _key = _key or config['testrail'].get('user_key')
                 _url = _url or config['testrail'].get('url')
-        except IOError:
-            pass
+        except IOError as e:
+            print(e)
         if _email is None:
             raise TestRailError('A user email must be set in environment ' +
                                 'variable TESTRAIL_USER_EMAIL or in ' +
@@ -65,7 +67,11 @@ class API(object):
     def _refresh(self, ts):
         if not ts:
             return True
-        return (datetime.now() - ts).total_seconds() > self._timeout
+
+        td = (datetime.now() - ts)
+        since_last =  (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+
+        return since_last > self._timeout
 
     def set_project_id(self, project_id):
         self._project_id = project_id
@@ -80,13 +86,13 @@ class API(object):
 
     def user_with_id(self, user_id):
         try:
-            return filter(lambda x: x['id'] == user_id, self.users())[0]
+            return list(filter(lambda x: x['id'] == user_id, self.users()))[0]
         except IndexError:
             raise TestRailError("User ID '%s' was not found" % user_id)
 
     def user_with_email(self, user_email):
         try:
-            return filter(lambda x: x['email'] == user_email, self.users())[0]
+            return list(filter(lambda x: x['email'] == user_email, self.users()))[0]
         except IndexError:
             raise TestRailError("User email '%s' was not found" % user_email)
 
@@ -100,7 +106,7 @@ class API(object):
 
     def project_with_id(self, project_id):
         try:
-            return filter(lambda x: x['id'] == project_id, self.projects())[0]
+            return list(filter(lambda x: x['id'] == project_id, self.projects()))[0]
         except IndexError:
             raise TestRailError("Project ID '%s' was not found" % project_id)
 
@@ -116,7 +122,7 @@ class API(object):
 
     def suite_with_id(self, suite_id):
         try:
-            return filter(lambda x: x['id'] == suite_id, self.suites())[0]
+            return list(filter(lambda x: x['id'] == suite_id, self.suites()))[0]
         except IndexError:
             raise TestRailError("Suite ID '%s' was not found" % suite_id)
 
@@ -133,7 +139,7 @@ class API(object):
 
     def case_with_id(self, case_id):
         try:
-            return filter(lambda x: x['id'] == case_id, self.cases())[0]
+            return list(filter(lambda x: x['id'] == case_id, self.cases()))[0]
         except IndexError:
             raise TestRailError("Case ID '%s' was not found" % case_id)
 
@@ -147,8 +153,8 @@ class API(object):
 
     def case_type_with_id(self, case_type_id):
         try:
-            return filter(
-                lambda x: x['id'] == case_type_id, self.case_types())[0]
+            return list(filter(
+                lambda x: x['id'] == case_type_id, self.case_types()))[0]
         except IndexError:
             return TestRailError(
                 "Case Type ID '%s' was not found" % case_type_id)
@@ -167,8 +173,8 @@ class API(object):
             return self._get('get_milestone/%s' % milestone_id)
         else:
             try:
-                return filter(lambda x: x['id'] == milestone_id,
-                              self.milestones(project_id))[0]
+                return list(filter(lambda x: x['id'] == milestone_id,
+                              self.milestones(project_id)))[0]
             except IndexError:
                 raise TestRailError(
                     "Milestone ID '%s' was not found" % milestone_id)
@@ -198,8 +204,8 @@ class API(object):
 
     def priority_with_id(self, priority_id):
         try:
-            return filter(
-                lambda x: x['id'] == priority_id, self.priorities())[0]
+            return list(filter(
+                lambda x: x['id'] == priority_id, self.priorities()))[0]
         except IndexError:
             raise TestRailError("Priority ID '%s' was not found")
 
@@ -216,7 +222,7 @@ class API(object):
 
     def section_with_id(self, section_id):
         try:
-            return filter(lambda x: x['id'] == section_id, self.sections())[0]
+            return list(filter(lambda x: x['id'] == section_id, self.sections()))[0]
         except IndexError:
             raise TestRailError("Section ID '%s' was not found" % section_id)
 
@@ -247,7 +253,7 @@ class API(object):
 
     def run_with_id(self, run_id):
         try:
-            return filter(lambda x: x['id'] == run_id, self.runs())[0]
+            return list(filter(lambda x: x['id'] == run_id, self.runs()))[0]
         except IndexError:
             raise TestRailError("Run ID '%s' was not found" % run_id)
 
@@ -262,7 +268,7 @@ class API(object):
     def test_with_id(self, test_id, run_id=None):
         if run_id is not None:
             try:
-                return filter(lambda x: x['id'] == test_id, self.tests(run_id))[0]
+                return list(filter(lambda x: x['id'] == test_id, self.tests(run_id)))[0]
             except IndexError:
                 raise TestRailError("Test ID '%s' was not found" % test_id)
         else:
@@ -314,7 +320,7 @@ class API(object):
 
     def status_with_id(self, status_id):
         try:
-            return filter(lambda x: x['id'] == status_id, self.statuses())[0]
+            return list(filter(lambda x: x['id'] == status_id, self.statuses()))[0]
         except IndexError:
             raise TestRailError("Status ID '%s' was not found" % status_id)
 

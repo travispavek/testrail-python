@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from helper import ContainerIter, TestRailError
+from testrail.helper import ContainerIter, TestRailError
 
 
 class Project(object):
@@ -89,6 +89,9 @@ class ProjectContainer(ContainerIter):
     def __init__(self, projects):
         super(ProjectContainer, self).__init__(projects)
         self._projects = projects
+
+    def __iter__(self):
+        return iter(self._projects)
 
     def __len__(self):
         return len(self._projects)

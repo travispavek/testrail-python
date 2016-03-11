@@ -1,17 +1,17 @@
 from datetime import datetime
 
-import api
-import entry
-from helper import ContainerIter
-from milestone import Milestone
-from project import Project
-from user import User
+from testrail.api import API
+import testrail.entry
+from testrail.helper import ContainerIter
+from testrail.milestone import Milestone
+from testrail.project import Project
+from testrail.user import User
 
 
 class Plan(object):
     def __init__(self, content=None):
         self._content = content or dict()
-        self.api = api.API()
+        self.api = API()
 
     @property
     def assigned_to(self):

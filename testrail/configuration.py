@@ -1,5 +1,5 @@
-from helper import ContainerIter, methdispatch, singleresult
-from project import Project
+from testrail.helper import ContainerIter, methdispatch, singleresult
+from testrail.project import Project
 
 
 class _InnerConfig(object):

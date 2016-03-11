@@ -1,9 +1,9 @@
-from api import API
-import run
-from suite import Suite
+from testrail.api import API
+from testrail.run import Run
+from testrail.suite import Suite
 
 
-class EntryRun(run.Run):
+class EntryRun(Run):
     def __init__(self, content):
         super(EntryRun, self).__init__(content)
 

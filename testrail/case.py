@@ -1,18 +1,18 @@
 from datetime import datetime
 
-import api
-from casetype import CaseType
-from milestone import Milestone
-from priority import Priority
-from section import Section
-from suite import Suite
-from user import User
+from testrail.api import API
+from testrail.casetype import CaseType
+from testrail.milestone import Milestone
+from testrail.priority import Priority
+from testrail.section import Section
+from testrail.suite import Suite
+from testrail.user import User
 
 
 class Case(object):
     def __init__(self, content):
         self._content = content
-        self.api = api.API()
+        self.api = API()
 
     @property
     def created_by(self):

@@ -3,12 +3,17 @@ sudo: false
 os:
   - linux
 python:
+  - '2.6'
   - '2.7'
+  - '3.3'
+  - '3.4'
+  - '3.5'
 install:
-  - pip install -e .
+  - pip install -U pip
+  - pip install -U tox-travis
   - pip install coveralls
   - pip install coverage
   - cp tests/testrail.conf ~/.testrail.conf
-script: nosetests --with-coverage --cover-package=testrail --cover-erase -v ./tests
+script: tox -v --recreate
 after_success:
   - coveralls
