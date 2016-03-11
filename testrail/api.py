@@ -257,6 +257,25 @@ class API(object):
         except IndexError:
             raise TestRailError("Run ID '%s' was not found" % run_id)
 
+    def add_run(self, run):
+        fields = ['name', 'description', 'suite_id', 'milestone_id',
+                  'assignedto_id', 'include_all', 'case_ids']
+        project_id = run.get('project_id')
+        payload = self._payload_gen(fields, run)
+        self._post('add_run/%s' % project_id, payload)
+
+    def update_run(self, run):
+        fields = [
+            'name', 'description', 'milestone_id', 'include_all', 'case_ids']
+        data = self._payload_gen(fields, run)
+        self._post('update_run/%s' % run.get('id'), data)
+
+    def close_run(self, run_id):
+        self._post('close_run/%s' % run_id)
+
+    def delete_run(self, run_id):
+        self._post('delete_run/%s' % run_id)
+
     # Test Requests
     def tests(self, run_id):
         if self._refresh(self._tests[run_id]['ts']):

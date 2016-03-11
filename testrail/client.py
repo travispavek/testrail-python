@@ -35,6 +35,10 @@ class TestRail(object):
         raise NotImplementedError
 
     @methdispatch
+    def close(self, obj):
+        raise NotImplementedError
+
+    @methdispatch
     def delete(self, obj):
         raise NotImplementedError
 
@@ -192,6 +196,23 @@ class TestRail(object):
     @singleresult
     def _run_by_id(self, run_id):
         filter(lambda p: p.id == run_id, self.runs())
+
+    @add.register(Run)
+    def _add_run(self, obj):
+        obj.project = obj.project or self.project(self._project_id)
+        self.api.add_run(obj.raw_data())
+
+    @update.register(Run)
+    def _update_run(self, obj):
+        self.api.update_run(obj.raw_data())
+
+    @close.register(Run)
+    def _close_run(self, obj):
+        self.api.close_run(obj.id)
+
+    @delete.register(Run)
+    def _delete_run(self, obj):
+        self.api.delete_run(obj.id)
 
     # Case Methods
     def cases(self, suite):
