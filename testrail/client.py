@@ -148,7 +148,7 @@ class TestRail(object):
 
     @delete.register(Milestone)
     def _delete_milestone(self, obj):
-        return Milestone(self.api.delete_milestone(obj.id))
+        return self.api.delete_milestone(obj.id)
 
     # Plan Methods
     @methdispatch
