@@ -7,7 +7,7 @@ import os
 import requests
 import yaml
 
-from testrail.helper import TestRailError, UpdateCache
+from testrail.helper import TestRailError
 
 nested_dict = lambda: collections.defaultdict(nested_dict)
 
@@ -179,20 +179,17 @@ class API(object):
                 raise TestRailError(
                     "Milestone ID '%s' was not found" % milestone_id)
 
-    @UpdateCache(_shared_state['_milestones'])
     def add_milestone(self, milestone):
         fields = ['name', 'description', 'due_on']
         project_id = milestone.get('project_id')
         payload = self._payload_gen(fields, milestone)
         return self._post('add_milestone/%s' % project_id, payload)
 
-    @UpdateCache(_shared_state['_milestones'])
     def update_milestone(self, milestone):
         fields = ['name', 'description', 'due_on', 'is_completed']
         data = self._payload_gen(fields, milestone)
         return self._post('update_milestone/%s' % milestone.get('id'), data)
 
-    @UpdateCache(_shared_state['_milestones'])
     def delete_milestone(self, milestone_id):
         return self._post('delete_milestone/%s' % milestone_id)
 
@@ -263,7 +260,6 @@ class API(object):
         except IndexError:
             raise TestRailError("Run ID '%s' was not found" % run_id)
 
-    @UpdateCache(_shared_state['_runs'])
     def add_run(self, run):
         fields = ['name', 'description', 'suite_id', 'milestone_id',
                   'assignedto_id', 'include_all', 'case_ids']
@@ -271,18 +267,15 @@ class API(object):
         payload = self._payload_gen(fields, run)
         return self._post('add_run/%s' % project_id, payload)
 
-    @UpdateCache(_shared_state['_runs'])
     def update_run(self, run):
         fields = [
             'name', 'description', 'milestone_id', 'include_all', 'case_ids']
         data = self._payload_gen(fields, run)
         return self._post('update_run/%s' % run.get('id'), data)
 
-    @UpdateCache(_shared_state['_runs'])
     def close_run(self, run_id):
         return self._post('close_run/%s' % run_id)
 
-    @UpdateCache(_shared_state['_runs'])
     def delete_run(self, run_id):
         return self._post('delete_run/%s' % run_id)
 

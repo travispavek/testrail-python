@@ -8,7 +8,7 @@ from testrail.milestone import Milestone
 from testrail.plan import Plan, PlanContainer
 from testrail.project import Project, ProjectContainer
 from testrail.result import Result
-from testrail.run import Run, RunContainer, Active, Closed
+from testrail.run import Run, RunContainer
 from testrail.status import Status
 from testrail.suite import Suite
 from testrail.test import Test
@@ -41,13 +41,6 @@ class TestRail(object):
     @methdispatch
     def delete(self, obj):
         raise NotImplementedError
-
-    # Active/Closed Methods
-    def active(self):
-        return Active()
-
-    def closed(self):
-        return Closed()
 
     # Project Methods
     def projects(self):
@@ -189,16 +182,6 @@ class TestRail(object):
     def _runs_for_milestone(self, obj):
         return RunContainer(filter(
             lambda r: r.milestone.id == obj.id, self.runs()))
-
-    @runs.register(Active)
-    def _runs_for_active(self, obj):
-        return RunContainer(
-            list(map(Run, self.api.runs(self._project_id, completed=False))))
-
-    @runs.register(Closed)
-    def _runs_for_closed(self, obj):
-        return RunContainer(
-            list(map(Run, self.api.runs(self._project_id, completed=True))))
 
     @methdispatch
     def run(self):

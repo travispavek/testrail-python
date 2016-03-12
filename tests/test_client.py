@@ -6,7 +6,7 @@ except ImportError:
 import mock
 
 from testrail.project import Project
-from testrail.run import RunContainer, Run, Active, Closed
+from testrail.run import RunContainer, Run
 import testrail
 
 
@@ -100,7 +100,7 @@ class TestProject(unittest.TestCase):
             assert isinstance(project, Project)
 
     @mock.patch('testrail.api.requests.get')
-    def test_get_runs(self, mock_get):
+    def test_get_runs_returns_runcontainer(self, mock_get):
         mock_response = mock.Mock()
         mock_response.json.return_value = self.mock_runs_data
         mock_response.status_code = 200
@@ -108,21 +108,50 @@ class TestProject(unittest.TestCase):
         runs = self.client.runs()
         assert isinstance(runs, RunContainer)
         self.assertEqual(len(runs), 2)
-        for run in runs:
-            assert isinstance(run, Run)
 
-        active_runs = list(runs.active())
+    @mock.patch('testrail.api.requests.get')
+    def test_runcontainer_contains_only_run_objects(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_runs_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        runs = self.client.runs()
+        self.assertTrue(all([isinstance(r, Run) for r in runs]))
+
+    @mock.patch('testrail.api.requests.get')
+    def test_runcontainer_active_runs(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_runs_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        active_runs = list(self.client.runs().active())
         self.assertEqual(len(active_runs), 1)
         self.assertEqual(active_runs[0].id, 111)
 
-        completed_runs = list(runs.completed())
+    @mock.patch('testrail.api.requests.get')
+    def test_runcontainer_completed_runs(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_runs_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        completed_runs = list(self.client.runs().completed())
         self.assertEqual(len(completed_runs), 1)
         self.assertEqual(completed_runs[0].id, 222)
 
-        latest_run = runs.latest()
-        assert isinstance(latest_run, Run)
+    @mock.patch('testrail.api.requests.get')
+    def test_runcontainer_latest_runs(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_runs_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        latest_run = self.client.runs().latest()
         self.assertEqual(latest_run.id, 222)
 
-        oldest_run = runs.oldest()
-        assert isinstance(oldest_run, Run)
+    @mock.patch('testrail.api.requests.get')
+    def test_runcontainer_oldest_runs(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_runs_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        oldest_run = self.client.runs().oldest()
         self.assertEqual(oldest_run.id, 111)
