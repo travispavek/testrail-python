@@ -8,7 +8,7 @@ from testrail.milestone import Milestone
 from testrail.plan import Plan, PlanContainer
 from testrail.project import Project, ProjectContainer
 from testrail.result import Result
-from testrail.run import Run, RunContainer
+from testrail.run import Run, RunContainer, Active, Closed
 from testrail.status import Status
 from testrail.suite import Suite
 from testrail.test import Test
@@ -41,6 +41,13 @@ class TestRail(object):
     @methdispatch
     def delete(self, obj):
         raise NotImplementedError
+
+    # Active/Closed Methods
+    def active(self):
+        return Active()
+
+    def closed(self):
+        return Closed()
 
     # Project Methods
     def projects(self):
@@ -133,15 +140,15 @@ class TestRail(object):
     @add.register(Milestone)
     def _add_milestone(self, obj):
         obj.project = obj.project or self.project(self._project_id)
-        self.api.add_milestone(obj.raw_data())
+        return Milestone(self.api.add_milestone(obj.raw_data()))
 
     @update.register(Milestone)
     def _update_milestone(self, obj):
-        self.api.update_milestone(obj.raw_data())
+        return Milestone(self.api.update_milestone(obj.raw_data()))
 
     @delete.register(Milestone)
     def _delete_milestone(self, obj):
-        self.api.delete_milestone(obj.id)
+        return Milestone(self.api.delete_milestone(obj.id))
 
     # Plan Methods
     @methdispatch
@@ -176,12 +183,22 @@ class TestRail(object):
     # Run Methods
     @methdispatch
     def runs(self):
-        return map(Run, self.api.runs(self._project_id))
+        return RunContainer(list(map(Run, self.api.runs(self._project_id))))
 
     @runs.register(Milestone)
     def _runs_for_milestone(self, obj):
         return RunContainer(filter(
             lambda r: r.milestone.id == obj.id, self.runs()))
+
+    @runs.register(Active)
+    def _runs_for_active(self, obj):
+        return RunContainer(
+            list(map(Run, self.api.runs(self._project_id, completed=False))))
+
+    @runs.register(Closed)
+    def _runs_for_closed(self, obj):
+        return RunContainer(
+            list(map(Run, self.api.runs(self._project_id, completed=True))))
 
     @methdispatch
     def run(self):
@@ -200,19 +217,19 @@ class TestRail(object):
     @add.register(Run)
     def _add_run(self, obj):
         obj.project = obj.project or self.project(self._project_id)
-        self.api.add_run(obj.raw_data())
+        return Run(self.api.add_run(obj.raw_data()))
 
     @update.register(Run)
     def _update_run(self, obj):
-        self.api.update_run(obj.raw_data())
+        return Run(self.api.update_run(obj.raw_data()))
 
     @close.register(Run)
     def _close_run(self, obj):
-        self.api.close_run(obj.id)
+        return Run(self.api.close_run(obj.id))
 
     @delete.register(Run)
     def _delete_run(self, obj):
-        self.api.delete_run(obj.id)
+        return self.api.delete_run(obj.id)
 
     # Case Methods
     def cases(self, suite):

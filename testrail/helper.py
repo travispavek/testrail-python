@@ -61,3 +61,19 @@ class ContainerIter(object):
 
     def next(self):
         return self.__next()
+
+
+class UpdateCache(object):
+    """ Decorator class for forcing cache to update by forcing the timestamp to
+        be None
+    """
+    def __init__(self, cache):
+        self.cache = cache
+
+    def __call__(self, f):
+        def wrapped_f(*args, **kwargs):
+            resp = f(*args, **kwargs)
+            if 'project_id' in resp:
+                self.cache[resp['project_id']]['ts'] = None
+            return resp
+        return wrapped_f

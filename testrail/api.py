@@ -7,7 +7,7 @@ import os
 import requests
 import yaml
 
-from testrail.helper import TestRailError
+from testrail.helper import TestRailError, UpdateCache
 
 nested_dict = lambda: collections.defaultdict(nested_dict)
 
@@ -179,19 +179,22 @@ class API(object):
                 raise TestRailError(
                     "Milestone ID '%s' was not found" % milestone_id)
 
+    @UpdateCache(_shared_state['_milestones'])
     def add_milestone(self, milestone):
         fields = ['name', 'description', 'due_on']
         project_id = milestone.get('project_id')
         payload = self._payload_gen(fields, milestone)
-        self._post('add_milestone/%s' % project_id, payload)
+        return self._post('add_milestone/%s' % project_id, payload)
 
+    @UpdateCache(_shared_state['_milestones'])
     def update_milestone(self, milestone):
         fields = ['name', 'description', 'due_on', 'is_completed']
         data = self._payload_gen(fields, milestone)
-        self._post('update_milestone/%s' % milestone.get('id'), data)
+        return self._post('update_milestone/%s' % milestone.get('id'), data)
 
+    @UpdateCache(_shared_state['_milestones'])
     def delete_milestone(self, milestone_id):
-        self._post('delete_milestone/%s' % milestone_id)
+        return self._post('delete_milestone/%s' % milestone_id)
 
     # Priority Requests
     def priorities(self):
@@ -243,10 +246,13 @@ class API(object):
         #     return None
 
     # Run Requests
-    def runs(self, project_id):
+    def runs(self, project_id, completed=None):
         if self._refresh(self._runs[project_id]['ts']):
             # get new value, if request is good update value with new ts.
-            _runs = self._get('get_runs/%s' % project_id)
+            end_point = 'get_runs/%s' % project_id
+            if completed is not None:
+                end_point += '&is_completed=%s' % str(int(completed))
+            _runs = self._get(end_point)
             self._runs[project_id]['value'] = _runs
             self._runs[project_id]['ts'] = datetime.now()
         return self._runs[project_id]['value']
@@ -257,24 +263,28 @@ class API(object):
         except IndexError:
             raise TestRailError("Run ID '%s' was not found" % run_id)
 
+    @UpdateCache(_shared_state['_runs'])
     def add_run(self, run):
         fields = ['name', 'description', 'suite_id', 'milestone_id',
                   'assignedto_id', 'include_all', 'case_ids']
         project_id = run.get('project_id')
         payload = self._payload_gen(fields, run)
-        self._post('add_run/%s' % project_id, payload)
+        return self._post('add_run/%s' % project_id, payload)
 
+    @UpdateCache(_shared_state['_runs'])
     def update_run(self, run):
         fields = [
             'name', 'description', 'milestone_id', 'include_all', 'case_ids']
         data = self._payload_gen(fields, run)
-        self._post('update_run/%s' % run.get('id'), data)
+        return self._post('update_run/%s' % run.get('id'), data)
 
+    @UpdateCache(_shared_state['_runs'])
     def close_run(self, run_id):
-        self._post('close_run/%s' % run_id)
+        return self._post('close_run/%s' % run_id)
 
+    @UpdateCache(_shared_state['_runs'])
     def delete_run(self, run_id):
-        self._post('delete_run/%s' % run_id)
+        return self._post('delete_run/%s' % run_id)
 
     # Test Requests
     def tests(self, run_id):

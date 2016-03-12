@@ -140,3 +140,10 @@ class RunContainer(ContainerIter):
 
     def active(self):
         return filter(lambda m: m.is_completed is False, self._runs)
+
+
+class Active(object):
+    pass
+
+class Closed(object):
+    pass
