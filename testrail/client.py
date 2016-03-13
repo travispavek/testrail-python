@@ -35,6 +35,10 @@ class TestRail(object):
         raise NotImplementedError
 
     @methdispatch
+    def close(self, obj):
+        raise NotImplementedError
+
+    @methdispatch
     def delete(self, obj):
         raise NotImplementedError
 
@@ -129,15 +133,15 @@ class TestRail(object):
     @add.register(Milestone)
     def _add_milestone(self, obj):
         obj.project = obj.project or self.project(self._project_id)
-        self.api.add_milestone(obj.raw_data())
+        return Milestone(self.api.add_milestone(obj.raw_data()))
 
     @update.register(Milestone)
     def _update_milestone(self, obj):
-        self.api.update_milestone(obj.raw_data())
+        return Milestone(self.api.update_milestone(obj.raw_data()))
 
     @delete.register(Milestone)
     def _delete_milestone(self, obj):
-        self.api.delete_milestone(obj.id)
+        return self.api.delete_milestone(obj.id)
 
     # Plan Methods
     @methdispatch
@@ -172,7 +176,7 @@ class TestRail(object):
     # Run Methods
     @methdispatch
     def runs(self):
-        return map(Run, self.api.runs(self._project_id))
+        return RunContainer(list(map(Run, self.api.runs(self._project_id))))
 
     @runs.register(Milestone)
     def _runs_for_milestone(self, obj):
@@ -192,6 +196,23 @@ class TestRail(object):
     @singleresult
     def _run_by_id(self, run_id):
         filter(lambda p: p.id == run_id, self.runs())
+
+    @add.register(Run)
+    def _add_run(self, obj):
+        obj.project = obj.project or self.project(self._project_id)
+        return Run(self.api.add_run(obj.raw_data()))
+
+    @update.register(Run)
+    def _update_run(self, obj):
+        return Run(self.api.update_run(obj.raw_data()))
+
+    @close.register(Run)
+    def _close_run(self, obj):
+        return Run(self.api.close_run(obj.id))
+
+    @delete.register(Run)
+    def _delete_run(self, obj):
+        return self.api.delete_run(obj.id)
 
     # Case Methods
     def cases(self, suite):

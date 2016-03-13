@@ -49,6 +49,9 @@ class ContainerIter(object):
     def __iter__(self):
         return self
 
+    def __len__(self):
+        return len(self._objs)
+
     def __next__(self):
         return self.__next()
 
