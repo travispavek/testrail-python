@@ -1,15 +1,75 @@
 from __future__ import division
 
-import collections
-from datetime import datetime, timedelta
 import os
+import collections
+from builtins import dict
+from datetime import datetime, timedelta
 
-import requests
 import yaml
+import requests
 
 from testrail.helper import TestRailError
 
 nested_dict = lambda: collections.defaultdict(nested_dict)
+
+
+class UpdateCache(object):
+    """ Decorator class for forcing cache to update by forcing the timestamp to
+        be None
+    """
+    def __init__(self, cache):
+        self.cache = cache
+
+    def __call__(self, f):
+        def wrapped_f(*args, **kwargs):
+            resp = f(*args, **kwargs)
+            if isinstance(resp, dict) and not resp:
+                # Empty dict, indicating something at args[1] was deleted.
+                self._delete_from_cache(args[1])
+            else:
+                # Something must have been added or updated
+                self._update_cache(resp)
+
+            return resp
+        return wrapped_f
+
+    def _delete_from_cache(self, delete_id):
+        ''' Check every dict inside of self.cache for an object with a matching
+            ID
+        '''
+        for project in self.cache.values():
+            obj_list = project['value']
+            for index, obj in enumerate(obj_list):
+                if obj['id'] == delete_id:
+                    obj_list.pop(index)
+                    return
+        else:
+            # If we hit this, it means we went looked at every object in every
+            # cache dict and didn't find a match. Raise an exception
+            exc_msg = "Attempted to delete an item the cache, but could not" +\
+                      "located item with id {0}".format(delete_id)
+            raise TestRailError(exc_msg)
+
+    def _update_cache(self, update_obj):
+        ''' Update the cache using update_obj.
+
+            If a matching object is found in the cache, replace it with update_obj.
+            If no matching object is found, append it to the cache
+        '''
+        project_id = update_obj['project_id']
+
+        obj_list = self.cache[project_id]['value']
+        for index, obj in enumerate(obj_list):
+            if obj['id'] == update_obj['id']:
+                obj_list.insert(index, update_obj)
+                return
+        else:
+            # If we get this far, it means we searched all objects without
+            # finding a match. Add the object
+            obj_list.append(update_obj)
+            obj_list.sort(key=lambda x: x['id'])
+
+            return
 
 
 class API(object):
@@ -260,6 +320,7 @@ class API(object):
         except IndexError:
             raise TestRailError("Run ID '%s' was not found" % run_id)
 
+    @UpdateCache(_shared_state['_runs'])
     def add_run(self, run):
         fields = ['name', 'description', 'suite_id', 'milestone_id',
                   'assignedto_id', 'include_all', 'case_ids']
@@ -267,15 +328,18 @@ class API(object):
         payload = self._payload_gen(fields, run)
         return self._post('add_run/%s' % project_id, payload)
 
+    @UpdateCache(_shared_state['_runs'])
     def update_run(self, run):
         fields = [
             'name', 'description', 'milestone_id', 'include_all', 'case_ids']
         data = self._payload_gen(fields, run)
         return self._post('update_run/%s' % run.get('id'), data)
 
+    @UpdateCache(_shared_state['_runs'])
     def close_run(self, run_id):
         return self._post('close_run/%s' % run_id)
 
+    @UpdateCache(_shared_state['_runs'])
     def delete_run(self, run_id):
         return self._post('delete_run/%s' % run_id)
 
