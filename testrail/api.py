@@ -14,8 +14,7 @@ nested_dict = lambda: collections.defaultdict(nested_dict)
 
 
 class UpdateCache(object):
-    """ Decorator class for forcing cache to update by forcing the timestamp to
-        be None
+    """ Decorator class for updating API cache
     """
     def __init__(self, cache):
         self.cache = cache
@@ -24,8 +23,8 @@ class UpdateCache(object):
         def wrapped_f(*args, **kwargs):
             resp = f(*args, **kwargs)
             if isinstance(resp, dict) and not resp:
-                # Empty dict, indicating something at args[1] was deleted.
-                self._delete_from_cache(args[1])
+                # Empty dict, indicating something at args[-1] was deleted.
+                self._delete_from_cache(args[-1])
             else:
                 # Something must have been added or updated
                 self._update_cache(resp)
@@ -46,8 +45,8 @@ class UpdateCache(object):
         else:
             # If we hit this, it means we went looked at every object in every
             # cache dict and didn't find a match. Raise an exception
-            exc_msg = "Attempted to delete an item the cache, but could not" +\
-                      "located item with id {0}".format(delete_id)
+            exc_msg = "Attempted to delete an item the cache, but could not " +\
+                      "locate item with id {0}".format(delete_id)
             raise TestRailError(exc_msg)
 
     def _update_cache(self, update_obj):
@@ -61,7 +60,7 @@ class UpdateCache(object):
         obj_list = self.cache[project_id]['value']
         for index, obj in enumerate(obj_list):
             if obj['id'] == update_obj['id']:
-                obj_list.insert(index, update_obj)
+                obj_list[index] = update_obj
                 return
         else:
             # If we get this far, it means we searched all objects without
@@ -239,17 +238,20 @@ class API(object):
                 raise TestRailError(
                     "Milestone ID '%s' was not found" % milestone_id)
 
+    @UpdateCache(_shared_state['_milestones'])
     def add_milestone(self, milestone):
         fields = ['name', 'description', 'due_on']
         project_id = milestone.get('project_id')
         payload = self._payload_gen(fields, milestone)
         return self._post('add_milestone/%s' % project_id, payload)
 
+    @UpdateCache(_shared_state['_milestones'])
     def update_milestone(self, milestone):
         fields = ['name', 'description', 'due_on', 'is_completed']
         data = self._payload_gen(fields, milestone)
         return self._post('update_milestone/%s' % milestone.get('id'), data)
 
+    @UpdateCache(_shared_state['_milestones'])
     def delete_milestone(self, milestone_id):
         return self._post('delete_milestone/%s' % milestone_id)
 
