@@ -21,15 +21,15 @@ class UpdateCache(object):
 
     def __call__(self, f):
         def wrapped_f(*args, **kwargs):
-            resp = f(*args, **kwargs)
-            if isinstance(resp, dict) and not resp:
+            api_resp = f(*args, **kwargs)
+            if isinstance(api_resp, dict) and not api_resp:
                 # Empty dict, indicating something at args[-1] was deleted.
                 self._delete_from_cache(args[-1])
             else:
                 # Something must have been added or updated
-                self._update_cache(resp)
+                self._update_cache(api_resp)
 
-            return resp
+            return api_resp
         return wrapped_f
 
     def _delete_from_cache(self, delete_id):
@@ -43,11 +43,12 @@ class UpdateCache(object):
                     obj_list.pop(index)
                     return
         else:
-            # If we hit this, it means we went looked at every object in every
-            # cache dict and didn't find a match. Raise an exception
-            exc_msg = "Attempted to delete an item the cache, but could not " +\
-                      "locate item with id {0}".format(delete_id)
-            raise TestRailError(exc_msg)
+            # If we hit this, it means we looked at every object in every cache
+            # and didn't find a match. Set the cache to refresh on the next call
+            for project in self.cache.values():
+                project['ts'] = None
+
+            return
 
     def _update_cache(self, update_obj):
         ''' Update the cache using update_obj.

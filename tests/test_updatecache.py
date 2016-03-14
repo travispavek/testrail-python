@@ -1,5 +1,6 @@
 from copy import deepcopy
 from builtins import dict
+from datetime import datetime as dt
 
 try:
     import unittest2 as unittest
@@ -16,6 +17,7 @@ class TestUpdateCache(unittest.TestCase):
     def setUp(self):
         self.mock_cache = {
             0: {
+                'ts': dt.now(),
                 'value': [
                     {'id': 'id00', 'val': 'oldval'},
                     {'id': 'id01', 'val': 'oldval'},
@@ -25,6 +27,7 @@ class TestUpdateCache(unittest.TestCase):
                 ]
             },
             1: {
+                'ts': dt.now(),
                 'value': [
                     {'id': 'id10', 'val': 'oldval'},
                     {'id': 'id11', 'val': 'oldval'},
@@ -83,21 +86,17 @@ class TestUpdateCache(unittest.TestCase):
             for obj in project['value']:
                 self.assertNotEqual(id_to_delete, obj['id'])
 
-    def test_cache_raises_error(self,):
-        raise_cache = deepcopy(self.mock_cache)
-        raise_obj = {}
+    def test_cache_refresh(self,):
+        refresh_cache = deepcopy(self.mock_cache)
+        force_refresh_obj = {}
         id_to_delete = 'id23'
  
-        @UpdateCache(raise_cache)
-        def cache_raise_func(val):
-            return raise_obj
+        @UpdateCache(refresh_cache)
+        def cache_refresh_func(val):
+            return force_refresh_obj
 
-        with self.assertRaises(TestRailError) as e:
-            cache_raise_func(id_to_delete)
+        cache_refresh_func(id_to_delete)
 
-        self.assertEqual(len(raise_cache[0]['value']), 5)
-        self.assertEqual(len(raise_cache[1]['value']), 5)
-        exp_exc_str = "could not locate item with id {0}".format(id_to_delete)
-        self.assertIn(exp_exc_str, str(e.exception))
-
-
+        self.assertEqual(len(refresh_cache[0]['value']), 5)
+        self.assertEqual(len(refresh_cache[1]['value']), 5)
+        self.assertTrue(all([x['ts'] is None for x in refresh_cache.values()]))
