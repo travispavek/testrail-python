@@ -55,6 +55,21 @@ class TestUpdateCache(unittest.TestCase):
         self.assertEqual(len(add_cache[1]['value']), 6)
         self.assertEqual(add_cache[1]['value'][-1], add_obj)
 
+    def test_cache_add_when_no_timestamp(self,):
+        no_ts_cache = deepcopy(self.mock_cache)
+        no_ts_cache[1]['ts'] = None
+        no_ts_obj = {'id': 'id11', 'val': 'test_cache_update', 'project_id': 1}
+ 
+        @UpdateCache(no_ts_cache)
+        def cache_update_func():
+            return no_ts_obj
+
+        cache_update_func()
+
+        self.assertEqual(len(no_ts_cache[0]['value']), 5)
+        self.assertEqual(len(no_ts_cache[1]['value']), 5)
+        self.assertEqual(no_ts_cache[1]['value'][1]['val'], 'oldval')
+
     def test_cache_update(self,):
         update_cache = deepcopy(self.mock_cache)
         update_obj = {'id': 'id12', 'val': 'test_cache_update', 'project_id': 1}
@@ -68,6 +83,20 @@ class TestUpdateCache(unittest.TestCase):
         self.assertEqual(len(update_cache[0]['value']), 5)
         self.assertEqual(len(update_cache[1]['value']), 5)
         self.assertEqual(update_cache[1]['value'][2], update_obj)
+
+    def test_cache_update_when_no_timestamp(self,):
+        no_ts_cache = deepcopy(self.mock_cache)
+        no_ts_cache[1]['ts'] = None
+        no_ts_obj = {'id': 'id15', 'val': 'test_cache_update', 'project_id': 1}
+ 
+        @UpdateCache(no_ts_cache)
+        def cache_update_func():
+            return no_ts_obj
+
+        cache_update_func()
+
+        self.assertEqual(len(no_ts_cache[0]['value']), 5)
+        self.assertEqual(len(no_ts_cache[1]['value']), 5)
 
     def test_cache_delete(self,):
         delete_cache = deepcopy(self.mock_cache)

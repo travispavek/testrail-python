@@ -58,6 +58,10 @@ class UpdateCache(object):
         '''
         project_id = update_obj['project_id']
 
+        if not self.cache[project_id]['ts']:
+            # The cache will clear on the next read, so no reason to add/update
+            return
+
         obj_list = self.cache[project_id]['value']
         for index, obj in enumerate(obj_list):
             if obj['id'] == update_obj['id']:
