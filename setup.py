@@ -5,6 +5,7 @@ install_requires=[
     'requests>=2.6.0',
     'singledispatch>=3.4.0',
     'pyyaml>=3.1.1',
+    'future',
 ]
 
 if sys.version_info[:3] < (2, 7, 0):

@@ -107,6 +107,10 @@ class Run(object):
         self._content['project_id'] = value.id
 
     @property
+    def project_id(self):
+        return self._content.get('project_id')
+
+    @property
     def retest_count(self):
         return self._content.get('retest_count')
 
