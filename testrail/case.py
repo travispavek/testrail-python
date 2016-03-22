@@ -87,3 +87,6 @@ class Case(object):
     @property
     def updated_on(self):
         return datetime.fromtimestamp(int(self._content.get('updated_on')))
+
+    def raw_data(self):
+        return self._content

@@ -11,6 +11,7 @@ from testrail.result import Result
 from testrail.run import Run, RunContainer
 from testrail.status import Status
 from testrail.suite import Suite
+from testrail.section import Section
 from testrail.test import Test
 from testrail.user import User
 

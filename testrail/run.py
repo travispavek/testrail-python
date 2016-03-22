@@ -6,6 +6,7 @@ from testrail.milestone import Milestone
 import testrail.plan
 from testrail.project import Project
 from testrail.user import User
+from testrail.helper import TestRailError
 
 
 class Run(object):
@@ -20,6 +21,21 @@ class Run(object):
     @property
     def blocked_count(self):
         return self._content.get('blocked_count')
+
+    @property
+    def case_ids(self):
+        return self.content.get('case_ids')
+
+    @case_ids.setter
+    def case_ids(self, case_ids):
+        try:
+            case_ids = list(map(int, case_ids))
+        except (TypeError, ValueError):
+            raise TestRailError('case_ids must be an iterable of integers')
+
+        self._content['case_ids'] = case_ids
+
+        self.include_all = False
 
     @property
     def completed_on(self):
@@ -68,6 +84,12 @@ class Run(object):
     def include_all(self):
         return self._content.get('include_all')
 
+    @include_all.setter
+    def include_all(self, value):
+        if not isinstance(value, bool):
+            raise TestRailError('include_all must be a boolean')
+        self._content['include_all'] = value
+
     @property
     def is_completed(self):
         return self._content.get('is_completed')
@@ -91,7 +113,7 @@ class Run(object):
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['name'] = value
 
@@ -106,7 +128,7 @@ class Run(object):
 
     @project.setter
     def project(self, value):
-        if type(value) != Project:
+        if not isinstance(value, Project):
             raise TestRailError('input must be a Project')
         self.api.project_with_id(value.id)  # verify project is valid
         self._content['project_id'] = value.id
