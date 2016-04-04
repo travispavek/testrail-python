@@ -54,7 +54,7 @@ class Plan(object):
         if self._content.get('entries') is None:
             self._content['entries'] = self.api.plan_with_id(
                 self.id).get('entries')
-        return map(entry.Entry, self._content.get('entries'))
+        return map(testrail.entry.Entry, self._content.get('entries'))
 
     @property
     def failed_count(self):

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from testrail.api import API
-from testrail.helper import ContainerIter
+from testrail.helper import ContainerIter, TestRailError
 from testrail.milestone import Milestone
 import testrail.plan
 from testrail.project import Project
@@ -79,7 +79,8 @@ class Run(object):
 
     @property
     def plan(self):
-        return plan.Plan(self.api.plan_with_id(self._content.get('plan_id')))
+        return testrail.plan.Plan(
+            self.api.plan_with_id(self._content.get('plan_id')))
 
     @property
     def name(self):
@@ -97,7 +98,8 @@ class Run(object):
 
     @property
     def project(self):
-        return Project(self.api.project_with_id(self._content.get('project_id')))
+        return Project(
+            self.api.project_with_id(self._content.get('project_id')))
 
     @project.setter
     def project(self, value):
