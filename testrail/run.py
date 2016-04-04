@@ -74,8 +74,11 @@ class Run(object):
 
     @property
     def milestone(self):
-        return Milestone(self.api.milestone_with_id(self._content.get(
-            'milestone_id'), self._content.get('project_id')))
+        milestone_id = self._content.get('milestone_id')
+        if milestone_id is None:
+            return None
+        return Milestone((self.api.milestone_with_id(milestone_id),
+                         self._content.get('project_id')))
 
     @property
     def plan(self):
