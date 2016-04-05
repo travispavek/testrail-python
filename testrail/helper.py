@@ -44,23 +44,9 @@ def singleresult(func):
 class ContainerIter(object):
     def __init__(self, objs):
         self._objs = list(objs)
-        self._index = 0
-
-    def __iter__(self):
-        return self
 
     def __len__(self):
         return len(self._objs)
 
-    def __next__(self):
-        return self.__next()
-
-    def __next(self):
-        if self._index == len(self._objs):
-            raise StopIteration
-        else:
-            self._index += 1
-            return self._objs[self._index-1]
-
-    def next(self):
-        return self.__next()
+    def __getitem__(self, index):
+        return self._objs[index]
