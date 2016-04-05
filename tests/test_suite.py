@@ -155,8 +155,10 @@ class TestSuite(unittest.TestCase):
             self.suite.project
         self.assertEqual(str(e.exception), "Project ID '200' was not found")
 
+    @mock.patch('testrail.api.API._refresh')
     @mock.patch('testrail.api.requests.get')
-    def test_set_project(self, mock_get):
+    def test_set_project(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
         mock_response = mock.Mock()
         mock_response.json.return_value = copy.deepcopy(self.mock_project_data)
         mock_response.status_code = 200

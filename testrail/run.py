@@ -65,19 +65,19 @@ class Run(object):
         return self._content.get('id')
 
     @property
-    def is_completed(self):
-        return self._content.get('is_completed')
-
-    @property
     def include_all(self):
         return self._content.get('include_all')
+
+    @property
+    def is_completed(self):
+        return self._content.get('is_completed')
 
     @property
     def milestone(self):
         milestone_id = self._content.get('milestone_id')
         if milestone_id is None:
             return None
-        return Milestone((self.api.milestone_with_id(milestone_id),
+        return Milestone(self.api.milestone_with_id(milestone_id,
                          self._content.get('project_id')))
 
     @property
