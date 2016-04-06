@@ -137,6 +137,20 @@ class API(object):
 
         return since_last > self._timeout
 
+    @classmethod
+    def flush_cache(cls):
+        """ Set all cache objects to refresh
+        """
+        for cache in cls._shared_state.values():
+            if not isinstance(cache, dict):
+                continue
+            elif 'ts' in cache:
+                cache['ts'] = None
+
+            for project in cache.values():
+                if isinstance(project, dict) and 'ts' in project:
+                    project['ts'] = None
+
     def set_project_id(self, project_id):
         self._project_id = project_id
 
