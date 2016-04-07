@@ -145,7 +145,7 @@ class RunContainer(ContainerIter):
         return self._runs[0]
 
     def completed(self):
-        return filter(lambda m: m.is_completed is True, self._runs)
+        return list(filter(lambda m: m.is_completed is True, self._runs))
 
     def active(self):
-        return filter(lambda m: m.is_completed is False, self._runs)
+        return list(filter(lambda m: m.is_completed is False, self._runs))

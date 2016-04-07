@@ -128,19 +128,25 @@ class PlanContainer(ContainerIter):
         self._plans = plans
 
     def completed(self):
-        return filter(lambda p: p.is_completed is True, self._plans)
+        return list(filter(lambda p: p.is_completed is True, self._plans))
 
     def active(self):
-        return filter(lambda p: p.is_completed is False, self._plans)
+        return list(filter(lambda p: p.is_completed is False, self._plans))
 
     def created_after(self, dt):
-        return filter(lambda p: p.created_on > dt, self._plans)
+        if not isinstance(dt, datetime):
+            raise TestRailError("Must pass in a datetime object")
+        return list(filter(lambda p: p.created_on > dt, self._plans))
 
     def created_before(self, dt):
-        return filter(lambda p: p.created_on < dt, self._plans)
+        if not isinstance(dt, datetime):
+            raise TestRailError("Must pass in a datetime object")
+        return list(filter(lambda p: p.created_on < dt, self._plans))
 
     def created_by(self, user):
-        return filter(lambda p: p.created_by.id == user.id, self._plans)
+        if not isinstance(user, User):
+            raise TestRailError("Must pass in a User object")
+        return list(filter(lambda p: p.created_by.id == user.id, self._plans))
 
     def latest(self):
         self._plans.sort(key=lambda x: x.created_on)
@@ -151,4 +157,11 @@ class PlanContainer(ContainerIter):
         return self._plans[0]
 
     def name(self, name):
-        return filter(lambda p: p.name.lower() == name.lower(), self._plans)
+        if not isinstance(name, str):
+            raise TestRailError("Must pass in a string")
+
+        comp_func = lambda p: p.name.lower() == name.lower()
+        try:
+            return list(filter(comp_func, self._plans)).pop(0)
+        except IndexError:
+            raise TestRailError("Plan with name '%s' was not found" % name)
