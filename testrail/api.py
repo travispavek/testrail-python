@@ -137,6 +137,20 @@ class API(object):
 
         return since_last > self._timeout
 
+    @classmethod
+    def flush_cache(cls):
+        """ Set all cache objects to refresh
+        """
+        for cache in cls._shared_state.values():
+            if not isinstance(cache, dict):
+                continue
+            elif 'ts' in cache:
+                cache['ts'] = None
+
+            for project in cache.values():
+                if isinstance(project, dict) and 'ts' in project:
+                    project['ts'] = None
+
     def set_project_id(self, project_id):
         self._project_id = project_id
 
@@ -294,7 +308,8 @@ class API(object):
             raise TestRailError("Section ID '%s' was not found" % section_id)
 
     # Plan Requests
-    def plans(self, project_id):
+    def plans(self, project_id=None):
+        project_id = project_id or self._project_id
         if self._refresh(self._plans[project_id]['ts']):
             # get new value, if request is good update value with new ts.
             _plans = self._get('get_plans/%s' % project_id)
@@ -303,14 +318,14 @@ class API(object):
         return self._plans[project_id]['value']
 
     def plan_with_id(self, plan_id):
-        return self._get('get_plan/%s' % plan_id)
-        # try:
-        #     return filter(lambda x: x['id'] == plan_id, self.plans())[0]
-        # except IndexError:
-        #     return None
+        try:
+            return list(filter(lambda x: x['id'] == plan_id, self.plans()))[0]
+        except IndexError:
+            return None
 
     # Run Requests
-    def runs(self, project_id, completed=None):
+    def runs(self, project_id=None, completed=None):
+        project_id = project_id or self._project_id
         if self._refresh(self._runs[project_id]['ts']):
             # get new value, if request is good update value with new ts.
             end_point = 'get_runs/%s' % project_id

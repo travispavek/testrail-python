@@ -6,16 +6,19 @@ try:
 except ImportError:
     import unittest
 
-from testrail.helper import TestRailError
-from testrail.result import Result
-from testrail.status import Status
+from testrail.api import API
 from testrail.test import Test
 from testrail.user import User
+from testrail.result import Result
+from testrail.status import Status
+from testrail.helper import TestRailError
 
 
 class TestUser(unittest.TestCase):
 
     def setUp(self):
+        API.flush_cache()
+
         self.mock_result_data = {
             'assignedto_id': 1,
             'comment': 'All steps passed',
@@ -159,7 +162,12 @@ class TestUser(unittest.TestCase):
             self.result.comment = True
         self.assertEqual(str(e.exception), 'input must be a string')
 
-    def test_get_created_type(self):
+    @mock.patch('testrail.api.requests.get')
+    def test_get_created_type(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_user_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
         self.assertEqual(type(self.result.created_by), User)
 
     @mock.patch('testrail.api.requests.get')
@@ -171,13 +179,23 @@ class TestUser(unittest.TestCase):
         user = self.result.created_by
         self.assertEqual(user._content, self.mock_user_data[1])
 
-    def test_get_created_by_no_id(self):
+    @mock.patch('testrail.api.requests.get')
+    def test_get_created_by_no_id(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_user_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
         result = Result()
         with self.assertRaises(TestRailError) as e:
             result.created_by
         self.assertEqual(str(e.exception), "User ID 'None' was not found")
 
-    def test_get_created_by_invalid_id(self):
+    @mock.patch('testrail.api.requests.get')
+    def test_get_created_by_invalid_id(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_user_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
         result = Result()
         result._content['created_by'] = 900
         with self.assertRaises(TestRailError) as e:

@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from testrail.api import API
 import testrail.entry
-from testrail.helper import ContainerIter
-from testrail.milestone import Milestone
-from testrail.project import Project
+from testrail.api import API
 from testrail.user import User
+from testrail.project import Project
+from testrail.milestone import Milestone
+from testrail.helper import ContainerIter, TestRailError
 
 
 class Plan(object):
@@ -51,10 +51,10 @@ class Plan(object):
     @property
     def entries(self):
         # ToDo convert entries to run objects
-        if self._content.get('entries') is None:
+        if not self._content.get('entries'):
             self._content['entries'] = self.api.plan_with_id(
                 self.id).get('entries')
-        return map(testrail.entry.Entry, self._content.get('entries'))
+        return list(map(testrail.entry.Entry, self._content.get('entries')))
 
     @property
     def failed_count(self):
@@ -80,6 +80,12 @@ class Plan(object):
     def name(self):
         return self._content.get('name')
 
+    @name.setter
+    def name(self, value):
+        if not isinstance(value, str):
+            raise TestRailError('input must be a string')
+        self._content['name'] = value
+
     @property
     def passed_count(self):
         return self._content.get('passed_count')
@@ -88,6 +94,17 @@ class Plan(object):
     def project(self):
         return Project(
             self.api.project_with_id(self._content.get('project_id')))
+
+    @project.setter
+    def project(self, value):
+        if type(value) != Project:
+            raise TestRailError('input must be a Project')
+        self.api.project_with_id(value.id)  # verify project is valid
+        self._content['project_id'] = value.id
+
+    @property
+    def project_id(self):
+        return self._content.get('project_id')
 
     @property
     def retest_count(self):
@@ -101,6 +118,9 @@ class Plan(object):
     def url(self):
         return self._content.get('url')
 
+    def raw_data(self):
+        return self._content
+
 
 class PlanContainer(ContainerIter):
     def __init__(self, plans):
@@ -108,19 +128,25 @@ class PlanContainer(ContainerIter):
         self._plans = plans
 
     def completed(self):
-        return filter(lambda p: p.is_completed is True, self._plans)
+        return list(filter(lambda p: p.is_completed is True, self._plans))
 
     def active(self):
-        return filter(lambda p: p.is_completed is False, self._plans)
+        return list(filter(lambda p: p.is_completed is False, self._plans))
 
     def created_after(self, dt):
-        return filter(lambda p: p.created_on > dt, self._plans)
+        if not isinstance(dt, datetime):
+            raise TestRailError("Must pass in a datetime object")
+        return list(filter(lambda p: p.created_on > dt, self._plans))
 
     def created_before(self, dt):
-        return filter(lambda p: p.created_on < dt, self._plans)
+        if not isinstance(dt, datetime):
+            raise TestRailError("Must pass in a datetime object")
+        return list(filter(lambda p: p.created_on < dt, self._plans))
 
     def created_by(self, user):
-        return filter(lambda p: p.created_by.id == user.id, self._plans)
+        if not isinstance(user, User):
+            raise TestRailError("Must pass in a User object")
+        return list(filter(lambda p: p.created_by.id == user.id, self._plans))
 
     def latest(self):
         self._plans.sort(key=lambda x: x.created_on)
@@ -131,4 +157,11 @@ class PlanContainer(ContainerIter):
         return self._plans[0]
 
     def name(self, name):
-        return filter(lambda p: p.name.lower() == name.lower(), self._plans)
+        if not isinstance(name, str):
+            raise TestRailError("Must pass in a string")
+
+        comp_func = lambda p: p.name.lower() == name.lower()
+        try:
+            return list(filter(comp_func, self._plans)).pop(0)
+        except IndexError:
+            raise TestRailError("Plan with name '%s' was not found" % name)
