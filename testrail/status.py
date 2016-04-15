@@ -35,5 +35,5 @@ class Status(object):
         return self._content.get('color_dark')
 
     @property
-    def color_light(self):
-        return self._content.get('color_light')
+    def color_bright(self):
+        return self._content.get('color_bright')
