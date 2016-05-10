@@ -103,28 +103,37 @@ class API(object):
         self.headers = {'Content-Type': 'application/json'}
 
     def _conf(self):
-        _email = os.environ.get('TESTRAIL_USER_EMAIL')
-        _key = os.environ.get('TESTRAIL_USER_KEY')
-        _url = os.environ.get('TESTRAIL_URL')
-        try:
-            with open('%s/.testrail.conf' % os.path.expanduser('~'), 'r') as f:
+        TR_EMAIL = 'TESTRAIL_USER_EMAIL'
+        TR_KEY = 'TESTRAIL_USER_KEY'
+        TR_URL = 'TESTRAIL_URL'
+
+        conf_path = '%s/.testrail.conf' % os.path.expanduser('~')
+
+        if os.path.isfile(conf_path):
+            with open(conf_path, 'r') as f:
                 config = yaml.load(f)
-                _email = _email or config['testrail'].get('user_email')
-                _key = _key or config['testrail'].get('user_key')
-                _url = _url or config['testrail'].get('url')
-        except IOError as e:
-            print(e)
+        else:
+            config = {
+                'testrail': {
+                    'user_email': None, 'user_key': None, 'url': None
+                }
+            }
+
+        _email = os.environ.get(TR_EMAIL) or config['testrail'].get('user_email')
+        _key = os.environ.get(TR_KEY) or config['testrail'].get('user_key')
+        _url = os.environ.get(TR_URL) or config['testrail'].get('url')
+
         if _email is None:
             raise TestRailError('A user email must be set in environment ' +
-                                'variable TESTRAIL_USER_EMAIL or in ' +
-                                'testrail.conf')
+                                'variable %s or in ' % TR_EMAIL +
+                                '~/.testrail.conf')
         if _key is None:
             raise TestRailError('A password or API key must be set in ' +
-                                'environment variable TESTRAIL_USER_KEY or ' +
-                                'in testrail.conf')
+                                'environment variable %s or ' % TR_KEY +
+                                'in ~/.testrail.conf')
         if _url is None:
             raise TestRailError('A URL must be set in environment variable ' +
-                                'TESTRAIL_URL or in testrail.conf')
+                                '%s or in ~/.testrail.conf' % TR_URL)
 
         return {'email': _email, 'key': _key, 'url': _url}
 
