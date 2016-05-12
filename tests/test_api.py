@@ -107,7 +107,7 @@ class TestConfig(unittest.TestCase):
             API()
         self.assertEqual(str(e.exception),
                          ('A user email must be set in environment ' +
-                          'variable TESTRAIL_USER_EMAIL or in testrail.conf'))
+                          'variable TESTRAIL_USER_EMAIL or in ~/.testrail.conf'))
 
     def test_config_no_key(self):
         os.remove(self.config_path)
@@ -117,7 +117,7 @@ class TestConfig(unittest.TestCase):
             API()
         self.assertEqual(str(e.exception),
                          ('A password or API key must be set in environment ' +
-                          'variable TESTRAIL_USER_KEY or in testrail.conf'))
+                          'variable TESTRAIL_USER_KEY or in ~/.testrail.conf'))
 
     def test_config_no_url(self):
         os.remove(self.config_path)
@@ -127,7 +127,7 @@ class TestConfig(unittest.TestCase):
             API()
         self.assertEqual(str(e.exception),
                          ('A URL must be set in environment ' +
-                          'variable TESTRAIL_URL or in testrail.conf'))
+                          'variable TESTRAIL_URL or in ~/.testrail.conf'))
 
 
 class TestHTTPMethod(unittest.TestCase):
