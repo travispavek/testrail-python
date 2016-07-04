@@ -6,6 +6,7 @@ try:
 except ImportError:
     import unittest
 
+from testrail.api import API
 from testrail.run import Run
 from testrail.user import User
 from testrail.plan import Plan
@@ -20,6 +21,10 @@ class TestRun(unittest.TestCase):
             {
                 "assignedto_id": 6,
                 "blocked_count": 1,
+                "case_ids": [
+                    8,
+                    9
+                ],
                 "completed_on": None,
                 "config": "Mock Config",
                 "config_ids": [
@@ -146,6 +151,33 @@ class TestRun(unittest.TestCase):
     def test_get_blocked_count(self):
         self.assertEqual(self.run.blocked_count, 1)
 
+    def test_get_case_ids_container_type(self):
+        self.assertTrue(isinstance(self.run.case_ids, list))
+
+    def test_get_case_ids_type(self):
+        int_check = lambda val: isinstance(val, int)
+        self.assertTrue(all(map(int_check, self.run.case_ids)))
+
+    def test_set_case_ids(self):
+        new_case_ids = [10, 11]
+        self.run.case_ids = new_case_ids
+        self.assertEqual(self.run.case_ids, new_case_ids)
+
+    def test_set_case_ids_to_none(self):
+        new_case_ids = None
+        self.run.case_ids = new_case_ids
+        self.assertEqual(self.run.case_ids, new_case_ids)
+
+    def test_set_case_ids_invalid_container_type(self):
+        with self.assertRaises(TestRailError) as e:
+            self.run.case_ids = "asdf"
+        self.assertEqual(str(e.exception), 'case_ids must be an iterable of integers')
+
+    def test_set_case_ids_invalid_value_type(self):
+        with self.assertRaises(TestRailError) as e:
+            self.run.case_ids = [1, 2, 'gg']
+        self.assertEqual(str(e.exception), 'case_ids must be an iterable of integers')
+
     def test_get_completed_on_no_ts_type(self):
         self.assertEqual(self.run.completed_on, None)
 
@@ -219,8 +251,17 @@ class TestRun(unittest.TestCase):
     def test_get_include_all_type(self):
         self.assertTrue(isinstance(self.run.include_all, bool))
 
-    def test_include_all(self):
+    def test_get_include_all(self):
         self.assertEqual(self.run.include_all, False)
+
+    def test_set_include_all(self):
+        self.run.include_all = True
+        self.assertTrue(self.run.include_all)
+
+    def test_set_include_all_invalid_type(self):
+        with self.assertRaises(TestRailError) as e:
+            self.run.include_all = "asdf"
+        self.assertEqual(str(e.exception), 'include_all must be a boolean')
 
     def test_get_is_completed_type(self):
         self.assertTrue(isinstance(self.run.is_completed, bool))

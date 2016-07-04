@@ -24,18 +24,19 @@ class Run(object):
 
     @property
     def case_ids(self):
-        return self.content.get('case_ids')
+        return self._content.get('case_ids')
 
     @case_ids.setter
-    def case_ids(self, case_ids):
-        try:
-            case_ids = list(map(int, case_ids))
-        except (TypeError, ValueError):
-            raise TestRailError('case_ids must be an iterable of integers')
+    def case_ids(self, value):
+        if value is None:
+            self._content['case_ids'] = None
+        else:
+            try:
+                case_ids = list(map(int, value))
+            except (TypeError, ValueError):
+                raise TestRailError('case_ids must be an iterable of integers')
 
-        self._content['case_ids'] = case_ids
-
-        self.include_all = False
+            self._content['case_ids'] = case_ids
 
     @property
     def completed_on(self):
@@ -54,15 +55,15 @@ class Run(object):
         return self._content.get('config_ids')
 
     @property
+    def created_by(self):
+        return User(self.api.user_with_id(self._content.get('created_by')))
+
+    @property
     def created_on(self):
         try:
             return datetime.fromtimestamp(int(self._content.get('created_on')))
         except TypeError:
             return None
-
-    @property
-    def created_by(self):
-        return User(self.api.user_with_id(self._content.get('created_by')))
 
     @property
     def custom_status_count(self):
@@ -103,11 +104,6 @@ class Run(object):
                          self._content.get('project_id')))
 
     @property
-    def plan(self):
-        return testrail.plan.Plan(
-            self.api.plan_with_id(self._content.get('plan_id')))
-
-    @property
     def name(self):
         return self._content.get('name')
 
@@ -120,6 +116,11 @@ class Run(object):
     @property
     def passed_count(self):
         return self._content.get('passed_count')
+
+    @property
+    def plan(self):
+        return testrail.plan.Plan(
+            self.api.plan_with_id(self._content.get('plan_id')))
 
     @property
     def project(self):
