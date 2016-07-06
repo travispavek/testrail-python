@@ -10,6 +10,7 @@ from testrail.api import API
 from testrail.run import Run
 from testrail.user import User
 from testrail.plan import Plan
+from testrail.case import Case
 from testrail.project import Project
 from testrail.milestone import Milestone
 from testrail.helper import TestRailError
@@ -105,6 +106,41 @@ class TestRun(unittest.TestCase):
             }
         ]
 
+        self.mock_run_cases = [
+            {
+                "created_by": 5,
+                "created_on": 1392300984,
+                "estimate": "1m 5s",
+                "estimate_forecast": None,
+                "id": 8,
+                "milestone_id": 9,
+                "priority_id": 2,
+                "refs": "RF-1, RF-2",
+                "section_id": 1,
+                "suite_id": 1,
+                "title": "Change document attributes (author, title, organization)",
+                "type_id": 4,
+                "updated_by": 6,
+                "updated_on": 1393586511
+            },
+            {
+                "created_by": 5,
+                "created_on": 1392300984,
+                "estimate": "1m 5s",
+                "estimate_forecast": None,
+                "id": 9,
+                "milestone_id": 9,
+                "priority_id": 2,
+                "refs": "RF-1, RF-2",
+                "section_id": 1,
+                "suite_id": 1,
+                "title": "Change document attributes (author, title, organization)",
+                "type_id": 4,
+                "updated_by": 6,
+                "updated_on": 1393586511
+            },
+        ]
+
         self.mock_mstone_data = [
             {
                 "completed_on": 1389968184,
@@ -151,32 +187,70 @@ class TestRun(unittest.TestCase):
     def test_get_blocked_count(self):
         self.assertEqual(self.run.blocked_count, 1)
 
-    def test_get_case_ids_container_type(self):
-        self.assertTrue(isinstance(self.run.case_ids, list))
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
+    def test_get_cases_container_type(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_run_cases)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
 
-    def test_get_case_ids_type(self):
-        int_check = lambda val: isinstance(val, int)
-        self.assertTrue(all(map(int_check, self.run.case_ids)))
+        self.assertTrue(isinstance(self.run.cases, list))
 
-    def test_set_case_ids(self):
-        new_case_ids = [10, 11]
-        self.run.case_ids = new_case_ids
-        self.assertEqual(self.run.case_ids, new_case_ids)
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
+    def test_get_cases_type(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_run_cases)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
 
-    def test_set_case_ids_to_none(self):
-        new_case_ids = None
-        self.run.case_ids = new_case_ids
-        self.assertEqual(self.run.case_ids, new_case_ids)
+        case_check = lambda val: isinstance(val, Case)
+        self.assertTrue(all(map(case_check, self.run.cases)))
 
-    def test_set_case_ids_invalid_container_type(self):
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
+    def test_set_cases(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_run_cases)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        new_cases = [Case(case) for case in self.mock_run_cases]
+        self.run.cases = new_cases
+
+        cases_from_run = [case.id for case in self.run.cases]
+        self.assertEqual(cases_from_run, [8, 9])
+
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
+    def test_set_cases_to_none(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_run_cases)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        # Make sure they are set to something other than None
+        new_cases = [Case(case) for case in self.mock_run_cases]
+        self.run.cases = new_cases
+
+        # Set to None and verify it stuck
+        self.run.cases = None
+        self.assertEqual(self.run.cases, None)
+
+    def test_set_cases_invalid_container_type(self):
         with self.assertRaises(TestRailError) as e:
-            self.run.case_ids = "asdf"
-        self.assertEqual(str(e.exception), 'case_ids must be an iterable of integers')
+            self.run.cases = "asdf"
+        self.assertEqual(str(e.exception), 'cases must be set to None or a container of Case objects')
 
-    def test_set_case_ids_invalid_value_type(self):
+    def test_set_cases_invalid_value_type(self):
         with self.assertRaises(TestRailError) as e:
-            self.run.case_ids = [1, 2, 'gg']
-        self.assertEqual(str(e.exception), 'case_ids must be an iterable of integers')
+            self.run.cases = [1, 2, 'gg']
+        self.assertEqual(str(e.exception), 'cases must be set to None or a container of Case objects')
 
     def test_get_completed_on_no_ts_type(self):
         self.assertEqual(self.run.completed_on, None)

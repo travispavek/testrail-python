@@ -6,6 +6,7 @@ from testrail.milestone import Milestone
 import testrail.plan
 from testrail.project import Project
 from testrail.user import User
+from testrail.case import Case
 from testrail.helper import TestRailError
 
 
@@ -23,20 +24,29 @@ class Run(object):
         return self._content.get('blocked_count')
 
     @property
-    def case_ids(self):
-        return self._content.get('case_ids')
-
-    @case_ids.setter
-    def case_ids(self, value):
-        if value is None:
-            self._content['case_ids'] = None
+    def cases(self):
+        if self._content.get('case_ids'):
+            cases = list(map(self.api.case_with_id, self._content.get('case_ids')))
+            return list(map(Case, cases))
         else:
-            try:
-                case_ids = list(map(int, value))
-            except (TypeError, ValueError):
-                raise TestRailError('case_ids must be an iterable of integers')
+            return None
 
-            self._content['case_ids'] = case_ids
+
+    @cases.setter
+    def cases(self, cases):
+        exc_msg = 'cases must be set to None or a container of Case objects'
+
+        if cases is None:
+            self._content['case_ids'] = None
+
+        elif not isinstance(cases, (list, tuple)):
+            raise TestRailError(exc_msg)
+
+        elif not all([isinstance(case, Case) for case in cases]):
+            raise TestRailError(exc_msg)
+
+        else:
+            self._content['case_ids'] = [case.id for case in cases]
 
     @property
     def completed_on(self):
