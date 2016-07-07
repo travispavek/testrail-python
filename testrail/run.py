@@ -6,6 +6,8 @@ from testrail.milestone import Milestone
 import testrail.plan
 from testrail.project import Project
 from testrail.user import User
+from testrail.case import Case
+from testrail.helper import TestRailError
 
 
 class Run(object):
@@ -20,6 +22,31 @@ class Run(object):
     @property
     def blocked_count(self):
         return self._content.get('blocked_count')
+
+    @property
+    def cases(self):
+        if self._content.get('case_ids'):
+            cases = list(map(self.api.case_with_id, self._content.get('case_ids')))
+            return list(map(Case, cases))
+        else:
+            return None
+
+
+    @cases.setter
+    def cases(self, cases):
+        exc_msg = 'cases must be set to None or a container of Case objects'
+
+        if cases is None:
+            self._content['case_ids'] = None
+
+        elif not isinstance(cases, (list, tuple)):
+            raise TestRailError(exc_msg)
+
+        elif not all([isinstance(case, Case) for case in cases]):
+            raise TestRailError(exc_msg)
+
+        else:
+            self._content['case_ids'] = [case.id for case in cases]
 
     @property
     def completed_on(self):
@@ -38,15 +65,15 @@ class Run(object):
         return self._content.get('config_ids')
 
     @property
+    def created_by(self):
+        return User(self.api.user_with_id(self._content.get('created_by')))
+
+    @property
     def created_on(self):
         try:
             return datetime.fromtimestamp(int(self._content.get('created_on')))
         except TypeError:
             return None
-
-    @property
-    def created_by(self):
-        return User(self.api.user_with_id(self._content.get('created_by')))
 
     @property
     def custom_status_count(self):
@@ -68,6 +95,12 @@ class Run(object):
     def include_all(self):
         return self._content.get('include_all')
 
+    @include_all.setter
+    def include_all(self, value):
+        if not isinstance(value, bool):
+            raise TestRailError('include_all must be a boolean')
+        self._content['include_all'] = value
+
     @property
     def is_completed(self):
         return self._content.get('is_completed')
@@ -81,17 +114,12 @@ class Run(object):
                          self._content.get('project_id')))
 
     @property
-    def plan(self):
-        return testrail.plan.Plan(
-            self.api.plan_with_id(self._content.get('plan_id')))
-
-    @property
     def name(self):
         return self._content.get('name')
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['name'] = value
 
@@ -100,13 +128,18 @@ class Run(object):
         return self._content.get('passed_count')
 
     @property
+    def plan(self):
+        return testrail.plan.Plan(
+            self.api.plan_with_id(self._content.get('plan_id')))
+
+    @property
     def project(self):
         return Project(
             self.api.project_with_id(self._content.get('project_id')))
 
     @project.setter
     def project(self, value):
-        if type(value) != Project:
+        if not isinstance(value, Project):
             raise TestRailError('input must be a Project')
         self.api.project_with_id(value.id)  # verify project is valid
         self._content['project_id'] = value.id
