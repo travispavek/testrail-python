@@ -29,7 +29,7 @@ class Run(object):
             cases = list(map(self.api.case_with_id, self._content.get('case_ids')))
             return list(map(Case, cases))
         else:
-            return None
+            return list()
 
 
     @cases.setter
@@ -109,7 +109,7 @@ class Run(object):
     def milestone(self):
         milestone_id = self._content.get('milestone_id')
         if milestone_id is None:
-            return None
+            return Milestone()
         return Milestone(self.api.milestone_with_id(milestone_id,
                          self._content.get('project_id')))
 

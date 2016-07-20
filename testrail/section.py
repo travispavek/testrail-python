@@ -55,7 +55,7 @@ class Section(object):
     @property
     def suite(self):
         if self._content.get('suite_id') is None:
-            return None
+            return Suite()
         return Suite(self.api.suite_with_id(self._content.get('suite_id')))
 
     @suite.setter
