@@ -330,7 +330,7 @@ class API(object):
         try:
             return list(filter(lambda x: x['id'] == plan_id, self.plans()))[0]
         except IndexError:
-            return None
+            return list()
 
     # Run Requests
     def runs(self, project_id=None, completed=None):

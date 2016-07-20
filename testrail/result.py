@@ -16,9 +16,7 @@ class Result(object):
     @property
     def assigned_to(self):
         user_id = self._content.get('assignedto_id')
-        if user_id is None:
-            return None
-        return User(self.api.user_with_id(user_id))
+        return User(self.api.user_with_id(user_id)) if user_id else User()
 
     @assigned_to.setter
     def assigned_to(self, user):
@@ -110,9 +108,7 @@ class Result(object):
     @property
     def test(self):
         test_id = self._content.get('test_id')
-        if test_id is None:
-            return None
-        return Test(self.api.test_with_id(test_id))
+        return Test(self.api.test_with_id(test_id)) if test_id else Test()
 
     @test.setter
     def test(self, test_obj):

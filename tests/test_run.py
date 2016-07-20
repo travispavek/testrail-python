@@ -240,7 +240,8 @@ class TestRun(unittest.TestCase):
 
         # Set to None and verify it stuck
         self.run.cases = None
-        self.assertEqual(self.run.cases, None)
+        self.assertEqual(type(self.run.cases), list)
+        self.assertEqual(len(self.run.cases), 0)
 
     def test_set_cases_invalid_container_type(self):
         with self.assertRaises(TestRailError) as e:

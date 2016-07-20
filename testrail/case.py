@@ -38,17 +38,12 @@ class Case(object):
     @property
     def milestone(self):
         m = self.api.milestone_with_id(self._content.get('milestone_id'))
-        if m:
-            return Milestone(m)
-        else:
-            return None
+        return Milestone(m) if m else Milestone()
 
     @property
     def priority(self):
         p = self.api.priority_with_id(self._content.get('priority_id'))
-        if p:
-            return Priority(p)
-        return None
+        return Priority(p) if p else Priority()
 
     @property
     def refs(self):
@@ -57,16 +52,12 @@ class Case(object):
     @property
     def section(self):
         s = self.api.section_with_id(self._content.get('section_id'))
-        if s:
-            return Section(s)
-        return None
+        return Section(s) if s else Section()
 
     @property
     def suite(self):
         s = self.api.suite_with_id(self._content.get('suite_id'))
-        if s:
-            return Suite(s)
-        return None
+        return Suite(s) if s else Suite()
 
     @property
     def title(self):
@@ -75,9 +66,7 @@ class Case(object):
     @property
     def type(self):
         t = self.api.case_type_with_id(self._content.get('type_id'))
-        if t:
-            return CaseType(t)
-        return None
+        return CaseType(t) if t else CaseType()
 
     @property
     def updated_by(self):

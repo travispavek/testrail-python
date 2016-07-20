@@ -73,7 +73,7 @@ class Plan(object):
         milestone_id = self._content.get('milestone_id')
         project_id = self._content.get('project_id')
         if milestone_id is None:
-            return None
+            return Milestone()
         return Milestone(self.api.milestone_with_id(milestone_id, project_id))
 
     @property

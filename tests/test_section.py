@@ -197,7 +197,8 @@ class TestSuite(unittest.TestCase):
 
     def test_set_suite_empty_suite(self):
         s = Section({})
-        self.assertEqual(s.suite, None)
+        self.assertEqual(s.suite.id, None)
+        self.assertEqual(type(s.suite), Suite)
 
     @mock.patch('testrail.api.requests.get')
     def test_get_parent_type(self, mock_get):
