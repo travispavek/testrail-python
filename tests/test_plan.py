@@ -294,7 +294,8 @@ class TestPlan(unittest.TestCase):
         mock_response.json.return_value = copy.deepcopy(self.mock_mstone_data)
         mock_response.status_code = 200
         mock_get.return_value = mock_response
-        self.assertEqual(self.plan2.milestone, None)
+        self.assertEqual(self.plan2.milestone.id, None)
+        self.assertEqual(type(self.plan2.milestone), Milestone)
 
     @mock.patch('testrail.api.requests.get')
     def test_get_milestone_type(self, mock_get):

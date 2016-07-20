@@ -97,7 +97,8 @@ class TestUser(unittest.TestCase):
 
     def test_get_assigned_to_null(self):
         self.result._content['assignedto_id'] = None
-        self.assertEqual(self.result.assigned_to, None)
+        self.assertEqual(type(self.result.assigned_to), User)
+        self.assertEqual(self.result.assigned_to.id, None)
 
     @mock.patch('testrail.api.requests.get')
     def test_set_assigned_to(self, mock_get):
