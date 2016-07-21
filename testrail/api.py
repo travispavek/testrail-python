@@ -329,7 +329,7 @@ class API(object):
     def plan_with_id(self, plan_id, with_entries=False):
         #TODO consider checking if plan already has entries and if not add it 
         if with_entries:
-            return self._get('get_plan/%s' % plan_id)[0]
+            return self._get('get_plan/%s' % plan_id)
         try:
             return list(filter(lambda x: x['id'] == plan_id, self.plans()))[0]
         except IndexError:
