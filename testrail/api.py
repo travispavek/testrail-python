@@ -326,11 +326,14 @@ class API(object):
             self._plans[project_id]['ts'] = datetime.now()
         return self._plans[project_id]['value']
 
-    def plan_with_id(self, plan_id):
+    def plan_with_id(self, plan_id, with_entries=False):
+        #TODO consider checking if plan already has entries and if not add it 
+        if with_entries:
+            return self._get('get_plan/%s' % plan_id)
         try:
             return list(filter(lambda x: x['id'] == plan_id, self.plans()))[0]
         except IndexError:
-            return list()
+            return Plan()
 
     # Run Requests
     def runs(self, project_id=None, completed=None):
