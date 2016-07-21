@@ -250,7 +250,7 @@ class TestPlan(unittest.TestCase):
     def test_get_description_type(self):
         self.assertTrue(isinstance(self.plan.description, str))
 
-    def test_description(self):b
+    def test_description(self):
         self.assertEqual(self.plan.description, "Mock plan description")
 
     def test_get_entries_type(self):
