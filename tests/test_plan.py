@@ -260,7 +260,7 @@ class TestPlan(unittest.TestCase):
     def test_get_entries_type(self):
         entry_checker = lambda e: e.id.startswith("mock-id")
         self.assertTrue(all([entry_checker(e) for e in self.plan.entries]))
-"""
+    """
     @mock.patch('testrail.api.requests.get')
     def test_get_entries_if_none(self, mock_get):
         mock_response = mock.Mock()
@@ -269,7 +269,7 @@ class TestPlan(unittest.TestCase):
         mock_get.return_value = mock_response
         self.assertTrue(
             all([lambda e: isinstance(e, Entry) for e in self.plan2.entries]))
-"""
+    """
 
     def test_get_failed_count_type(self):
         self.assertTrue(isinstance(self.plan.failed_count, int))
