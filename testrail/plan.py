@@ -53,7 +53,7 @@ class Plan(object):
         # ToDo convert entries to run objects
         if not self._content.get('entries'):
             self._content['entries'] = self.api.plan_with_id(
-                self.id).get('entries')
+                self.id, with_entries=True).get('entries')
         return list(map(testrail.entry.Entry, self._content.get('entries')))
 
     @property
