@@ -49,7 +49,7 @@ class Test(object):
 
     @property
     def run(self):
-        return Run(self.api.run_with_id(self._content.get('run')))
+        return Run(self.api.run_with_id(self._content.get('run_id')))
 
     @property
     def status(self):
