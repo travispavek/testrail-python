@@ -52,29 +52,7 @@ class ContainerIter(object):
     def __getitem__(self, index):
         return self._objs[index]
 
-class CustomField(object):
-    """Used to create dynamic methods for custom fields"""
-    def __init__(self, field, parent):
-        self.field = field
-        self.parent = parent
-
-    def get_field(self):
-        print self.field
-        return self.parent._content.get(self.field)
-
 def custom_methods(content):
     custom = filter(lambda x: re.match(r'^custom_\w+', x), content)
     return dict(zip([re.sub(r'^custom_', '', attr) for attr in custom], custom))
-
-    
-def build_custom_methods(inst, content):
-    cls = type(inst)
-    if not hasattr(cls, '__perinstance'):
-        cls = type(cls.__name__, (cls,), {})
-        cls.__perinstance = True
-        inst.__class__ = cls
-    for field in content:
-        if re.search(r"^custom_\w+", field):
-            cf = CustomField(field, inst)
-            setattr(inst,re.sub(r'^custom_', '', field), property(lambda self: cf.get_field()))
 
