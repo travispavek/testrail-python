@@ -2,6 +2,7 @@ from datetime import datetime
 
 from testrail.api import API
 from testrail.casetype import CaseType
+from testrail.helper import custom_methods
 from testrail.milestone import Milestone
 from testrail.priority import Priority
 from testrail.section import Section
@@ -13,6 +14,13 @@ class Case(object):
     def __init__(self, content):
         self._content = content
         self.api = API()
+        self._custom_methods = custom_methods(content)
+
+    def __getattr__(self, attr):
+        if attr in self._custom_methods:
+            return self._content.get(self._custom_methods[attr])
+        raise AttributeError("'{}' object has no attribute '{}'".format(
+            self.__class__.__name__, attr))
 
     @property
     def created_by(self):
