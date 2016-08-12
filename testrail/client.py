@@ -7,7 +7,7 @@ from testrail.helper import methdispatch, singleresult
 from testrail.milestone import Milestone
 from testrail.plan import Plan, PlanContainer
 from testrail.project import Project, ProjectContainer
-from testrail.result import Result
+from testrail.result import Result, ResultContainer
 from testrail.run import Run, RunContainer
 from testrail.status import Status
 from testrail.suite import Suite
@@ -257,8 +257,21 @@ class TestRail(object):
             lambda t: t.raw_data()['case_id'] == test_id, self.tests(run))
 
     # Result Methods
-    def results(self, test_id):
-        return map(Result, self.api.results(test_id))
+    @methdispatch
+    def results(self):
+        raise TestRailError("Must request results by Run or Test")
+
+    @results.register(Run)
+    def _results_for_run(self, run):
+        return ResultContainer(list(map(Result, self.api.results_by_run(run.id))))
+
+    @results.register(Test)
+    def _results_for_test(self, test):
+        return ResultContainer(list(map(Result, self.api.results_by_test(test.id))))
+
+    # @results.register(Case)
+    # def _results_for_case(self, obj):
+    #     pass
 
     @methdispatch
     def result(self):
@@ -267,6 +280,8 @@ class TestRail(object):
     @result.register(int)
     @singleresult
     def _result_by_id(self, result_id):
+        # TODO: I don't think this ever worked. `results` always required an ID
+        #       Fix to work with new `results` method
         return filter(lambda r: r.id == result_id, self.results())
 
     @add.register(Result)

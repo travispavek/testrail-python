@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import re
 
 from testrail import api
-from testrail.helper import TestRailError
+from testrail.helper import ContainerIter, TestRailError
 from testrail.status import Status
 from testrail.test import Test
 from testrail.user import User
@@ -131,3 +131,24 @@ class Result(object):
 
     def raw_data(self):
         return self._content
+
+
+class ResultContainer(ContainerIter):
+    def __init__(self, results):
+        super(ResultContainer, self).__init__(results)
+        self._results = results
+
+    def blocked(self):
+        return list(filter(lambda r: r.status.name == "blocked", self._results))
+
+    def failed(self):
+        return list(filter(lambda r: r.status.name == "failed", self._results))
+
+    def latest(self):
+        return sorted(self._results, key=lambda r: r.created_on)[-1]
+
+    def oldest(self):
+        return sorted(self._results, key=lambda r: r.created_on)[0]
+
+    def passed(self):
+        return list(filter(lambda r: r.status.name == "passed", self._results))

@@ -398,7 +398,14 @@ class API(object):
                 raise TestRailError("Test ID '%s' was not found" % test_id)
 
     # Result Requests
-    def results(self, test_id):
+    def results_by_run(self, run_id):
+        if self._refresh(self._results[run_id]['ts']):
+            _results = self._get('get_results_for_run/%s' % run_id)
+            self._results[run_id]['value'] = _results
+            self._results[run_id]['ts'] = datetime.now()
+        return self._results[run_id]['value']
+
+    def results_by_test(self, test_id):
         if self._refresh(self._results[test_id]['ts']):
             _results = self._get('get_results/%s' % test_id)
             self._results[test_id]['value'] = _results
