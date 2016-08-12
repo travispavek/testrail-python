@@ -152,3 +152,9 @@ class ResultContainer(ContainerIter):
 
     def passed(self):
         return list(filter(lambda r: r.status.name == "passed", self._results))
+
+    def retest(self):
+        return list(filter(lambda r: r.status.name == "retest", self._results))
+
+    def untested(self):
+        return list(filter(lambda r: r.status.name == "untested", self._results))

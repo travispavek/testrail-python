@@ -349,6 +349,12 @@ class TestUser(unittest.TestCase):
             self.result.status = Status({'id': 0})
         self.assertEqual(str(e.exception), "Status ID '0' was not found")
 
+    def test_get_test_null(self):
+        result_data = copy.deepcopy(self.mock_result_data)
+        result_data['test_id'] = None
+        result = Result(result_data)
+        self.assertEqual(result.test.id, None)
+
     @mock.patch('testrail.api.requests.get')
     def test_get_test_type(self, mock_get):
         mock_response = mock.Mock()

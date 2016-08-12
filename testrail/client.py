@@ -269,20 +269,9 @@ class TestRail(object):
     def _results_for_test(self, test):
         return ResultContainer(list(map(Result, self.api.results_by_test(test.id))))
 
-    # @results.register(Case)
-    # def _results_for_case(self, obj):
-    #     pass
-
     @methdispatch
     def result(self):
         return Result()
-
-    @result.register(int)
-    @singleresult
-    def _result_by_id(self, result_id):
-        # TODO: I don't think this ever worked. `results` always required an ID
-        #       Fix to work with new `results` method
-        return filter(lambda r: r.id == result_id, self.results())
 
     @add.register(Result)
     def _add_result(self, obj):
