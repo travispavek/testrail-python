@@ -1,3 +1,6 @@
+import re
+from datetime import timedelta
+
 from testrail import api
 from testrail.case import Case
 from testrail.casetype import CaseType
@@ -14,7 +17,7 @@ class Test(object):
         self.api = api.API()
 
     @property
-    def assignedto(self):
+    def assigned_to(self):
         return User(self.api.user_with_id(self._content.get('assignedto_id')))
 
     @property
@@ -23,11 +26,33 @@ class Test(object):
 
     @property
     def estimate(self):
-        return self._content.get('estimate')
+        span = lambda x: int(x.group(0)[:-1]) if x else 0
+        ts = self._content.get('estimate')
+        if ts is None:
+            return None
+        duration = {
+            'weeks': span(re.search('\d+w', ts)),
+            'days': span(re.search('\d+d', ts)),
+            'hours': span(re.search('\d+h', ts)),
+            'minutes': span(re.search('\d+m', ts)),
+            'seconds': span(re.search('\d+s', ts))
+        }
+        return timedelta(**duration)
 
     @property
     def estimate_forecast(self):
-        return self._content.get('estimate_forecast')
+        span = lambda x: int(x.group(0)[:-1]) if x else 0
+        ts = self._content.get('estimate_forecast')
+        if ts is None:
+            return None
+        duration = {
+            'weeks': span(re.search('\d+w', ts)),
+            'days': span(re.search('\d+d', ts)),
+            'hours': span(re.search('\d+h', ts)),
+            'minutes': span(re.search('\d+m', ts)),
+            'seconds': span(re.search('\d+s', ts))
+        }
+        return timedelta(**duration)
 
     @property
     def id(self):
@@ -35,13 +60,11 @@ class Test(object):
 
     @property
     def milestone(self):
-        return Milestone(self.api.milestone_with_id(self._content.get(
-            'milestone_id'), self._content.get('project_id')))
-
-    @property
-    def project(self):
-        return Project(
-            self.api.project_with_id(self._content.get('project_id')))
+        project_id = self._content.get('project_id')
+        milestone_id = self._content.get('milestone_id')
+        if milestone_id is None:
+            return None
+        return Milestone(self.api.milestone_with_id(milestone_id, project_id))
 
     @property
     def refs(self):
@@ -58,11 +81,6 @@ class Test(object):
     @property
     def title(self):
         return self._content.get('title')
-
-    @property
-    def case_type(self):
-        return CaseType(self.api.case_type_with_id(
-            self._content.get('type_id')))
 
     def raw_data(self):
         return self._content
