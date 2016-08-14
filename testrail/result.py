@@ -6,6 +6,7 @@ from testrail.helper import TestRailError
 from testrail.status import Status
 from testrail.test import Test
 from testrail.user import User
+from testrail.helper import testrail_duration_to_timedelta
 
 
 class Result(object):
@@ -67,18 +68,10 @@ class Result(object):
 
     @property
     def elapsed(self):
-        span = lambda x: int(x.group(0)[:-1]) if x else 0
-        ts = self._content.get('elapsed')
-        if ts is None:
+        duration = self._content.get('elapsed')
+        if duration is None:
             return None
-        duration = {
-            'weeks': span(re.search('\d+w', ts)),
-            'days': span(re.search('\d+d', ts)),
-            'hours': span(re.search('\d+h', ts)),
-            'minutes': span(re.search('\d+m', ts)),
-            'seconds': span(re.search('\d+s', ts))
-        }
-        return timedelta(**duration)
+        return testrail_duration_to_timedelta(duration)
 
     @elapsed.setter
     def elapsed(self, td):

@@ -1,6 +1,7 @@
-from functools import update_wrapper
-import inspect
 import re
+import inspect
+from datetime import timedelta
+from functools import update_wrapper
 
 from singledispatch import singledispatch
 
@@ -26,6 +27,18 @@ def class_name(meth):
     for cls in inspect.getmro(meth.im_class):
         if meth.__name__ in cls.__dict__:
             return cls
+
+
+def testrail_duration_to_timedelta(duration):
+        span = lambda x: int(x.group(0)[:-1]) if x else 0
+        timedelta_map = {
+            'weeks': span(re.search('\d+w', duration)),
+            'days': span(re.search('\d+d', duration)),
+            'hours': span(re.search('\d+h', duration)),
+            'minutes': span(re.search('\d+m', duration)),
+            'seconds': span(re.search('\d+s', duration))
+        }
+        return timedelta(**timedelta_map)
 
 
 def singleresult(func):

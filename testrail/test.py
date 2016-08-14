@@ -1,6 +1,3 @@
-import re
-from datetime import timedelta
-
 from testrail import api
 from testrail.case import Case
 from testrail.casetype import CaseType
@@ -9,6 +6,7 @@ from testrail.project import Project
 from testrail.run import Run
 from testrail.status import Status
 from testrail.user import User
+from testrail.helper import testrail_duration_to_timedelta
 
 
 class Test(object):
@@ -26,33 +24,17 @@ class Test(object):
 
     @property
     def estimate(self):
-        span = lambda x: int(x.group(0)[:-1]) if x else 0
-        ts = self._content.get('estimate')
-        if ts is None:
+        duration = self._content.get('estimate')
+        if duration is None:
             return None
-        duration = {
-            'weeks': span(re.search('\d+w', ts)),
-            'days': span(re.search('\d+d', ts)),
-            'hours': span(re.search('\d+h', ts)),
-            'minutes': span(re.search('\d+m', ts)),
-            'seconds': span(re.search('\d+s', ts))
-        }
-        return timedelta(**duration)
+        return testrail_duration_to_timedelta(duration)
 
     @property
     def estimate_forecast(self):
-        span = lambda x: int(x.group(0)[:-1]) if x else 0
-        ts = self._content.get('estimate_forecast')
-        if ts is None:
+        duration = self._content.get('estimate_forecast')
+        if duration is None:
             return None
-        duration = {
-            'weeks': span(re.search('\d+w', ts)),
-            'days': span(re.search('\d+d', ts)),
-            'hours': span(re.search('\d+h', ts)),
-            'minutes': span(re.search('\d+m', ts)),
-            'seconds': span(re.search('\d+s', ts))
-        }
-        return timedelta(**duration)
+        return testrail_duration_to_timedelta(duration)
 
     @property
     def id(self):
