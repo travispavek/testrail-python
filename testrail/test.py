@@ -6,6 +6,7 @@ from testrail.project import Project
 from testrail.run import Run
 from testrail.status import Status
 from testrail.user import User
+from testrail.helper import testrail_duration_to_timedelta
 
 
 class Test(object):
@@ -14,7 +15,7 @@ class Test(object):
         self.api = api.API()
 
     @property
-    def assignedto(self):
+    def assigned_to(self):
         return User(self.api.user_with_id(self._content.get('assignedto_id')))
 
     @property
@@ -23,11 +24,17 @@ class Test(object):
 
     @property
     def estimate(self):
-        return self._content.get('estimate')
+        duration = self._content.get('estimate')
+        if duration is None:
+            return None
+        return testrail_duration_to_timedelta(duration)
 
     @property
     def estimate_forecast(self):
-        return self._content.get('estimate_forecast')
+        duration = self._content.get('estimate_forecast')
+        if duration is None:
+            return None
+        return testrail_duration_to_timedelta(duration)
 
     @property
     def id(self):
@@ -35,13 +42,11 @@ class Test(object):
 
     @property
     def milestone(self):
-        return Milestone(self.api.milestone_with_id(self._content.get(
-            'milestone_id'), self._content.get('project_id')))
-
-    @property
-    def project(self):
-        return Project(
-            self.api.project_with_id(self._content.get('project_id')))
+        project_id = self._content.get('project_id')
+        milestone_id = self._content.get('milestone_id')
+        if milestone_id is None:
+            return None
+        return Milestone(self.api.milestone_with_id(milestone_id, project_id))
 
     @property
     def refs(self):
@@ -58,11 +63,6 @@ class Test(object):
     @property
     def title(self):
         return self._content.get('title')
-
-    @property
-    def case_type(self):
-        return CaseType(self.api.case_type_with_id(
-            self._content.get('type_id')))
 
     def raw_data(self):
         return self._content
