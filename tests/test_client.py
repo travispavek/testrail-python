@@ -13,6 +13,7 @@ from testrail.project import Project
 from testrail.helper import TestRailError
 from testrail.run import RunContainer, Run
 from testrail.plan import PlanContainer, Plan
+from testrail.result import ResultContainer, Result
 
 
 class TestProject(unittest.TestCase):
@@ -170,6 +171,127 @@ class TestProject(unittest.TestCase):
                 "untested_count": 3,
                 "url": "http://<server>/testrail/index.php?/plans/view/80"
             },
+        ]
+
+        self.mock_results_data = [
+            {
+                    "assignedto_id": 2,
+                    "comment": "This test passed: ..",
+                    "created_by": 1,
+                    "created_on": 1393851901,
+                    "defects": "TR-1",
+                    "elapsed": "5m",
+                    "id": 11,
+                    "status_id": 1,
+                    "test_id": 111,
+                    "version": "1.0RC1"
+            },
+            {
+                    "assignedto_id": 2,
+                    "comment": "This test blocked: ..",
+                    "created_by": 1,
+                    "created_on": 1393851701,
+                    "defects": "TR-1",
+                    "elapsed": "5m",
+                    "id": 22,
+                    "status_id": 2,
+                    "test_id": 222,
+                    "version": "1.0RC1"
+            },
+            {
+                    "assignedto_id": 2,
+                    "comment": "This test untested: ..",
+                    "created_by": 1,
+                    "created_on": 1393851751,
+                    "defects": "TR-1",
+                    "elapsed": "5m",
+                    "id": 33,
+                    "status_id": 3,
+                    "test_id": 333,
+                    "version": "1.0RC1"
+            },
+            {
+                    "assignedto_id": 2,
+                    "comment": "This test is retest ..",
+                    "created_by": 1,
+                    "created_on": 1393852041,
+                    "defects": "TR-1",
+                    "elapsed": "5m",
+                    "id": 44,
+                    "status_id": 4,
+                    "test_id": 444,
+                    "version": "1.0RC1"
+            },
+            {
+                    "assignedto_id": 2,
+                    "comment": "This test failed: ..",
+                    "created_by": 2,
+                    "created_on": 1393851801,
+                    "defects": "TR-1",
+                    "elapsed": "5m",
+                    "id": 55,
+                    "status_id": 5,
+                    "test_id": 555,
+                    "version": "1.0RC1"
+            },
+        ]
+
+        self.mock_status_data = [
+            {
+                'color_bright': 12709313,
+                'color_dark': 6667107,
+                'color_medium': 9820525,
+                'id': 1,
+                'is_final': True,
+                'is_system': True,
+                'is_untested': False,
+                'label': 'Passed',
+                'name': 'passed'
+            },
+            {
+                'color_bright': 14737632,
+                'color_dark': 9474192,
+                'color_medium': 13684944,
+                'id': 2,
+                'is_final': True,
+                'is_system': True,
+                'is_untested': False,
+                'label': 'Blocked',
+                'name': 'blocked'
+            },
+            {
+                'color_bright': 15790320,
+                'color_dark': 11579568,
+                'color_medium': 15395562,
+                'id': 3,
+                'is_final': False,
+                'is_system': True,
+                'is_untested': True,
+                'label': 'Untested',
+                'name': 'untested'
+            },
+            {
+                'color_bright': 16448182,
+                'color_dark': 13026868,
+                'color_medium': 15593088,
+                'id': 4,
+                'is_final': False,
+                'is_system': True,
+                'is_untested': False,
+                'label': 'Retest',
+                'name': 'retest'
+            },
+            {
+                'color_bright': 16631751,
+                'color_dark': 14250867,
+                'color_medium': 15829135,
+                'id': 5,
+                'is_final': True,
+                'is_system': True,
+                'is_untested': False,
+                'label': 'Failed',
+                'name': 'failed'},
+
         ]
 
         self.mock_users = [
@@ -421,3 +543,113 @@ class TestProject(unittest.TestCase):
         plan = self.client.plans().name(plan_name)
         self.assertTrue(isinstance(plan, Plan))
         self.assertEqual(plan.id, 22)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_resultcontainer_contains_only_result_objects(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_results_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        results = self.client.results(Run(self.mock_runs_data[0]))
+        self.assertTrue(all([isinstance(r, Result) for r in results]))
+
+    @mock.patch('testrail.api.requests.get')
+    def test_resultcontainer_blocked_results(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.side_effect = [self.mock_results_data,
+                                          self.mock_status_data]
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        results = self.client.results(Run(self.mock_runs_data[0]))
+
+        blocked = results.blocked()
+
+        self.assertEqual(len(blocked), 1)
+        self.assertTrue([lambda x: isinstance(x, Result) for x in blocked])
+        self.assertEqual(blocked[0].id, 22)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_resultcontainer_failed_results(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.side_effect = [self.mock_results_data,
+                                          self.mock_status_data]
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        results = self.client.results(Run(self.mock_runs_data[0]))
+
+        failed = results.failed()
+
+        self.assertEqual(len(failed), 1)
+        self.assertTrue([lambda x: isinstance(x, Result) for x in failed])
+        self.assertEqual(failed[0].id, 55)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_resultcontainer_passed_results(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.side_effect = [self.mock_results_data,
+                                          self.mock_status_data]
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        results = self.client.results(Run(self.mock_runs_data[0]))
+
+        passed = results.passed()
+
+        self.assertEqual(len(passed), 1)
+        self.assertTrue([lambda x: isinstance(x, Result) for x in passed])
+        self.assertEqual(passed[0].id, 11)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_resultcontainer_retest_results(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.side_effect = [self.mock_results_data,
+                                          self.mock_status_data]
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        results = self.client.results(Run(self.mock_runs_data[0]))
+
+        retest = results.retest()
+
+        self.assertEqual(len(retest), 1)
+        self.assertTrue([lambda x: isinstance(x, Result) for x in retest])
+        self.assertEqual(retest[0].id, 44)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_resultcontainer_untested_results(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.side_effect = [self.mock_results_data,
+                                          self.mock_status_data]
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        results = self.client.results(Run(self.mock_runs_data[0]))
+
+        untested = results.untested()
+
+        self.assertEqual(len(untested), 1)
+        self.assertTrue([lambda x: isinstance(x, Result) for x in untested])
+        self.assertEqual(untested[0].id, 33)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_resultcontainer_latest_plan(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_results_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        results = self.client.results(Run(self.mock_runs_data[0]))
+        latest_result = results.latest()
+
+        self.assertTrue(isinstance(latest_result, Result))
+        self.assertEqual(latest_result.id, 44)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_resultcontainer_oldest_plan(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = self.mock_results_data
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        results = self.client.results(Run(self.mock_runs_data[0]))
+        oldest_result = results.oldest()
+
+        self.assertTrue(isinstance(oldest_result, Result))
+        self.assertEqual(oldest_result.id, 22)
