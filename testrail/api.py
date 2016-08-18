@@ -95,9 +95,12 @@ class API(object):
                      '_timeout': 30,
                      '_project_id': None}
 
-    def __init__(self):
+    def __init__(self, email=None, key=None, url=None):
         self.__dict__ = self._shared_state
-        config = self._conf()
+        if email is not None and key is not None and url is not None:
+            config = dict(email=email, key=key, url=url)
+        else:
+            config = self._conf()
         self._auth = (config['email'], config['key'])
         self._url = config['url']
         self.headers = {'Content-Type': 'application/json'}
