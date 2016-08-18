@@ -17,8 +17,8 @@ from testrail.user import User
 
 
 class TestRail(object):
-    def __init__(self, project_id=0):
-        self.api = API()
+    def __init__(self, project_id=0, email=None, key=None, url=None):
+        self.api = API(email=email, key=key, url=url)
         self.api.set_project_id(project_id)
         self._project_id = project_id
 
