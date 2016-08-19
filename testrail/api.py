@@ -233,6 +233,13 @@ class API(object):
         except IndexError:
             raise TestRailError("Case ID '%s' was not found" % case_id)
 
+    def add_case(self, case):
+        fields = ['title', 'template_id', 'type_id', 'priority_id', 'estimate',
+                  'milestone_id', 'refs']
+        section_id = case.get('section_id')
+        payload = self._payload_gen(fields, case)
+        return self._post('add_case/%s' % section_id, payload)
+
     def case_types(self):
         if self._refresh(self._case_types['ts']):
             # get new value, if request is good update value with new ts.
@@ -318,6 +325,12 @@ class API(object):
             return list(filter(lambda x: x['id'] == section_id, self.sections()))[0]
         except IndexError:
             raise TestRailError("Section ID '%s' was not found" % section_id)
+
+    def add_section(self, section):
+        fields = ['description', 'suite_id', 'parent_id', 'name']
+        project_id = section.get('project_id')
+        payload = self._payload_gen(fields, section)
+        return self._post('add_section/%s' % project_id, payload)
 
     # Plan Requests
     def plans(self, project_id=None):
