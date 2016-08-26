@@ -50,6 +50,8 @@ class TestConfig(unittest.TestCase):
             del os.environ['TESTRAIL_USER_KEY']
         if os.environ.get('TESTRAIL_URL'):
             del os.environ['TESTRAIL_URL']
+        if os.environ.get('TESTRAIL_VERIFY_URL'):
+            del os.environ['TESTRAIL_VERIFY_URL']
 
     def test_no_env(self):
         client = API()
@@ -57,7 +59,8 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config['email'], 'user@yourdomain.com')
         self.assertEqual(config['key'], 'your_api_key')
         self.assertEqual(config['url'], 'https://<server>')
-
+        self.assertEqual(client.verify_ssl == False)
+        
     def test_user_env(self):
         email = 'user@example.com'
         os.environ['TESTRAIL_USER_EMAIL'] = email
@@ -85,6 +88,11 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config['key'], 'your_api_key')
         self.assertEqual(config['url'], url)
 
+    def test_ssl_env(self):
+        os.environ['TESTRAIL_VERIFY_SSL'] = False
+        self.client = API()
+        self.assertEqual(client.verify_ssl == False)
+        
     def test_no_config_file(self):
         os.remove(self.config_path)
         key = 'itgiwiht84inf92GWT'
@@ -98,7 +106,8 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config['url'], url)
         self.assertEqual(config['key'], key)
         self.assertEqual(config['email'], email)
-
+        self.assertEqual(client.verify_ssl == True)
+        
     def test_config_no_email(self):
         os.remove(self.config_path)
         shutil.copyfile('%s/testrail.conf-noemail' % self.test_dir,
