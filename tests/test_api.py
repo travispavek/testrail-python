@@ -50,8 +50,8 @@ class TestConfig(unittest.TestCase):
             del os.environ['TESTRAIL_USER_KEY']
         if os.environ.get('TESTRAIL_URL'):
             del os.environ['TESTRAIL_URL']
-        if os.environ.get('TESTRAIL_VERIFY_URL'):
-            del os.environ['TESTRAIL_VERIFY_URL']
+        if os.environ.get('TESTRAIL_VERIFY_SSL'):
+            del os.environ['TESTRAIL_VERIFY_SSL']
 
     def test_no_env(self):
         client = API()
@@ -59,7 +59,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config['email'], 'user@yourdomain.com')
         self.assertEqual(config['key'], 'your_api_key')
         self.assertEqual(config['url'], 'https://<server>')
-        self.assertEqual(client.verify_ssl == False)
+        self.assertEqual(client.verify_ssl, True)
         
     def test_user_env(self):
         email = 'user@example.com'
@@ -89,9 +89,9 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config['url'], url)
 
     def test_ssl_env(self):
-        os.environ['TESTRAIL_VERIFY_SSL'] = False
-        self.client = API()
-        self.assertEqual(client.verify_ssl == False)
+        os.environ['TESTRAIL_VERIFY_SSL'] = 'False'
+        client = API()
+        self.assertEqual(client.verify_ssl, False)
         
     def test_no_config_file(self):
         os.remove(self.config_path)
@@ -106,7 +106,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config['url'], url)
         self.assertEqual(config['key'], key)
         self.assertEqual(config['email'], email)
-        self.assertEqual(client.verify_ssl == True)
+        self.assertEqual(client.verify_ssl, True)
         
     def test_config_no_email(self):
         os.remove(self.config_path)
@@ -138,6 +138,11 @@ class TestConfig(unittest.TestCase):
                          ('A URL must be set in environment ' +
                           'variable TESTRAIL_URL or in ~/.testrail.conf'))
 
+    def test_config_verify_ssl_false(self):
+        os.remove(self.config_path)
+        shutil.copyfile('%s/testrail.conf-nosslcert' % self.test_dir, self.config_path)
+        client = API()
+        self.assertEqual(client.verify_ssl, False)
 
 class TestHTTPMethod(unittest.TestCase):
     def setUp(self):
@@ -167,6 +172,7 @@ class TestHTTPMethod(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -195,6 +201,7 @@ class TestHTTPMethod(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -242,6 +249,7 @@ class TestUser(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -264,6 +272,7 @@ class TestUser(unittest.TestCase):
                 url,
                 headers={'Content-Type': 'application/json'},
                 params=None,
+                verify=True,
                 auth=('user@yourdomain.com', 'your_api_key')
             )
         mock_get.assert_has_calls([c, mock.call().json()] * 2)
@@ -285,6 +294,7 @@ class TestUser(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -318,6 +328,7 @@ class TestUser(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -382,6 +393,7 @@ class TestProject(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -404,6 +416,7 @@ class TestProject(unittest.TestCase):
                 url,
                 headers={'Content-Type': 'application/json'},
                 params=None,
+                verify=True,
                 auth=('user@yourdomain.com', 'your_api_key')
             )
         mock_get.assert_has_calls([c, mock.call().json()] * 2)
@@ -425,6 +438,7 @@ class TestProject(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -498,6 +512,7 @@ class TestSuite(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -517,6 +532,7 @@ class TestSuite(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
@@ -548,6 +564,7 @@ class TestSuite(unittest.TestCase):
                 url,
                 headers={'Content-Type': 'application/json'},
                 params=None,
+                verify=True,
                 auth=('user@yourdomain.com', 'your_api_key')
             )
         mock_get.assert_has_calls([c, mock.call().json()]  * 2)
@@ -569,12 +586,14 @@ class TestSuite(unittest.TestCase):
                 url,
                 headers={'Content-Type': 'application/json'},
                 params=None,
+                verify=True,
                 auth=('user@yourdomain.com', 'your_api_key')
             )
         c2 = mock.call(
                 url2,
                 headers={'Content-Type': 'application/json'},
                 params=None,
+                verify=True,
                 auth=('user@yourdomain.com', 'your_api_key')
             )
         mock_get.assert_has_calls(
@@ -597,6 +616,7 @@ class TestSuite(unittest.TestCase):
             url,
             headers={'Content-Type': 'application/json'},
             params=None,
+            verify=True,
             auth=('user@yourdomain.com', 'your_api_key')
         )
         self.assertEqual(1, mock_response.json.call_count)
