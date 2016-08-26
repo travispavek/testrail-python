@@ -104,12 +104,13 @@ class API(object):
         self._auth = (config['email'], config['key'])
         self._url = config['url']
         self.headers = {'Content-Type': 'application/json'}
+        self.verify_ssl = config['verify_ssl']
 
     def _conf(self):
         TR_EMAIL = 'TESTRAIL_USER_EMAIL'
         TR_KEY = 'TESTRAIL_USER_KEY'
         TR_URL = 'TESTRAIL_URL'
-
+        
         conf_path = '%s/.testrail.conf' % os.path.expanduser('~')
 
         if os.path.isfile(conf_path):
@@ -138,7 +139,14 @@ class API(object):
             raise TestRailError('A URL must be set in environment variable ' +
                                 '%s or in ~/.testrail.conf' % TR_URL)
 
-        return {'email': _email, 'key': _key, 'url': _url}
+        if os.environ.get('TESTRAIL_VERIFY_SSL') is not None:
+            verify_ssl = os.environ.get('TESTRAIL_VERIFY_SSL').lower() == 'true'
+        elif config['testrail'].get('verify_ssl') is not None:
+            verify_ssl = config['testrail'].get('verify_ssl').lower() == 'true'
+        else:
+            verify_ssl = True
+            
+        return {'email': _email, 'key': _key, 'url': _url, 'verify_ssl': verify_ssl}
 
     def _refresh(self, ts):
         if not ts:
@@ -477,7 +485,7 @@ class API(object):
     def _get(self, uri, params=None):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.get(self._url+uri, params=params, auth=self._auth,
-                         headers=self.headers)
+                         headers=self.headers, verify=self.verify_ssl)
         content = r.json()
         if r.status_code == 200:
             return content
@@ -490,7 +498,8 @@ class API(object):
 
     def _post(self, uri, data={}):
         uri = '/index.php?/api/v2/%s' % uri
-        r = requests.post(self._url+uri, json=data, auth=self._auth)
+        r = requests.post(self._url+uri, json=data, auth=self._auth,
+                          verify=self.verify_ssl)
         # TODO if 429 wait 5 seconds and try again.
         if r.status_code == 200:
             try:
