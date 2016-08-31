@@ -498,7 +498,7 @@ class API(object):
             self._configs['ts'] = datetime.now()
         return self._configs['value']
 
-    @retry(TooManyRequestsError, tries=3)
+    @retry((TooManyRequestsError, ValueError), tries=3)
     def _get(self, uri, params=None):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.get(self._url+uri, params=params, auth=self._auth,
@@ -525,7 +525,10 @@ class API(object):
         self._raise_on_429_status(r)
 
         if r.status_code == 200:
-            return r.json()
+            try:
+                return r.json()
+            except ValueError:
+                return dict()
         else:
             response = r.json()
             response.update({'data': data,
