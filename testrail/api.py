@@ -106,7 +106,7 @@ class API(object):
         self._auth = (config['email'], config['key'])
         self._url = config['url']
         self.headers = {'Content-Type': 'application/json'}
-        self.verify_ssl = config['verify_ssl']
+        self.verify_ssl = config.get('verify_ssl', True)
 
     def _conf(self):
         TR_EMAIL = 'TESTRAIL_USER_EMAIL'
@@ -239,6 +239,12 @@ class API(object):
             return list(filter(lambda x: x['id'] == suite_id, self.suites()))[0]
         except IndexError:
             raise TestRailError("Suite ID '%s' was not found" % suite_id)
+
+    def add_suite(self, suite):
+        fields = ['name', 'description']
+        project_id = suite.get('project_id')
+        payload = self._payload_gen(fields, suite)
+        return self._post('add_suite/%s' % project_id, payload)
 
     # Case Requests
     def cases(self, project_id=None, suite_id=10):
