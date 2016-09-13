@@ -112,7 +112,7 @@ class API(object):
         TR_EMAIL = 'TESTRAIL_USER_EMAIL'
         TR_KEY = 'TESTRAIL_USER_KEY'
         TR_URL = 'TESTRAIL_URL'
-        
+
         conf_path = '%s/.testrail.conf' % os.path.expanduser('~')
 
         if os.path.isfile(conf_path):
@@ -147,7 +147,7 @@ class API(object):
             verify_ssl = config['testrail'].get('verify_ssl').lower() == 'true'
         else:
             verify_ssl = True
-            
+
         return {'email': _email, 'key': _key, 'url': _url, 'verify_ssl': verify_ssl}
 
     @staticmethod
@@ -367,7 +367,7 @@ class API(object):
         return self._plans[project_id]['value']
 
     def plan_with_id(self, plan_id, with_entries=False):
-        #TODO consider checking if plan already has entries and if not add it 
+        #TODO consider checking if plan already has entries and if not add it
         if with_entries:
             return self._get('get_plan/%s' % plan_id)
         try:
@@ -416,6 +416,27 @@ class API(object):
     @UpdateCache(_shared_state['_runs'])
     def delete_run(self, run_id):
         return self._post('delete_run/%s' % run_id)
+
+    @UpdateCache(_shared_state['_plans'])
+    def add_plan(self, plan):
+        fields = ['name', 'description', 'milestone_id']
+        project_id = plan.get('project_id')
+        payload = self._payload_gen(fields, plan)
+        return self._post('add_plan/%s' % project_id, payload)
+
+    @UpdateCache(_shared_state['_plans'])
+    def update_plan(self, plan):
+        fields = ['name', 'description', 'milestone_id']
+        data = self._payload_gen(fields, plan)
+        return self._post('update_plan/%s' % plan.id, data)
+
+    @UpdateCache(_shared_state['_plans'])
+    def close_plan(self, plan_id):
+        return self._post('close_plan/%s' % plan_id)
+
+    @UpdateCache(_shared_state['_runs'])
+    def delete_plan(self, plan_id):
+        return self._post('delete_plan/%s' % plan_id)
 
     # Test Requests
     def tests(self, run_id):
