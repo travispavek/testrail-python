@@ -182,11 +182,11 @@ class TestRail(object):
 
     @update.register(Plan)
     def _update_plan(self, obj):
-        return Run(self.api.update_plan(obj.raw_data()))
+        return Plan(self.api.update_plan(obj.raw_data()))
 
     @close.register(Plan)
     def _close_plan(self, obj):
-        return Run(self.api.close_plan(obj.id))
+        return Plan(self.api.close_plan(obj.id))
 
     @delete.register(Plan)
     def _delete_plan(self, obj):

@@ -259,8 +259,8 @@ class TestPlan(unittest.TestCase):
 
     def test_set_description_invalid_type(self):
         with self.assertRaises(TestRailError) as e:
-            self.plan.milestone = 194
-        self.assertEqual(str(e.exception), 'input must be a Milestone')
+            self.plan.description = 194
+        self.assertEqual(str(e.exception), 'input must be a string')
 
     def test_get_entries_type(self):
         self.assertTrue(
