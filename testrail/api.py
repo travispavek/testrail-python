@@ -373,7 +373,7 @@ class API(object):
         try:
             return list(filter(lambda x: x['id'] == plan_id, self.plans()))[0]
         except IndexError:
-            return Plan()
+            raise TestRailError("Plan ID '%s' was not found" % plan_id)
 
     # Run Requests
     def runs(self, project_id=None, completed=None):
@@ -434,7 +434,7 @@ class API(object):
     def close_plan(self, plan_id):
         return self._post('close_plan/%s' % plan_id)
 
-    @UpdateCache(_shared_state['_runs'])
+    @UpdateCache(_shared_state['_plans'])
     def delete_plan(self, plan_id):
         return self._post('delete_plan/%s' % plan_id)
 

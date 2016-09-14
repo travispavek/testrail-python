@@ -60,7 +60,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config['key'], 'your_api_key')
         self.assertEqual(config['url'], 'https://<server>')
         self.assertEqual(client.verify_ssl, True)
-        
+
     def test_user_env(self):
         email = 'user@example.com'
         os.environ['TESTRAIL_USER_EMAIL'] = email
@@ -92,7 +92,7 @@ class TestConfig(unittest.TestCase):
         os.environ['TESTRAIL_VERIFY_SSL'] = 'False'
         client = API()
         self.assertEqual(client.verify_ssl, False)
-        
+
     def test_no_config_file(self):
         os.remove(self.config_path)
         key = 'itgiwiht84inf92GWT'
@@ -107,7 +107,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config['key'], key)
         self.assertEqual(config['email'], email)
         self.assertEqual(client.verify_ssl, True)
-        
+
     def test_config_no_email(self):
         os.remove(self.config_path)
         shutil.copyfile('%s/testrail.conf-noemail' % self.test_dir,
@@ -631,6 +631,174 @@ class TestSuite(unittest.TestCase):
         with self.assertRaises(TestRailError) as e:
             self.client.suite_with_id(20)
         self.assertEqual(str(e.exception), "Suite ID '20' was not found")
+
+
+class TestPlan(unittest.TestCase):
+    def setUp(self):
+        self.client = API()
+        self.client.set_project_id(1)
+        self.mock_plans_data_1 = [
+            {
+                "id": 1,
+                "name": "Test Plan #1",
+                "is_completed": False,
+                "description": "..",
+                "project_id": 1,
+                "milestone_id": 1,
+                "url": "http://<server>/index.php?/plans/view/1",
+                "assignedto_id": None,
+                "blocked_count": 1,
+                "completed_on": None,
+                "created_by": 1,
+                "created_on": 1393845644,
+                "untested_count": 6,
+                "passed_count": 5,
+                "failed_count": 2,
+                "entries": []
+            },
+            {
+                "id": 2,
+                "name": "Test Plan #2",
+                "is_completed": False,
+                "description": "..",
+                "project_id": 1,
+                "milestone_id": 2,
+                "url": "http://<server>/index.php?/plans/view/2",
+                "assignedto_id": None,
+                "blocked_count": 1,
+                "completed_on": None,
+                "created_by": 1,
+                "created_on": 1393845644,
+                "untested_count": 6,
+                "passed_count": 5,
+                "failed_count": 2,
+                "entries": []
+            }
+        ]
+        self.mock_plans_data_2 = [
+            {
+                "id": 3,
+                "name": "Test Plan #3",
+                "is_completed": False,
+                "description": "..",
+                "project_id": 2,
+                "milestone_id": 3,
+                "url": "http://<server>/index.php?/plans/view/3",
+                "assignedto_id": 1,
+                "blocked_count": 2,
+                "completed_on": None,
+                "created_by": 2,
+                "created_on": 1393843644,
+                "untested_count": 6,
+                "passed_count": 5,
+                "failed_count": 2,
+                "entries": []
+            },
+            {
+                "id": 4,
+                "name": "Test Plan #4",
+                "is_completed": False,
+                "description": "..",
+                "project_id": 2,
+                "milestone_id": 3,
+                "url": "http://<server>/index.php?/plans/view/4",
+                "assignedto_id": 1,
+                "blocked_count": 2,
+                "completed_on": None,
+                "created_by": 2,
+                "created_on": 1393843644,
+                "untested_count": 6,
+                "passed_count": 5,
+                "failed_count": 2,
+                "entries": []
+            }
+        ]
+
+        self.plans_1 = copy.deepcopy(self.mock_plans_data_1)
+        self.plans_2 = copy.deepcopy(self.mock_plans_data_2)
+
+    def tearDown(self):
+        util.reset_shared_state(self.client)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plans(self, mock_get):
+        mock_response = mock.Mock()
+        expected_response = self.plans_1
+        url = "https://<server>/index.php?/api/v2/get_plans/1"
+        mock_response.json.return_value = self.mock_plans_data_1
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        actual_response = self.client.plans()
+        actual_response = self.client.plans()  # verify cache hit
+        mock_get.assert_called_once_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            verify=True,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
+        self.assertEqual(1, mock_response.json.call_count)
+        self.assertEqual(expected_response, actual_response)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plans_with_project(self, mock_get):
+        mock_response = mock.Mock()
+        expected_response = self.plans_2
+        url = "https://<server>/index.php?/api/v2/get_plans/2"
+        mock_response.json.return_value = self.mock_plans_data_2
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        actual_response = self.client.plans(2)
+        actual_response = self.client.plans(2)  # verify cache hit
+        mock_get.assert_called_once_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            verify=True,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
+        self.assertEqual(1, mock_response.json.call_count)
+        self.assertEqual(expected_response, actual_response)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plans_invalid_project(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = {}
+        mock_response.status_code = 400
+        mock_get.return_value = mock_response
+        with self.assertRaises(TestRailError):
+            self.client.plans(20)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plan_with_id(self, mock_get):
+        mock_response = mock.Mock()
+        expected_response = next(filter(
+            lambda x: x if x['id'] == 2 else None, self.plans_1))
+        url = 'https://<server>/index.php?/api/v2/get_plans/1'
+        mock_response.json.return_value = self.mock_plans_data_1
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        actual_response = self.client.plan_with_id(2)
+        actual_response = self.client.plan_with_id(2)  # verify cache hit
+        mock_get.assert_called_once_with(
+            url,
+            headers={'Content-Type': 'application/json'},
+            params=None,
+            verify=True,
+            auth=('user@yourdomain.com', 'your_api_key')
+        )
+        self.assertEqual(1, mock_response.json.call_count)
+        self.assertEqual(expected_response, actual_response)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plans_invalid_suite_id(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = {}
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        with self.assertRaises(TestRailError) as e:
+            self.client.plan_with_id(30)
+        self.assertEqual(str(e.exception), "Plan ID '30' was not found")
 
 
 if __name__ == "__main__":

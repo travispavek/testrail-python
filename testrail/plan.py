@@ -49,8 +49,10 @@ class Plan(object):
         return self._content.get('description')
 
     @description.setter
-    def description(self, v):
-        self._content['description'] = v
+    def description(self, value):
+        if not isinstance(value, str):
+            raise TestRailError('input must be a string')
+        self._content['description'] = value
 
     @property
     def entries(self):
