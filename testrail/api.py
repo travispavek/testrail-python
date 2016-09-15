@@ -527,15 +527,19 @@ class API(object):
 
         self._raise_on_429_status(r)
 
-        content = r.json()
         if r.status_code == 200:
-            return content
+            return r.json()
         else:
-            content.update({'payload': params,
-                            'url': r.url,
-                            'status_code': r.status_code,
-                            'error': content.get('error', None)})
-            raise TestRailError(content)
+            try:
+                response = r.json()
+            except ValueError:
+                response = dict()
+
+            response.update({'payload': params,
+                             'url': r.url,
+                             'status_code': r.status_code,
+                             'error': response.get('error', None)})
+            raise TestRailError(response)
 
     @retry(TooManyRequestsError, tries=3)
     def _post(self, uri, data={}):
