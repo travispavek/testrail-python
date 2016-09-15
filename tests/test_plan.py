@@ -324,6 +324,22 @@ class TestPlan(unittest.TestCase):
         mock_get.return_value = mock_response
         self.assertEqual(self.plan.milestone.id, 7)
 
+    @mock.patch('testrail.api.requests.get')
+    def test_set_milestone(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_project_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        milestone = Milestone(self.mock_mstone_data[1])
+        self.plan.milestone = milestone
+        self.assertEqual(self.plan._content['milestone_id'], 7)
+
+    def test_set_milestone_invalid_type(self):
+        with self.assertRaises(TestRailError) as e:
+            self.plan.milestone = 994
+        self.assertEqual(str(e.exception), 'input must be a Milestone')
+
     def test_get_name_type(self):
         self.assertTrue(isinstance(self.plan.name, str))
 
@@ -377,22 +393,6 @@ class TestPlan(unittest.TestCase):
         with self.assertRaises(TestRailError) as e:
             self.plan.project = 394
         self.assertEqual(str(e.exception), 'input must be a Project')
-
-    @mock.patch('testrail.api.requests.get')
-    def test_set_milestone(self, mock_get):
-        mock_response = mock.Mock()
-        mock_response.json.return_value = copy.deepcopy(self.mock_project_data)
-        mock_response.status_code = 200
-        mock_get.return_value = mock_response
-
-        milestone = Milestone(self.mock_mstone_data[1])
-        self.plan.milestone = milestone
-        self.assertEqual(self.plan._content['milestone_id'], 7)
-
-    def test_set_milestone_invalid_type(self):
-        with self.assertRaises(TestRailError) as e:
-            self.plan.milestone = 994
-        self.assertEqual(str(e.exception), 'input must be a Milestone')
 
     def test_get_project_id_type(self):
         self.assertTrue(isinstance(self.plan.project_id, int))

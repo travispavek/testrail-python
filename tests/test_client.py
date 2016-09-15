@@ -4,6 +4,7 @@ try:
 except ImportError:
     import unittest
 
+import copy
 import mock
 
 import testrail
@@ -337,7 +338,7 @@ class TestProject(unittest.TestCase):
             {
                 "email": "mock3@email.com",
                 "id": 3,
-                "is_active": True,
+                "is_active": False,
                 "name": "Mock Name 3"
             }
         ]
@@ -388,6 +389,79 @@ class TestProject(unittest.TestCase):
         runs = self.client.runs()
         assert isinstance(runs, RunContainer)
         self.assertEqual(len(runs), 2)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plan_by_id(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_plans_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        plan = self.client.plan(11)
+        self.assertTrue(isinstance(plan, Plan))
+        self.assertEqual(plan.id, 11)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plan_by_name(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_plans_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        plan = self.client.plan('Mock Plan1 Name')
+        self.assertTrue(isinstance(plan, Plan))
+        self.assertEqual(plan.name, 'Mock Plan1 Name')
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_by_id(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        user = self.client.user(1)
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.id, 1)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_by_email(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        user = self.client.user('mock1@email.com')
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.email, 'mock1@email.com')
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_by_name(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        user = self.client.user('Mock Name 2')
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.name, 'Mock Name 2')
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_is_active(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        users = self.client.active_users()
+        self.assertTrue([isinstance(u, User) for u in users])
+        self.assertEqual(len(users), 2)
+        self.assertEqual(users[0].id, 1)
+        self.assertEqual(users[1].id, 2)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_is_inactive(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        users = self.client.inactive_users()
+        self.assertTrue([isinstance(u, User) for u in users])
+        self.assertEqual(len(users), 1)
+        self.assertEqual(users[0].id, 3)
 
     @mock.patch('testrail.api.requests.get')
     def test_runcontainer_contains_only_run_objects(self, mock_get):
@@ -511,8 +585,9 @@ class TestProject(unittest.TestCase):
         after_date = dt.fromtimestamp(1457762222)
         created_after = self.client.plans().created_after(after_date)
         self.assertTrue([lambda x: isinstance(x, Plan) for x in created_after])
-        self.assertEqual(len(created_after), 1)
+        self.assertEqual(len(created_after), 2)
         self.assertEqual(created_after[0].id, 33)
+        self.assertEqual(created_after[1].id, 44)
 
     @mock.patch('testrail.api.requests.get')
     def test_plancontainer_created_before_error(self, mock_get):
@@ -559,8 +634,9 @@ class TestProject(unittest.TestCase):
         user = User({'id': 3})
         created_by = self.client.plans().created_by(user)
         self.assertTrue([lambda x: isinstance(x, Plan) for x in created_by])
-        self.assertEqual(len(created_by), 1)
+        self.assertEqual(len(created_by), 2)
         self.assertEqual(created_by[0].id, 33)
+        self.assertEqual(created_by[1].id, 44)
 
     @mock.patch('testrail.api.requests.get')
     def test_plancontainer_plan_with_name_error(self, mock_get):
@@ -598,8 +674,9 @@ class TestProject(unittest.TestCase):
     @mock.patch('testrail.api.requests.get')
     def test_plancontainer_for_milestone(self, mock_get):
         mock_response = mock.Mock()
-        mock_response.json.return_value = filter(
-            lambda x: x['milestone_id'] == 1, self.mock_plans_data)
+        mock_response.json.side_effect = [
+            filter(lambda x: x['milestone_id'] == 1, self.mock_plans_data),
+            self.mock_milestone_data]
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         milestone = Milestone(self.mock_milestone_data[0])

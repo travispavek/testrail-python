@@ -166,7 +166,7 @@ class TestRail(object):
     @plan.register(int)
     @singleresult
     def _plan_by_id(self, plan_id):
-        filter(lambda p: p.id == plan_id, self.plans())
+        return filter(lambda p: p.id == plan_id, self.plans())
 
     def completed_plans(self):
         return filter(lambda p: p.is_completed is True, self.plans())
