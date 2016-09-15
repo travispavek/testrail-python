@@ -10,6 +10,10 @@ class TestRailError(Exception):
     pass
 
 
+class TooManyRequestsError(TestRailError):
+    pass
+
+
 def methdispatch(func):
     dispatcher = singledispatch(func)
 

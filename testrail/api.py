@@ -2,13 +2,15 @@ from __future__ import division
 
 import os
 import collections
+from time import sleep
 from builtins import dict
 from datetime import datetime, timedelta
 
 import yaml
 import requests
+from retry import retry
 
-from testrail.helper import TestRailError
+from testrail.helper import TestRailError, TooManyRequestsError
 
 nested_dict = lambda: collections.defaultdict(nested_dict)
 
@@ -147,6 +149,20 @@ class API(object):
             verify_ssl = True
             
         return {'email': _email, 'key': _key, 'url': _url, 'verify_ssl': verify_ssl}
+
+    @staticmethod
+    def _raise_on_429_status(resp):
+        """ 429 is TestRail's status for too many API requests
+            Use the 'Retry-After' key in the response header to sleep for the
+            specified amount of time, then raise an exception to trigger the
+            retry
+        """
+        if resp.status_code == 429:
+            wait_amount = int(resp.headers['Retry-After'])
+            sleep(wait_amount)
+            raise TooManyRequestsError("Too many API requests")
+        else:
+            return
 
     def _refresh(self, ts):
         if not ts:
@@ -482,10 +498,14 @@ class API(object):
             self._configs['ts'] = datetime.now()
         return self._configs['value']
 
+    @retry((TooManyRequestsError, ValueError), tries=3)
     def _get(self, uri, params=None):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.get(self._url+uri, params=params, auth=self._auth,
                          headers=self.headers, verify=self.verify_ssl)
+
+        self._raise_on_429_status(r)
+
         content = r.json()
         if r.status_code == 200:
             return content
@@ -496,16 +516,19 @@ class API(object):
                             'error': content.get('error', None)})
             raise TestRailError(content)
 
+    @retry(TooManyRequestsError, tries=3)
     def _post(self, uri, data={}):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.post(self._url+uri, json=data, auth=self._auth,
                           verify=self.verify_ssl)
-        # TODO if 429 wait 5 seconds and try again.
+
+        self._raise_on_429_status(r)
+
         if r.status_code == 200:
             try:
                 return r.json()
             except ValueError:
-                return {}
+                return dict()
         else:
             response = r.json()
             response.update({'data': data,
