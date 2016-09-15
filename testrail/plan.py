@@ -48,6 +48,12 @@ class Plan(object):
     def description(self):
         return self._content.get('description')
 
+    @description.setter
+    def description(self, value):
+        if not isinstance(value, str):
+            raise TestRailError('input must be a string')
+        self._content['description'] = value
+
     @property
     def entries(self):
         # ToDo convert entries to run objects
@@ -75,6 +81,12 @@ class Plan(object):
         if milestone_id is None:
             return Milestone()
         return Milestone(self.api.milestone_with_id(milestone_id, project_id))
+
+    @milestone.setter
+    def milestone(self, v):
+        if not isinstance(v, Milestone):
+            raise TestRailError('input must be a Milestone')
+        self._content['milestone_id'] = v.id
 
     @property
     def name(self):
@@ -160,7 +172,9 @@ class PlanContainer(ContainerIter):
         if not isinstance(name, str):
             raise TestRailError("Must pass in a string")
 
-        comp_func = lambda p: p.name.lower() == name.lower()
+        def comp_func(p):
+            return p.name.lower() == name.lower()
+
         try:
             return list(filter(comp_func, self._plans)).pop(0)
         except IndexError:

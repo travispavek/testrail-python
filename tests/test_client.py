@@ -4,12 +4,14 @@ try:
 except ImportError:
     import unittest
 
+import copy
 import mock
 
 import testrail
 from testrail.api import API
 from testrail.user import User
 from testrail.project import Project
+from testrail.milestone import Milestone
 from testrail.helper import TestRailError
 from testrail.run import RunContainer, Run
 from testrail.plan import PlanContainer, Plan
@@ -42,7 +44,7 @@ class TestProject(unittest.TestCase):
         ]
 
         self.mock_runs_data = [
-	    {
+            {
                 'assignedto_id': None,
                 'blocked_count': 0,
                 'completed_on': None,
@@ -66,7 +68,7 @@ class TestProject(unittest.TestCase):
                 'untested_count': 3,
                 'url': 'https://<server>/index.php?/runs/view/111'
             },
-	    {
+            {
                 'assignedto_id': None,
                 'blocked_count': 0,
                 'completed_on': None,
@@ -89,7 +91,7 @@ class TestProject(unittest.TestCase):
                 'suite_id': 1,
                 'untested_count': 3,
                 'url': 'https://<server>/index.php?/runs/view/222'
-            },
+            }
         ]
 
         self.mock_plans_data = [
@@ -117,7 +119,7 @@ class TestProject(unittest.TestCase):
                 "project_id": 1,
                 "retest_count": 1,
                 "untested_count": 1,
-                "url": "http://<server>/testrail/index.php?/plans/view/80"
+                "url": "http://<server>/testrail/index.php?/plans/view/11"
             },
             {
                 "assignedto_id": 2,
@@ -143,7 +145,7 @@ class TestProject(unittest.TestCase):
                 "project_id": 1,
                 "retest_count": 2,
                 "untested_count": 2,
-                "url": "http://<server>/testrail/index.php?/plans/view/80"
+                "url": "http://<server>/testrail/index.php?/plans/view/22"
             },
             {
                 "assignedto_id": 3,
@@ -169,70 +171,96 @@ class TestProject(unittest.TestCase):
                 "project_id": 1,
                 "retest_count": 3,
                 "untested_count": 3,
-                "url": "http://<server>/testrail/index.php?/plans/view/80"
+                "url": "http://<server>/testrail/index.php?/plans/view/33"
             },
+            {
+                "assignedto_id": 3,
+                "blocked_count": 3,
+                "completed_on": None,
+                "created_by": 3,
+                "created_on": 1457793333,
+                "custom_status1_count": 0,
+                "custom_status2_count": 0,
+                "custom_status3_count": 0,
+                "custom_status4_count": 0,
+                "custom_status5_count": 0,
+                "custom_status6_count": 0,
+                "custom_status7_count": 0,
+                "description": "Mock plan description",
+                "entries": [],
+                "failed_count": 3,
+                "id": 44,
+                "is_completed": False,
+                "milestone_id": 1,
+                "name": "Mock Plan3 Name",
+                "passed_count": 3,
+                "project_id": 1,
+                "retest_count": 3,
+                "untested_count": 3,
+                "url": "http://<server>/testrail/index.php?/plans/view/44"
+            }
         ]
 
         self.mock_results_data = [
             {
-                    "assignedto_id": 2,
-                    "comment": "This test passed: ..",
-                    "created_by": 1,
-                    "created_on": 1393851901,
-                    "defects": "TR-1",
-                    "elapsed": "5m",
-                    "id": 11,
-                    "status_id": 1,
-                    "test_id": 111,
-                    "version": "1.0RC1"
+                "assignedto_id": 2,
+                "comment": "This test passed: ..",
+                "created_by": 1,
+                "created_on": 1393851901,
+                "defects": "TR-1",
+                "elapsed": "5m",
+                "id": 11,
+                "status_id": 1,
+                "test_id": 111,
+                "version": "1.0RC1"
             },
             {
-                    "assignedto_id": 2,
-                    "comment": "This test blocked: ..",
-                    "created_by": 1,
-                    "created_on": 1393851701,
-                    "defects": "TR-1",
-                    "elapsed": "5m",
-                    "id": 22,
-                    "status_id": 2,
-                    "test_id": 222,
-                    "version": "1.0RC1"
+                "assignedto_id": 2,
+                "comment": "This test blocked: ..",
+                "created_by": 1,
+                "created_on": 1393851701,
+                "defects": "TR-1",
+                "elapsed": "5m",
+                "id": 22,
+                "status_id": 2,
+                "test_id": 222,
+                "version": "1.0RC1"
             },
             {
-                    "assignedto_id": 2,
-                    "comment": "This test untested: ..",
-                    "created_by": 1,
-                    "created_on": 1393851751,
-                    "defects": "TR-1",
-                    "elapsed": "5m",
-                    "id": 33,
-                    "status_id": 3,
-                    "test_id": 333,
-                    "version": "1.0RC1"
+                "assignedto_id": 2,
+                "comment": "This test untested: ..",
+                "created_by": 1,
+                "created_on": 1393851751,
+                "defects": "TR-1",
+                "elapsed": "5m",
+                "id": 33,
+                "status_id": 3,
+                "test_id": 333,
+                "version": "1.0RC1"
             },
             {
-                    "assignedto_id": 2,
-                    "comment": "This test is retest ..",
-                    "created_by": 1,
-                    "created_on": 1393852041,
-                    "defects": "TR-1",
-                    "elapsed": "5m",
-                    "id": 44,
-                    "status_id": 4,
-                    "test_id": 444,
-                    "version": "1.0RC1"
+                "assignedto_id": 2,
+                "comment": "This test is retest ..",
+                "created_by": 1,
+                "created_on": 1393852041,
+                "defects": "TR-1",
+                "elapsed": "5m",
+                "id": 44,
+                "status_id": 4,
+                "test_id": 444,
+                "version": "1.0RC1"
             },
             {
-                    "assignedto_id": 2,
-                    "comment": "This test failed: ..",
-                    "created_by": 2,
-                    "created_on": 1393851801,
-                    "defects": "TR-1",
-                    "elapsed": "5m",
-                    "id": 55,
-                    "status_id": 5,
-                    "test_id": 555,
-                    "version": "1.0RC1"
+                "assignedto_id": 2,
+                "comment": "This test failed: ..",
+                "created_by": 2,
+                "created_on": 1393851801,
+                "defects": "TR-1",
+                "elapsed": "5m",
+                "id": 55,
+                "status_id": 5,
+                "test_id": 555,
+                "version": "1.0RC1"
             },
         ]
 
@@ -310,8 +338,31 @@ class TestProject(unittest.TestCase):
             {
                 "email": "mock3@email.com",
                 "id": 3,
-                "is_active": True,
+                "is_active": False,
                 "name": "Mock Name 3"
+            }
+        ]
+
+        self.mock_milestone_data = [
+            {
+                "completed_on": 1389968184,
+                "description": "foo",
+                "due_on": 1391968184,
+                "id": 1,
+                "is_completed": False,
+                "name": "Release 1.5",
+                "project_id": 1,
+                "url": "http://<server>/index.php?/milestones/view/1"
+            },
+            {
+                "completed_on": 1389968184,
+                "description": "foo",
+                "due_on": 1391968184,
+                "id": 2,
+                "is_completed": True,
+                "name": "Release 1.5",
+                "project_id": 1,
+                "url": "http://<server>/index.php?/milestones/view/1"
             }
         ]
 
@@ -338,6 +389,79 @@ class TestProject(unittest.TestCase):
         runs = self.client.runs()
         assert isinstance(runs, RunContainer)
         self.assertEqual(len(runs), 2)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plan_by_id(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_plans_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        plan = self.client.plan(11)
+        self.assertTrue(isinstance(plan, Plan))
+        self.assertEqual(plan.id, 11)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_plan_by_name(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_plans_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        plan = self.client.plan('Mock Plan1 Name')
+        self.assertTrue(isinstance(plan, Plan))
+        self.assertEqual(plan.name, 'Mock Plan1 Name')
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_by_id(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        user = self.client.user(1)
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.id, 1)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_by_email(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        user = self.client.user('mock1@email.com')
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.email, 'mock1@email.com')
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_by_name(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        user = self.client.user('Mock Name 2')
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.name, 'Mock Name 2')
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_is_active(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        users = self.client.active_users()
+        self.assertTrue([isinstance(u, User) for u in users])
+        self.assertEqual(len(users), 2)
+        self.assertEqual(users[0].id, 1)
+        self.assertEqual(users[1].id, 2)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_get_user_is_inactive(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_users)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        users = self.client.inactive_users()
+        self.assertTrue([isinstance(u, User) for u in users])
+        self.assertEqual(len(users), 1)
+        self.assertEqual(users[0].id, 3)
 
     @mock.patch('testrail.api.requests.get')
     def test_runcontainer_contains_only_run_objects(self, mock_get):
@@ -403,11 +527,12 @@ class TestProject(unittest.TestCase):
         mock_get.return_value = mock_response
         active_plans = self.client.plans().active()
         ids = [p.id for p in active_plans]
-        self.assertEqual(len(ids), 2)
+        self.assertEqual(len(ids), 3)
         self.assertTrue([lambda x: isinstance(x, Plan) for x in active_plans])
-        self.assertNotEqual(ids[0], ids[1])
+        self.assertNotEqual(ids[0], ids[1], ids[2])
         self.assertIn(22, ids)
         self.assertIn(33, ids)
+        self.assertIn(44, ids)
 
     @mock.patch('testrail.api.requests.get')
     def test_plancontainer_completed_plans(self, mock_get):
@@ -428,7 +553,7 @@ class TestProject(unittest.TestCase):
         mock_get.return_value = mock_response
         latest_plan = self.client.plans().latest()
         self.assertTrue(isinstance(latest_plan, Plan))
-        self.assertEqual(latest_plan.id, 33)
+        self.assertEqual(latest_plan.id, 44)
 
     @mock.patch('testrail.api.requests.get')
     def test_plancontainer_oldest_plan(self, mock_get):
@@ -460,8 +585,9 @@ class TestProject(unittest.TestCase):
         after_date = dt.fromtimestamp(1457762222)
         created_after = self.client.plans().created_after(after_date)
         self.assertTrue([lambda x: isinstance(x, Plan) for x in created_after])
-        self.assertEqual(len(created_after), 1)
+        self.assertEqual(len(created_after), 2)
         self.assertEqual(created_after[0].id, 33)
+        self.assertEqual(created_after[1].id, 44)
 
     @mock.patch('testrail.api.requests.get')
     def test_plancontainer_created_before_error(self, mock_get):
@@ -508,8 +634,9 @@ class TestProject(unittest.TestCase):
         user = User({'id': 3})
         created_by = self.client.plans().created_by(user)
         self.assertTrue([lambda x: isinstance(x, Plan) for x in created_by])
-        self.assertEqual(len(created_by), 1)
+        self.assertEqual(len(created_by), 2)
         self.assertEqual(created_by[0].id, 33)
+        self.assertEqual(created_by[1].id, 44)
 
     @mock.patch('testrail.api.requests.get')
     def test_plancontainer_plan_with_name_error(self, mock_get):
@@ -543,6 +670,20 @@ class TestProject(unittest.TestCase):
         plan = self.client.plans().name(plan_name)
         self.assertTrue(isinstance(plan, Plan))
         self.assertEqual(plan.id, 22)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_plancontainer_for_milestone(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.side_effect = [
+            filter(lambda x: x['milestone_id'] == 1, self.mock_plans_data),
+            self.mock_milestone_data]
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        milestone = Milestone(self.mock_milestone_data[0])
+        plans = self.client.plans(milestone)
+        self.assertTrue(isinstance(plans, PlanContainer))
+        self.assertTrue([isinstance(p, Plan) for p in plans])
+        self.assertTrue([p._content['milestone_id'] == 1 for p in plans])
 
     @mock.patch('testrail.api.requests.get')
     def test_resultcontainer_contains_only_result_objects(self, mock_get):
