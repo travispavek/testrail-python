@@ -83,10 +83,10 @@ class TestRail(object):
         return filter(f, self.users())
 
     def active_users(self):
-        return filter(lambda u: u.is_active is True, self.users())
+        return list(filter(lambda u: u.is_active is True, self.users()))
 
     def inactive_users(self):
-        return filter(lambda u: u.is_active is False, self.users())
+        return list(filter(lambda u: u.is_active is False, self.users()))
 
     # Suite Methods
     def suites(self):
@@ -166,13 +166,31 @@ class TestRail(object):
     @plan.register(int)
     @singleresult
     def _plan_by_id(self, plan_id):
-        filter(lambda p: p.id == plan_id, self.plans())
+        return filter(lambda p: p.id == plan_id, self.plans())
 
     def completed_plans(self):
         return filter(lambda p: p.is_completed is True, self.plans())
 
     def active_plans(self):
         return filter(lambda p: p.is_completed is False, self.plans())
+
+    @add.register(Plan)
+    def _add_plan(self, obj, milestone=None):
+        obj.project = obj.project or self.project(self._project_id)
+        obj.milestone = milestone or obj.milestone
+        return Plan(self.api.add_plan(obj.raw_data()))
+
+    @update.register(Plan)
+    def _update_plan(self, obj):
+        return Plan(self.api.update_plan(obj.raw_data()))
+
+    @close.register(Plan)
+    def _close_plan(self, obj):
+        return Plan(self.api.close_plan(obj.id))
+
+    @delete.register(Plan)
+    def _delete_plan(self, obj):
+        return self.api.delete_plan(obj.id)
 
     # Run Methods
     @methdispatch

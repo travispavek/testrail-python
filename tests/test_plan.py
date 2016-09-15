@@ -181,7 +181,7 @@ class TestPlan(unittest.TestCase):
                 "project_id": 1,
                 "url": "http://<server>/testrail/index.php?/milestones/view/1"
             }
-                
+
         ]
 
         self.mock_project_data = [{"id": 1, }, {"id": 99, }]
@@ -253,12 +253,22 @@ class TestPlan(unittest.TestCase):
     def test_description(self):
         self.assertEqual(self.plan.description, "Mock plan description")
 
+    def test_set_description(self):
+        self.plan.description = "New plan description"
+        self.assertEqual(self.plan.description, "New plan description")
+
+    def test_set_description_invalid_type(self):
+        with self.assertRaises(TestRailError) as e:
+            self.plan.description = 194
+        self.assertEqual(str(e.exception), 'input must be a string')
+
     def test_get_entries_type(self):
         self.assertTrue(
             all([lambda e: isinstance(e, Entry) for e in self.plan.entries]))
 
     def test_get_entries_type(self):
-        entry_checker = lambda e: e.id.startswith("mock-id")
+        def entry_checker(e):
+            return e.id.startswith("mock-id")
         self.assertTrue(all([entry_checker(e) for e in self.plan.entries]))
     """
     @mock.patch('testrail.api.requests.get')
@@ -313,6 +323,22 @@ class TestPlan(unittest.TestCase):
         mock_response.status_code = 200
         mock_get.return_value = mock_response
         self.assertEqual(self.plan.milestone.id, 7)
+
+    @mock.patch('testrail.api.requests.get')
+    def test_set_milestone(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_project_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        milestone = Milestone(self.mock_mstone_data[1])
+        self.plan.milestone = milestone
+        self.assertEqual(self.plan._content['milestone_id'], 7)
+
+    def test_set_milestone_invalid_type(self):
+        with self.assertRaises(TestRailError) as e:
+            self.plan.milestone = 994
+        self.assertEqual(str(e.exception), 'input must be a Milestone')
 
     def test_get_name_type(self):
         self.assertTrue(isinstance(self.plan.name, str))
