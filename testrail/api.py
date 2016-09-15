@@ -381,6 +381,21 @@ class API(object):
         except IndexError:
             return Plan()
 
+    @UpdateCache(_shared_state['_plans'])
+    def add_plan(self, plan):
+        fields = ['name', 'description', 'milestone_id', 'entries']
+        project_id = plan.get('project_id')
+        payload = self._payload_gen(fields, plan)
+        return self._post('add_plan/%s' % project_id, payload)
+
+    # can't @UpdateCache b/c it doesn't include project_id
+    def add_plan_entry(self, plan_entry):
+        fields = ['suite_id', 'name', 'description', 'assignedto_id',
+                  'include_all', 'case_ids', 'config_ids', 'runs']
+        plan_id = plan_entry.get('plan_id')
+        payload = self._payload_gen(fields, plan_entry)
+        return self._post('add_plan_entry/%s' % plan_id, payload)
+
     # Run Requests
     def runs(self, project_id=None, completed=None):
         project_id = project_id or self._project_id
