@@ -83,10 +83,10 @@ class TestRail(object):
         return filter(f, self.users())
 
     def active_users(self):
-        return filter(lambda u: u.is_active is True, self.users())
+        return list(filter(lambda u: u.is_active is True, self.users()))
 
     def inactive_users(self):
-        return filter(lambda u: u.is_active is False, self.users())
+        return list(filter(lambda u: u.is_active is False, self.users()))
 
     # Suite Methods
     def suites(self):
