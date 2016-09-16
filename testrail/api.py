@@ -106,7 +106,7 @@ class API(object):
         self._auth = (config['email'], config['key'])
         self._url = config['url']
         self.headers = {'Content-Type': 'application/json'}
-        self.verify_ssl = config['verify_ssl']
+        self.verify_ssl = config.get('verify_ssl', True)
 
     def _conf(self):
         TR_EMAIL = 'TESTRAIL_USER_EMAIL'
@@ -239,6 +239,12 @@ class API(object):
             return list(filter(lambda x: x['id'] == suite_id, self.suites()))[0]
         except IndexError:
             raise TestRailError("Suite ID '%s' was not found" % suite_id)
+
+    def add_suite(self, suite):
+        fields = ['name', 'description']
+        project_id = suite.get('project_id')
+        payload = self._payload_gen(fields, suite)
+        return self._post('add_suite/%s' % project_id, payload)
 
     # Case Requests
     def cases(self, project_id=None, suite_id=10):
@@ -374,6 +380,21 @@ class API(object):
             return list(filter(lambda x: x['id'] == plan_id, self.plans()))[0]
         except IndexError:
             raise TestRailError("Plan ID '%s' was not found" % plan_id)
+
+    @UpdateCache(_shared_state['_plans'])
+    def add_plan(self, plan):
+        fields = ['name', 'description', 'milestone_id', 'entries']
+        project_id = plan.get('project_id')
+        payload = self._payload_gen(fields, plan)
+        return self._post('add_plan/%s' % project_id, payload)
+
+    # can't @UpdateCache b/c it doesn't include project_id
+    def add_plan_entry(self, plan_entry):
+        fields = ['suite_id', 'name', 'description', 'assignedto_id',
+                  'include_all', 'case_ids', 'config_ids', 'runs']
+        plan_id = plan_entry.get('plan_id')
+        payload = self._payload_gen(fields, plan_entry)
+        return self._post('add_plan_entry/%s' % plan_id, payload)
 
     # Run Requests
     def runs(self, project_id=None, completed=None):
