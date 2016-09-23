@@ -556,7 +556,8 @@ class API(object):
             except ValueError:
                 response = dict()
 
-            response.update({'payload': params,
+            response.update({'response_headers': str(r.headers),
+                             'payload': params,
                              'url': r.url,
                              'status_code': r.status_code,
                              'error': response.get('error', None)})
@@ -576,8 +577,13 @@ class API(object):
             except ValueError:
                 return dict()
         else:
-            response = r.json()
-            response.update({'data': data,
+            try:
+                response = r.json()
+            except ValueError:
+                response = dict()
+
+            response.update({'post_data': data,
+                             'response_headers': str(response.headers),
                              'url': r.url,
                              'status_code': r.status_code,
                              'error': response.get('error', None)})
