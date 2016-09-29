@@ -175,17 +175,21 @@ class API(object):
 
     @classmethod
     def flush_cache(cls):
-        """ Set all cache objects to refresh
+        """ Set all cache objects to refresh the next time they are accessed
         """
+        def clear_ts(cache):
+            if 'ts' in cache:
+                cache['ts'] = None
+            for val in cache.values():
+                if isinstance(val, dict):
+                    clear_ts(val)
+
+
         for cache in cls._shared_state.values():
             if not isinstance(cache, dict):
                 continue
-            elif 'ts' in cache:
-                cache['ts'] = None
-
-            for project in cache.values():
-                if isinstance(project, dict) and 'ts' in project:
-                    project['ts'] = None
+            else:
+                clear_ts(cache)
 
     def set_project_id(self, project_id):
         self._project_id = project_id
@@ -556,7 +560,8 @@ class API(object):
             except ValueError:
                 response = dict()
 
-            response.update({'payload': params,
+            response.update({'response_headers': str(r.headers),
+                             'payload': params,
                              'url': r.url,
                              'status_code': r.status_code,
                              'error': response.get('error', None)})
@@ -576,8 +581,13 @@ class API(object):
             except ValueError:
                 return dict()
         else:
-            response = r.json()
-            response.update({'data': data,
+            try:
+                response = r.json()
+            except ValueError:
+                response = dict()
+
+            response.update({'post_data': data,
+                             'response_headers': str(response.headers),
                              'url': r.url,
                              'status_code': r.status_code,
                              'error': response.get('error', None)})

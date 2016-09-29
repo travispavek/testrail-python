@@ -185,12 +185,14 @@ class TestHTTPMethod(unittest.TestCase):
             'url': 'https://<server>/index.php?/api/v2/get_plan/200',
             'status_code': 400,
             'payload': None,
+            'response_headers': "Mock headers",
             'error': 'Invalid or unknown test plan'
         }
         url = 'https://<server>/index.php?/api/v2/get_plan/200'
         mock_response.json.return_value = {
             'error': 'Invalid or unknown test plan'
         }
+        mock_response.headers = "Mock headers"
         mock_response.status_code = 400
         mock_response.url = url
         mock_get.return_value = mock_response
