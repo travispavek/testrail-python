@@ -509,6 +509,15 @@ class API(object):
         payload = self._payload_gen(fields, data)
         self._post('add_result/%s' % data['test_id'], payload)
 
+        # Need to update the _tests cache to mark the run for refresh
+        for run in self._tests:
+            for test in self._tests[run]['value']:
+                if test['id'] == data['test_id']:
+                    self._tests[run]['ts'] = None
+                    return
+        else:
+            raise TestRailError("Could not find test '%s' in cache to update" % data['test_id'])
+
     def add_results(self, results, run_id):
         fields = ['status_id',
                   'test_id',
