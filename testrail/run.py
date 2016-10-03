@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from testrail.base import TestRailBase
 from testrail.api import API
 from testrail.helper import ContainerIter, TestRailError
 from testrail.milestone import Milestone
@@ -10,7 +11,7 @@ from testrail.case import Case
 from testrail.helper import TestRailError
 
 
-class Run(object):
+class Run(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
         self.api = API()

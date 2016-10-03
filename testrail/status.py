@@ -1,4 +1,7 @@
-class Status(object):
+from testrail.base import TestRailBase
+
+
+class Status(TestRailBase):
     def __init__(self, content):
         self._content = content
 

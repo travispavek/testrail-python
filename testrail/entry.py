@@ -1,3 +1,4 @@
+from testrail.base import TestRailBase
 from testrail.api import API
 from testrail.run import Run
 from testrail.suite import Suite
@@ -16,7 +17,7 @@ class EntryRun(Run):
         return self._content.get('entry_index')
 
 
-class Entry(object):
+class Entry(TestRailBase):
     def __init__(self, content):
         self._content = content
         self._api = API()

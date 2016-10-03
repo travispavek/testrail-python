@@ -1,9 +1,10 @@
+from testrail.base import TestRailBase
 from testrail import api
 from testrail.helper import TestRailError
 from testrail.suite import Suite
 
 
-class Section(object):
+class Section(TestRailBase):
     def __init__(self, content):
         self._content = content
         self.api = api.API()

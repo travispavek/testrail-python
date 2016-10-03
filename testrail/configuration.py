@@ -1,8 +1,9 @@
+from testrail.base import TestRailBase
 from testrail.helper import ContainerIter, methdispatch, singleresult
 from testrail.project import Project
 
 
-class _InnerConfig(object):
+class _InnerConfig(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
 
@@ -19,7 +20,7 @@ class _InnerConfig(object):
         return self._content.get('name')
 
 
-class Config(object):
+class Config(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
 

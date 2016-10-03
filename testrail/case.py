@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from testrail.base import TestRailBase
 from testrail.api import API
 from testrail.casetype import CaseType
 from testrail.helper import custom_methods
@@ -10,7 +11,7 @@ from testrail.suite import Suite
 from testrail.user import User
 
 
-class Case(object):
+class Case(TestRailBase):
     def __init__(self, content):
         self._content = content
         self.api = API()
