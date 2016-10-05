@@ -596,7 +596,7 @@ class API(object):
                 response = dict()
 
             response.update({'post_data': data,
-                             'response_headers': str(response.headers),
+                             'response_headers': str(r.headers),
                              'url': r.url,
                              'status_code': r.status_code,
                              'error': response.get('error', None)})
