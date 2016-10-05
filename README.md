@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/travispavek/testrail-python.svg?branch=master)](https://travis-ci.org/travispavek/testrail-python)
 [![Coverage Status](https://coveralls.io/repos/github/travispavek/testrail-python/badge.svg?branch=master)](https://coveralls.io/github/travispavek/testrail-python?branch=master) [![PyPI version](https://badge.fury.io/py/testrail.svg)](https://badge.fury.io/py/testrail)
 
-This Python Library allows you to easily publish results and manage your TestRail instance.  
+This Python Library allows you to easily publish results and manage your TestRail instance.
 
 ### Warning
 This library is still in beta.  This means little to no testing and future releases may break compatibility.  Please evaluate and report bugs/enhancements.
@@ -16,6 +16,9 @@ milestone = testrail.milestone('rel-2.3')
 milestone.is_completed = True
 testrail.update(milestone)
 ```
+
+For a more indepth example, see the [examples folder](examples/)
+
 
 #### Configuration
 Create '.testrail.conf' in your home directory with the following:
