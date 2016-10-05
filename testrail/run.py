@@ -8,6 +8,7 @@ import testrail.plan
 from testrail.project import Project
 from testrail.user import User
 from testrail.case import Case
+from testrail.suite import Suite
 from testrail.helper import TestRailError
 
 
@@ -152,6 +153,18 @@ class Run(TestRailBase):
     @property
     def retest_count(self):
         return self._content.get('retest_count')
+
+    @property
+    def suite(self):
+        return Suite(
+            self.api.suite_with_id(self._content.get('suite_id')))
+
+    @suite.setter
+    def suite(self, value):
+        if not isinstance(value, Suite):
+            raise TestRailError('input must be a Suite')
+        self.api.suite_with_id(value.id)  # verify suite is valid
+        self._content['suite_id'] = value.id
 
     @property
     def untested_count(self):
