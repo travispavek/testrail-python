@@ -11,6 +11,7 @@ from testrail.run import Run
 from testrail.user import User
 from testrail.plan import Plan
 from testrail.case import Case
+from testrail.suite import Suite
 from testrail.project import Project
 from testrail.milestone import Milestone
 from testrail.helper import TestRailError
@@ -52,7 +53,7 @@ class TestRun(unittest.TestCase):
                 "plan_id": 80,
                 "project_id": 1,
                 "retest_count": 7,
-                "suite_id": 4,
+                "suite_id": 1,
                 "untested_count": 17,
                 "url": "http://mock_server/testrail/index.php?/runs/view/81"
             },
@@ -79,7 +80,7 @@ class TestRun(unittest.TestCase):
                 "id": 81,
                 "include_all": False,
                 "is_completed": False,
-                "milestone_id": 7,
+                "milestone_id": None,
                 "name": "Mock Name",
                 "passed_count": 2,
                 "plan_id": 80,
@@ -133,7 +134,7 @@ class TestRun(unittest.TestCase):
                 "priority_id": 2,
                 "refs": "RF-1, RF-2",
                 "section_id": 1,
-                "suite_id": 1,
+                "suite_id": 2,
                 "title": "Change document attributes (author, title, organization)",
                 "type_id": 4,
                 "updated_by": 6,
@@ -152,9 +153,32 @@ class TestRun(unittest.TestCase):
                 "project_id": 1,
                 "url": "http://<server>/testrail/index.php?/milestones/view/1"
             }
-                
         ]
 
+        self.mock_suite_data = [
+            {
+                "description": "suite description",
+                "id": 1,
+                "name": "Setup & Installation",
+                "project_id": 1,
+                "url": "http://<server>/index.php?/suites/view/1",
+                "is_baseline": False,
+                "is_completed": True,
+                "is_master": True,
+                "completed_on": 1453504099
+            },
+            {
+                "description": "suite description 2",
+                "id": 2,
+                "name": "Setup & Installation",
+                "project_id": 1,
+                "url": "http://<server>/index.php?/suites/view/1",
+                "is_baseline": False,
+                "is_completed": False,
+                "is_master": True,
+                "completed_on": None
+            },
+        ]
         self.mock_plan_data = [{"id": 80, }, ]
         self.mock_project_data = [{"id": 1, }, {"id": 99, }]
 
@@ -366,6 +390,16 @@ class TestRun(unittest.TestCase):
 
     @mock.patch('testrail.api.API._refresh')
     @mock.patch('testrail.api.requests.get')
+    def test_milestone_with_no_id(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_mstone_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        self.assertEqual(self.run2.milestone.id, None)
+
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
     def test_get_plan_type(self, mock_get, refresh_mock):
         refresh_mock.return_value = True
         mock_response = mock.Mock()
@@ -455,6 +489,44 @@ class TestRun(unittest.TestCase):
 
     def test_retest_count(self):
         self.assertEqual(self.run.retest_count, 7)
+
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
+    def test_get_suite_type(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_suite_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        self.assertTrue(isinstance(self.run.suite, Suite))
+
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
+    def test_get_suite(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_suite_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+        self.assertEqual(self.run.suite.id, 1)
+
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
+    def test_set_suite(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_suite_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        suite = Suite(self.mock_suite_data[1])
+        self.run.suite = suite
+        self.assertEqual(self.run.suite.id, 2)
+
+    def test_set_suite_invalid_type(self):
+        with self.assertRaises(TestRailError) as e:
+            self.run.suite = 394
+        self.assertEqual(str(e.exception), 'input must be a Suite')
 
     def test_get_untested_count_type(self):
         self.assertTrue(isinstance(self.run.untested_count, int))
