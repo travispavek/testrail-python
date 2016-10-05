@@ -1,12 +1,13 @@
 from datetime import datetime
 import time
 
+from testrail.base import TestRailBase
 from testrail import api
 from testrail.project import Project
 from testrail.helper import TestRailError
 
 
-class Milestone(object):
+class Milestone(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
         self.api = api.API()

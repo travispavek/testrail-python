@@ -1,3 +1,4 @@
+from testrail.base import TestRailBase
 from testrail import api
 from testrail.case import Case
 from testrail.casetype import CaseType
@@ -9,7 +10,7 @@ from testrail.user import User
 from testrail.helper import testrail_duration_to_timedelta
 
 
-class Test(object):
+class Test(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
         self.api = api.API()

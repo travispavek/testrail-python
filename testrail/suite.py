@@ -1,11 +1,12 @@
 from datetime import datetime
 
+from testrail.base import TestRailBase
 from testrail import api
 from testrail.helper import TestRailError
 from testrail.project import Project
 
 
-class Suite(object):
+class Suite(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
         self.api = api.API()

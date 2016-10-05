@@ -1,4 +1,7 @@
-class Priority(object):
+from testrail.base import TestRailBase
+
+
+class Priority(TestRailBase):
     def __init__(self, content):
         self._content = content
 

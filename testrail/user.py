@@ -1,4 +1,7 @@
-class User(object):
+from testrail.base import TestRailBase
+
+
+class User(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
 

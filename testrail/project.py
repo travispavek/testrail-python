@@ -1,9 +1,10 @@
 from datetime import datetime
 
+from testrail.base import TestRailBase
 from testrail.helper import ContainerIter, TestRailError
 
 
-class Project(object):
+class Project(TestRailBase):
     def __init__(self, response=None):
         self._content = response or dict()
 

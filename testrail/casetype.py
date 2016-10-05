@@ -1,4 +1,7 @@
-class CaseType(object):
+from testrail.base import TestRailBase
+
+
+class CaseType(TestRailBase):
     def __init__(self, content):
         self._content = content
 

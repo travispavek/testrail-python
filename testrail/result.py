@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import re
 
+from testrail.base import TestRailBase
 from testrail import api
 from testrail.helper import ContainerIter, TestRailError
 from testrail.status import Status
@@ -9,7 +10,7 @@ from testrail.user import User
 from testrail.helper import testrail_duration_to_timedelta
 
 
-class Result(object):
+class Result(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
         self.api = api.API()
