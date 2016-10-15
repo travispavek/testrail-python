@@ -58,13 +58,20 @@ class UpdateCache(object):
             If a matching object is found in the cache, replace it with update_obj.
             If no matching object is found, append it to the cache
         '''
-        project_id = update_obj['project_id']
+        if 'project_id' in update_obj:
+            # Most response objects have a project_id
+            obj_key = update_obj['project_id']
+        elif 'test_id' in update_obj:
+            # Results have no project_id and are cached based on test_id
+            obj_key = update_obj['test_id']
+        else:
+            raise TestRailError("Unknown object type; can't update cache")
 
-        if not self.cache[project_id]['ts']:
+        if not self.cache[obj_key]['ts']:
             # The cache will clear on the next read, so no reason to add/update
             return
 
-        obj_list = self.cache[project_id]['value']
+        obj_list = self.cache[obj_key]['value']
         for index, obj in enumerate(obj_list):
             if obj['id'] == update_obj['id']:
                 obj_list[index] = update_obj
@@ -498,6 +505,7 @@ class API(object):
             self._results[test_id]['ts'] = datetime.now()
         return self._results[test_id]['value']
 
+    @UpdateCache(_shared_state['_results'])
     def add_result(self, data):
         fields = ['status_id',
                   'comment',
@@ -507,14 +515,14 @@ class API(object):
                   'assignedto_id']
 
         payload = self._payload_gen(fields, data)
-        self._post('add_result/%s' % data['test_id'], payload)
+        result = self._post('add_result/%s' % data['test_id'], payload)
 
         # Need to update the _tests cache to mark the run for refresh
         for run in self._tests:
             for test in self._tests[run]['value']:
                 if test['id'] == data['test_id']:
                     self._tests[run]['ts'] = None
-                    return
+                    return result
         else:
             raise TestRailError("Could not find test '%s' in cache to update" % data['test_id'])
 
