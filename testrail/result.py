@@ -22,7 +22,7 @@ class Result(TestRailBase):
 
     @assigned_to.setter
     def assigned_to(self, user):
-        if type(user) != User:
+        if not isinstance(user, User):
             raise TestRailError('input must be a User object')
         try:
             self.api.user_with_id(user.id)
@@ -36,7 +36,7 @@ class Result(TestRailBase):
 
     @comment.setter
     def comment(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['comment'] = value
 
@@ -58,9 +58,9 @@ class Result(TestRailBase):
 
     @defects.setter
     def defects(self, values):
-        if type(values) != list:
+        if not isinstance(values, list):
             raise TestRailError('input must be a list of strings')
-        if not all(map(lambda x: type(x) == str, values)):
+        if not all(map(lambda x, : isinstance(x, str), values)):
             raise TestRailError('input must be a list of strings')
         if len(values) > 0:
             self._content['defects'] = ','.join(values)
@@ -76,7 +76,7 @@ class Result(TestRailBase):
 
     @elapsed.setter
     def elapsed(self, td):
-        if type(td) != timedelta:
+        if not isinstance(td, timedelta):
             raise TestRailError('input must be a timedelta')
         if td > timedelta(weeks=10):
             raise TestRailError('maximum elapsed time is 10 weeks')
@@ -93,7 +93,7 @@ class Result(TestRailBase):
     @status.setter
     def status(self, status_obj):
         # TODO: Should I accept string name as well?
-        if type(status_obj) != Status:
+        if not isinstance(status_obj, Status):
             raise TestRailError('input must be a Status')
         # verify id is valid
         self.api.status_with_id(status_obj.id)
@@ -106,7 +106,7 @@ class Result(TestRailBase):
 
     @test.setter
     def test(self, test_obj):
-        if type(test_obj) != Test:
+        if not isinstance(test_obj, Test):
             raise TestRailError('input must be a Test')
         # verify id is valid
         self.api.test_with_id(
@@ -119,7 +119,7 @@ class Result(TestRailBase):
 
     @version.setter
     def version(self, ver):
-        if type(ver) != str:
+        if not isinstance(ver, str):
             raise TestRailError('input must be a string')
         self._content['version'] = ver
 

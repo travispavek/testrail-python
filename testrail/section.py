@@ -27,7 +27,7 @@ class Section(TestRailBase):
 
     @description.setter
     def description(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['description'] = value
 
@@ -38,7 +38,7 @@ class Section(TestRailBase):
 
     @parent.setter
     def parent(self, section):
-        if type(section) != Section:
+        if not isinstance(section, Section):
             raise TestRailError('input must be a Section')
         self.api.section_with_id(section.id)  # verify section is valid
         self._content['parent_id'] = section.id
@@ -49,7 +49,7 @@ class Section(TestRailBase):
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['name'] = value
 
@@ -61,7 +61,7 @@ class Section(TestRailBase):
 
     @suite.setter
     def suite(self, suite_obj):
-        if type(suite_obj) != Suite:
+        if not isinstance(suite_obj, Suite):
             raise TestRailError('input must be a Suite')
         self.api.suite_with_id(suite_obj.id)  # verify suite is valid
         self._content['suite_id'] = suite_obj.id

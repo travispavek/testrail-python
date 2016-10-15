@@ -110,7 +110,7 @@ class Plan(TestRailBase):
 
     @project.setter
     def project(self, value):
-        if type(value) != Project:
+        if not isinstance(value, Project):
             raise TestRailError('input must be a Project')
         self.api.project_with_id(value.id)  # verify project is valid
         self._content['project_id'] = value.id
