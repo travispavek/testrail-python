@@ -29,7 +29,7 @@ class Suite(TestRailBase):
 
     @description.setter
     def description(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['description'] = value
 
@@ -51,7 +51,7 @@ class Suite(TestRailBase):
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['name'] = value
 
@@ -62,7 +62,7 @@ class Suite(TestRailBase):
 
     @project.setter
     def project(self, value):
-        if type(value) != Project:
+        if not isinstance(value, Project):
             raise TestRailError('input must be a Project')
         self.api.project_with_id(value.id)  # verify project is valid
         self._content['project_id'] = value.id

@@ -15,7 +15,7 @@ class Project(TestRailBase):
 
     @announcement.setter
     def announcement(self, msg):
-        if type(msg) != str:
+        if not isinstance(msg, str):
             raise TestRailError('input must be a string')
         self._content['announcement'] = msg
 
@@ -38,7 +38,7 @@ class Project(TestRailBase):
 
     @is_completed.setter
     def is_completed(self, value):
-        if type(value) != bool:
+        if not isinstance(value, bool):
             raise TestRailError('input must be a boolean')
         self._content['is_completed'] = value
 
@@ -49,7 +49,7 @@ class Project(TestRailBase):
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['name'] = value
 
@@ -60,7 +60,7 @@ class Project(TestRailBase):
 
     @show_announcement.setter
     def show_announcement(self, value):
-        if type(value) != bool:
+        if not isinstance(value, bool):
             raise TestRailError('input must be a boolean')
         self._content['show_announcement'] = value
 
@@ -74,7 +74,7 @@ class Project(TestRailBase):
 
     @suite_mode.setter
     def suite_mode(self, mode):
-        if type(mode) != int:
+        if not isinstance(mode, int):
             raise TestRailError('input must be an integer')
         if mode not in [1, 2, 3]:
             raise TestRailError('input must be a 1, 2, or 3')

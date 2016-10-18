@@ -27,7 +27,7 @@ class Milestone(TestRailBase):
     @description.setter
     def description(self, value):
         if value is not None:
-            if type(value) != str:
+            if not isinstance(value, str):
                 raise TestRailError('input must be string or None')
         self._content['description'] = value
 
@@ -43,7 +43,7 @@ class Milestone(TestRailBase):
         if value is None:
             due = None
         else:
-            if type(value) != datetime:
+            if not isinstance(value, datetime):
                 raise TestRailError('input must be a datetime or None')
             due = int(time.mktime(value.timetuple()))
         self._content['due_on'] = due
@@ -58,7 +58,7 @@ class Milestone(TestRailBase):
 
     @is_completed.setter
     def is_completed(self, value):
-        if type(value) != bool:
+        if not isinstance(value, bool):
             raise TestRailError('input must be a boolean')
         self._content['is_completed'] = value
 
@@ -68,7 +68,7 @@ class Milestone(TestRailBase):
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TestRailError('input must be a string')
         self._content['name'] = value
 
@@ -79,7 +79,7 @@ class Milestone(TestRailBase):
 
     @project.setter
     def project(self, value):
-        if type(value) != Project:
+        if not isinstance(value, Project):
             raise TestRailError('input must be a Project')
         self.api.project_with_id(value.id)  # verify project is valid
         self._content['project_id'] = value.id
