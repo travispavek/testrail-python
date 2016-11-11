@@ -10,7 +10,7 @@ import yaml
 import requests
 from retry import retry
 
-from testrail.helper import TestRailError, TooManyRequestsError
+from testrail.helper import TestRailError, TooManyRequestsError, ServiceUnavailableError
 
 nested_dict = lambda: collections.defaultdict(nested_dict)
 
@@ -158,7 +158,7 @@ class API(object):
         return {'email': _email, 'key': _key, 'url': _url, 'verify_ssl': verify_ssl}
 
     @staticmethod
-    def _raise_on_429_status(resp):
+    def _raise_on_429_or_503_status(resp):
         """ 429 is TestRail's status for too many API requests
             Use the 'Retry-After' key in the response header to sleep for the
             specified amount of time, then raise an exception to trigger the
@@ -168,6 +168,8 @@ class API(object):
             wait_amount = int(resp.headers['Retry-After'])
             sleep(wait_amount)
             raise TooManyRequestsError("Too many API requests")
+        if resp.status_code == 503:
+            raise ServiceUnavailableError("Service Temporarily Unavailable")
         else:
             return
 
@@ -561,13 +563,13 @@ class API(object):
             self._configs['ts'] = datetime.now()
         return self._configs['value']
 
-    @retry((TooManyRequestsError, ValueError), tries=3)
+    @retry((TooManyRequestsError, ServiceUnavailableError, ValueError), tries=3, delay=1, backoff=2)
     def _get(self, uri, params=None):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.get(self._url+uri, params=params, auth=self._auth,
                          headers=self.headers, verify=self.verify_ssl)
 
-        self._raise_on_429_status(r)
+        self._raise_on_429_or_503_status(r)
 
         if r.status_code == 200:
             return r.json()
@@ -584,13 +586,13 @@ class API(object):
                              'error': response.get('error', None)})
             raise TestRailError(response)
 
-    @retry(TooManyRequestsError, tries=3)
+    @retry((TooManyRequestsError, ServiceUnavailableError), tries=3, delay=1, backoff=2)
     def _post(self, uri, data={}):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.post(self._url+uri, json=data, auth=self._auth,
                           verify=self.verify_ssl)
 
-        self._raise_on_429_status(r)
+        self._raise_on_429_or_503_status(r)
 
         if r.status_code == 200:
             try:

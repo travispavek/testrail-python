@@ -14,6 +14,10 @@ class TooManyRequestsError(TestRailError):
     pass
 
 
+class ServiceUnavailableError(TestRailError):
+    pass
+
+
 def methdispatch(func):
     dispatcher = singledispatch(func)
 
