@@ -316,6 +316,22 @@ class TestRail(object):
         if isinstance(obj, Run):
             self.api.add_results(map(lambda x: x.raw_data(), value), obj.id)
 
+    # Section Methods
+    def sections(self, suite=None):
+        return map(Section, self.api.sections(suite_id=suite.id))
+
+    @methdispatch
+    def section(self):
+        return Section()
+
+    @section.register(int)
+    def _section_by_id(self, section_id):
+        return Section(self.api.section_with_id(section_id))
+
+    @add.register(Section)
+    def _add_section(self, section):
+        self.api.add_section(section.raw_data())
+
     # Status Methods
     def statuses(self):
         return map(Status, self.api.statuses())
