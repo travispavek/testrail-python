@@ -52,6 +52,7 @@ class TestRail(object):
         return Project()
 
     @project.register(str)
+    @project.register(unicode)
     @singleresult
     def _project_by_name(self, name):
         return filter(lambda p: p.name == name, self.projects())
@@ -75,6 +76,7 @@ class TestRail(object):
         return filter(lambda u: u.id == identifier, self.users())
 
     @user.register(str)
+    @user.register(unicode)
     @singleresult
     def _user_by_email_name(self, identifier):
         by_email = lambda u: u.email == identifier
@@ -97,6 +99,7 @@ class TestRail(object):
         return Suite()
 
     @suite.register(str)
+    @suite.register(unicode)
     @singleresult
     def _suite_by_name(self, name):
         return filter(lambda s: s.name.lower() == name.lower(), self.suites())
@@ -121,6 +124,7 @@ class TestRail(object):
         return Milestone()
 
     @milestone.register(str)
+    @milestone.register(unicode)
     @singleresult
     def _milestone_by_name(self, name):
         return filter(
@@ -159,6 +163,7 @@ class TestRail(object):
         return Plan()
 
     @plan.register(str)
+    @plan.register(unicode)
     @singleresult
     def _plan_by_name(self, name):
         return filter(lambda p: p.name.lower() == name.lower(), self.plans())
@@ -207,6 +212,7 @@ class TestRail(object):
         return Run()
 
     @run.register(str)
+    @run.register(unicode)
     @singleresult
     def _run_by_name(self, name):
         return filter(lambda p: p.name.lower() == name.lower(), self.runs())
@@ -242,6 +248,7 @@ class TestRail(object):
         return Case()
 
     @case.register(str)
+    @case.register(unicode)
     @singleresult
     def _case_by_title(self, title, suite):
         return filter(
@@ -264,6 +271,7 @@ class TestRail(object):
         return Test()
 
     @test.register(str)
+    @test.register(unicode)
     @singleresult
     def _test_by_name(self, name):
         return filter(lambda t: t.name.lower() == name.lower(), self.tests())
@@ -310,6 +318,7 @@ class TestRail(object):
         return Status()
 
     @status.register(str)
+    @status.register(unicode)
     @singleresult
     def _status_by_name(self, name):
         return filter(lambda s: s.name == name.lower(), self.statuses())
