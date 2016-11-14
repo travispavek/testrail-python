@@ -1,4 +1,5 @@
 import re
+import sys
 
 from testrail.api import API
 from testrail.case import Case
