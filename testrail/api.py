@@ -374,7 +374,7 @@ class API(object):
 
     def add_section(self, section):
         fields = ['description', 'suite_id', 'parent_id', 'name']
-        project_id = section.get('project_id')
+        project_id = section.get('project_id') or self._project_id
         payload = self._payload_gen(fields, section)
         return self._post('add_section/%s' % project_id, payload)
 

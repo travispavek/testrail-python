@@ -312,7 +312,11 @@ class TestRail(object):
     @section.register(int)
     def _section_by_id(self, section_id):
         return Section(self.api.section_with_id(section_id))
-                
+
+    @add.register(Section)
+    def _add_section(self, section):
+        self.api.add_section(section.raw_data())
+
     # Status Methods
     def statuses(self):
         return map(Status, self.api.statuses())
