@@ -368,6 +368,9 @@ class API(object):
             return list(filter(lambda x: x['id'] == section_id, self.sections()))[0]
         except IndexError:
             raise TestRailError("Section ID '%s' was not found" % section_id)
+        except TestRailError:
+            # project must not bein single suite mode
+            return self._get('get_section/%s' % section_id)
 
     def add_section(self, section):
         fields = ['description', 'suite_id', 'parent_id', 'name']
