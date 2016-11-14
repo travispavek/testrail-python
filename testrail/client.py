@@ -15,6 +15,8 @@ from testrail.section import Section
 from testrail.test import Test
 from testrail.user import User
 
+if sys.version_info >= (3,0):
+    unicode = str
 
 class TestRail(object):
     def __init__(self, project_id=0, email=None, key=None, url=None):
