@@ -257,6 +257,8 @@ class API(object):
         fields = ['name', 'description']
         project_id = suite.get('project_id')
         payload = self._payload_gen(fields, suite)
+        #TODO get update cache working for now reset cache
+        self.flush_cache()
         return self._post('add_suite/%s' % project_id, payload)
 
     # Case Requests
@@ -275,12 +277,14 @@ class API(object):
             return list(filter(lambda x: x['id'] == case_id, self.cases()))[0]
         except IndexError:
             raise TestRailError("Case ID '%s' was not found" % case_id)
-        
+
     def add_case(self, case):
         fields = ['title', 'template_id', 'type_id', 'priority_id', 'estimate',
                   'milestone_id', 'refs']
         section_id = case.get('section_id')
         payload = self._payload_gen(fields, case)
+        #TODO get update cache working for now reset cache
+        self.flush_cache()
         return self._post('add_case/%s' % section_id, payload)
 
     def case_types(self):
@@ -376,6 +380,8 @@ class API(object):
         fields = ['description', 'suite_id', 'parent_id', 'name']
         project_id = section.get('project_id') or self._project_id
         payload = self._payload_gen(fields, section)
+        #TODO get update cache working for now reset cache
+        self.flush_cache()
         return self._post('add_section/%s' % project_id, payload)
 
     # Plan Requests
@@ -543,6 +549,8 @@ class API(object):
         payload = {'results': list()}
         for result in results:
             payload['results'].append(self._payload_gen(fields, result))
+        #TODO get update cache working for now reset cache
+        self.flush_cache()
         self._post('add_results/%s' % run_id, payload)
 
     # Status Requests
