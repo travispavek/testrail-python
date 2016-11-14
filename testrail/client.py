@@ -303,7 +303,7 @@ class TestRail(object):
         return ResultContainer(list(map(Result, self.api.results_by_test(test.id))))
 
     @methdispatch
-    def result(self):
+    def resut(self):
         return Result()
 
     @add.register(Result)
@@ -328,9 +328,15 @@ class TestRail(object):
     def _section_by_id(self, section_id):
         return Section(self.api.section_with_id(section_id))
 
+    @section.register(unicode)
+    @section.register(str)
+    @singleresult
+    def _section_by_name(self, name, suite=None):
+        return filter(lambda s: s.name == name, self.sections(suite))
+
     @add.register(Section)
     def _add_section(self, section):
-        self.api.add_section(section.raw_data())
+        return Section(self.api.add_section(section.raw_data()))
 
     # Status Methods
     def statuses(self):
