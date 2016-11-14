@@ -369,7 +369,7 @@ class API(object):
         except IndexError:
             raise TestRailError("Section ID '%s' was not found" % section_id)
         except TestRailError:
-            # project must not bein single suite mode
+            # project must not be in single suite mode
             return self._get('get_section/%s' % section_id)
 
     def add_section(self, section):
