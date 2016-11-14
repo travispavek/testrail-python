@@ -303,7 +303,7 @@ class TestRail(object):
         return ResultContainer(list(map(Result, self.api.results_by_test(test.id))))
 
     @methdispatch
-    def resut(self):
+    def result(self):
         return Result()
 
     @add.register(Result)
