@@ -427,7 +427,7 @@ class API(object):
 
     def run_with_id(self, run_id):
         try:
-            return list(filter(lambda x: x['id'] == run_id, self.runs()))[0]
+           return list(filter(lambda x: x['id'] == run_id, self.runs()))[0]
         except IndexError:
             raise TestRailError("Run ID '%s' was not found" % run_id)
 

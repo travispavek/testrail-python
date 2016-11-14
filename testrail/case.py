@@ -1,9 +1,10 @@
 from datetime import datetime
+import sys
 
 from testrail.base import TestRailBase
 from testrail.api import API
 from testrail.casetype import CaseType
-from testrail.helper import custom_methods
+from testrail.helper import custom_methods, TestRailError
 from testrail.milestone import Milestone
 from testrail.priority import Priority
 from testrail.section import Section
@@ -11,6 +12,8 @@ from testrail.suite import Suite
 from testrail.template import Template
 from testrail.user import User
 
+if sys.version_info >= (3,0):
+    unicode = str
 
 class Case(TestRailBase):
     def __init__(self, content=None):
@@ -40,7 +43,7 @@ class Case(TestRailBase):
     @estimate.setter
     def estimate(self, value):
         #TODO should have some logic to validate format of timespa
-        if not isinstance(value, str):
+        if not isinstance(value, (str, unicode)):
             raise TestRailError('input must be a string')
         self._content['estimate'] = value
 
@@ -109,7 +112,7 @@ class Case(TestRailBase):
 
     @title.setter
     def title(self, value):
-        if not isinstance(value, str):
+        if not isinstance(value, (str, unicode)):
             raise TestRailError('input must be a string')
         self._content['title'] = value
 
