@@ -275,7 +275,7 @@ class API(object):
             return list(filter(lambda x: x['id'] == case_id, self.cases()))[0]
         except IndexError:
             raise TestRailError("Case ID '%s' was not found" % case_id)
-
+        
     def add_case(self, case):
         fields = ['title', 'template_id', 'type_id', 'priority_id', 'estimate',
                   'milestone_id', 'refs']

@@ -265,6 +265,10 @@ class TestRail(object):
         else:
             return filter(lambda c: c.id == case_id, self.cases(suite))
 
+    @add.register(Case)
+    def _add_case(self, obj):
+        return Case(self.api.add_case(obj.raw_data()))
+        
     # Test Methods
     def tests(self, run):
         return map(Test, self.api.tests(run.id))
