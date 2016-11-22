@@ -574,7 +574,8 @@ class API(object):
             self._configs['ts'] = datetime.now()
         return self._configs['value']
 
-    @retry((TooManyRequestsError, ServiceUnavailableError, ValueError), tries=3, delay=1, backoff=2)
+    @retry(ServiceUnavailableError, tries=30, delay=10)
+    @retry((TooManyRequestsError, ValueError), tries=3, delay=1, backoff=2)
     def _get(self, uri, params=None):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.get(self._url+uri, params=params, auth=self._auth,
@@ -597,7 +598,8 @@ class API(object):
                              'error': response.get('error', None)})
             raise TestRailError(response)
 
-    @retry((TooManyRequestsError, ServiceUnavailableError), tries=3, delay=1, backoff=2)
+    @retry(ServiceUnavailableError, tries=30, delay=10)
+    @retry(TooManyRequestsError, tries=3, delay=1, backoff=2)
     def _post(self, uri, data={}):
         uri = '/index.php?/api/v2/%s' % uri
         r = requests.post(self._url+uri, json=data, auth=self._auth,
