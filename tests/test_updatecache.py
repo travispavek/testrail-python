@@ -44,7 +44,7 @@ class TestUpdateCache(unittest.TestCase):
     def test_cache_add(self,):
         add_cache = deepcopy(self.mock_cache)
         add_obj = {'id': 'id15', 'val': 'test_cache_add', 'project_id': 1}
- 
+
         @UpdateCache(add_cache)
         def cache_add_func():
             return add_obj
@@ -59,7 +59,7 @@ class TestUpdateCache(unittest.TestCase):
         no_ts_cache = deepcopy(self.mock_cache)
         no_ts_cache[1]['ts'] = None
         no_ts_obj = {'id': 'id11', 'val': 'test_cache_update', 'project_id': 1}
- 
+
         @UpdateCache(no_ts_cache)
         def cache_update_func():
             return no_ts_obj
@@ -73,7 +73,7 @@ class TestUpdateCache(unittest.TestCase):
     def test_cache_update(self,):
         update_cache = deepcopy(self.mock_cache)
         update_obj = {'id': 'id12', 'val': 'test_cache_update', 'project_id': 1}
- 
+
         @UpdateCache(update_cache)
         def cache_update_func():
             return update_obj
@@ -88,7 +88,7 @@ class TestUpdateCache(unittest.TestCase):
         no_ts_cache = deepcopy(self.mock_cache)
         no_ts_cache[1]['ts'] = None
         no_ts_obj = {'id': 'id15', 'val': 'test_cache_update', 'project_id': 1}
- 
+
         @UpdateCache(no_ts_cache)
         def cache_update_func():
             return no_ts_obj
@@ -102,7 +102,7 @@ class TestUpdateCache(unittest.TestCase):
         delete_cache = deepcopy(self.mock_cache)
         delete_obj = {}
         id_to_delete = 'id13'
- 
+
         @UpdateCache(delete_cache)
         def cache_delete_func(val):
             return delete_obj
@@ -119,7 +119,7 @@ class TestUpdateCache(unittest.TestCase):
         refresh_cache = deepcopy(self.mock_cache)
         force_refresh_obj = {}
         id_to_delete = 'id23'
- 
+
         @UpdateCache(refresh_cache)
         def cache_refresh_func(val):
             return force_refresh_obj

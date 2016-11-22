@@ -58,31 +58,33 @@ class UpdateCache(object):
             If a matching object is found in the cache, replace it with update_obj.
             If no matching object is found, append it to the cache
         '''
-        if 'project_id' in update_obj:
-            # Most response objects have a project_id
-            obj_key = update_obj['project_id']
-        elif 'test_id' in update_obj:
-            # Results have no project_id and are cached based on test_id
-            obj_key = update_obj['test_id']
-        else:
-            raise TestRailError("Unknown object type; can't update cache")
+        # Make update_obj a list if it isn't already
+        update_list = update_obj if isinstance(update_obj, list) else [update_obj, ]
 
-        if not self.cache[obj_key]['ts']:
-            # The cache will clear on the next read, so no reason to add/update
-            return
+        for update_obj in update_list:
+            if 'project_id' in update_obj:
+                # Most response objects have a project_id
+                obj_key = update_obj['project_id']
+            elif 'test_id' in update_obj:
+                # Results have no project_id and are cached based on test_id
+                obj_key = update_obj['test_id']
+            else:
+                raise TestRailError("Unknown object type; can't update cache")
 
-        obj_list = self.cache[obj_key]['value']
-        for index, obj in enumerate(obj_list):
-            if obj['id'] == update_obj['id']:
-                obj_list[index] = update_obj
-                return
-        else:
-            # If we get this far, it means we searched all objects without
-            # finding a match. Add the object
-            obj_list.append(update_obj)
-            obj_list.sort(key=lambda x: x['id'])
+            if not self.cache[obj_key]['ts']:
+                # The cache will clear on the next read, so no reason to add/update
+                continue
 
-            return
+            obj_list = self.cache[obj_key]['value']
+            for index, obj in enumerate(obj_list):
+                if obj['id'] == update_obj['id']:
+                    obj_list[index] = update_obj
+                    break
+            else:
+                # If we get this far, it means we searched all objects without
+                # finding a match. Add the object
+                obj_list.append(update_obj)
+                obj_list.sort(key=lambda x: x['id'])
 
 
 class API(object):
@@ -537,6 +539,7 @@ class API(object):
         else:
             raise TestRailError("Could not find test '%s' in cache to update" % data['test_id'])
 
+    @UpdateCache(_shared_state['_results'])
     def add_results(self, results, run_id):
         fields = ['status_id',
                   'test_id',
@@ -549,9 +552,13 @@ class API(object):
         payload = {'results': list()}
         for result in results:
             payload['results'].append(self._payload_gen(fields, result))
-        #TODO get update cache working for now reset cache
-        self.flush_cache()
-        self._post('add_results/%s' % run_id, payload)
+
+        response = self._post('add_results/%s' % run_id, payload)
+
+        # Need to update the _tests cache to mark the run for refresh
+        self._tests[run_id]['ts'] = None
+
+        return response
 
     # Status Requests
     def statuses(self):
