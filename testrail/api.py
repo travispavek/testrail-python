@@ -89,20 +89,20 @@ class UpdateCache(object):
 
 class API(object):
     _ts = datetime.now() - timedelta(days=1)
-    _shared_state = {'_users': nested_dict(),
-                     '_projects': nested_dict(),
-                     '_plans': nested_dict(),
+    _shared_state = {'_case_types': nested_dict(),
                      '_cases': nested_dict(),
-                     '_runs': nested_dict(),
-                     '_suites': nested_dict(),
-                     '_milestones': nested_dict(),
-                     '_priorities': nested_dict(),
-                     '_case_types': nested_dict(),
-                     '_sections': nested_dict(),
-                     '_results': nested_dict(),
-                     '_statuses': nested_dict(),
-                     '_tests': nested_dict(),
                      '_configs': nested_dict(),
+                     '_milestones': nested_dict(),
+                     '_plans': nested_dict(),
+                     '_priorities': nested_dict(),
+                     '_projects': nested_dict(),
+                     '_results': nested_dict(),
+                     '_runs': nested_dict(),
+                     '_sections': nested_dict(),
+                     '_statuses': nested_dict(),
+                     '_suites': nested_dict(),
+                     '_tests': nested_dict(),
+                     '_users': nested_dict(),
                      '_timeout': 30,
                      '_project_id': None}
 
@@ -255,12 +255,11 @@ class API(object):
         except IndexError:
             raise TestRailError("Suite ID '%s' was not found" % suite_id)
 
+    @UpdateCache(_shared_state['_suites'])
     def add_suite(self, suite):
         fields = ['name', 'description']
         project_id = suite.get('project_id')
         payload = self._payload_gen(fields, suite)
-        #TODO get update cache working for now reset cache
-        self.flush_cache()
         return self._post('add_suite/%s' % project_id, payload)
 
     # Case Requests
