@@ -471,7 +471,7 @@ class API(object):
     def update_plan(self, plan):
         fields = ['name', 'description', 'milestone_id']
         data = self._payload_gen(fields, plan)
-        return self._post('update_plan/%s' % plan.id, data)
+        return self._post('update_plan/%s' % plan.get('id'), data)
 
     @UpdateCache(_shared_state['_plans'])
     def close_plan(self, plan_id):
