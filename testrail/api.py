@@ -88,6 +88,7 @@ class UpdateCache(object):
 
 
 class API(object):
+    _config = None
     _ts = datetime.now() - timedelta(days=1)
     _shared_state = {'_case_types': nested_dict(),
                      '_cases': nested_dict(),
@@ -110,8 +111,12 @@ class API(object):
         self.__dict__ = self._shared_state
         if email is not None and key is not None and url is not None:
             config = dict(email=email, key=key, url=url)
+            self._config = config
+        elif self._config is not None:
+            config = self._config
         else:
             config = self._conf()
+
         self._auth = (config['email'], config['key'])
         self._url = config['url']
         self.headers = {'Content-Type': 'application/json'}
