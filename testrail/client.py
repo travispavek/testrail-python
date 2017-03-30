@@ -118,6 +118,19 @@ class TestRail(object):
     def completed_suites(self):
         return filter(lambda s: s.is_completed is True, self.suites())
 
+    @add.register(Suite)
+    def _add_suite(self, obj):
+        obj.project = obj.project or self.project(self._project_id)
+        return Suite(self.api.add_suite(obj.raw_data()))
+
+    @update.register(Suite)
+    def _update_suite(self, obj):
+        return Suite(self.api.update_suite(obj.raw_data()))
+
+    @delete.register(Suite)
+    def _delete_suite(self, obj):
+        return self.api.delete_suite(obj.id)
+
     # Milestone Methods
     def milestones(self):
         return map(Milestone, self.api.milestones(self._project_id))
@@ -268,7 +281,7 @@ class TestRail(object):
     @add.register(Case)
     def _add_case(self, obj):
         return Case(self.api.add_case(obj.raw_data()))
-        
+
     # Test Methods
     def tests(self, run):
         return map(Test, self.api.tests(run.id))
