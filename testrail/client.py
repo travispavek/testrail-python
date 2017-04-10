@@ -223,6 +223,13 @@ class TestRail(object):
         return RunContainer(filter(
             lambda r: r.milestone.id == obj.id, self.runs()))
 
+    @runs.register(str)
+    @runs.register(unicode)
+    def _runs_by_name(self, name):
+        # Returns all Runs that match :name, in descending order by ID
+        runs = list(filter(lambda r: r.name.lower() == name.lower(), self.runs()))
+        return sorted(runs, key=lambda r: r.id)
+
     @methdispatch
     def run(self):
         return Run()
@@ -231,7 +238,9 @@ class TestRail(object):
     @run.register(unicode)
     @singleresult
     def _run_by_name(self, name):
-        return filter(lambda p: p.name.lower() == name.lower(), self.runs())
+        # Returns the most recently created Run that matches :name
+        runs = list(filter(lambda r: r.name.lower() == name.lower(), self.runs()))
+        return sorted(runs, key=lambda r: r.id)[:1]
 
     @run.register(int)
     @singleresult
