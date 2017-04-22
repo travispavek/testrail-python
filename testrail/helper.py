@@ -58,8 +58,7 @@ def singleresult(func):
             raise TestRailError(
                 'identifier "%s" returned multiple results' % args[1])
         elif len(items) == 0:
-            return None
-            #raise TestRailError('identifier "%s" returned no result' % args[1])
+            raise TestRailError('identifier "%s" returned no result' % args[1])
         return items[0]
     return func_wrapper
 
