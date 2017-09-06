@@ -106,6 +106,12 @@ class Case(TestRailBase):
         s = self.api.suite_with_id(self._content.get('suite_id'))
         return Suite(s) if s else Suite()
 
+    @suite.setter
+    def suite(self, value):
+        if not isinstance(value, Suite):
+            raise TestRailError('input must be a Suite')
+        self._content['suite_id'] = value.id
+
     @property
     def title(self):
         return self._content.get('title')
