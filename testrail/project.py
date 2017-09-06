@@ -8,6 +8,9 @@ class Project(TestRailBase):
     def __init__(self, response=None):
         self._content = response or dict()
 
+    def __str__(self):
+        return self.name
+
     @property
     def announcement(self):
         """The description/announcement of the project"""

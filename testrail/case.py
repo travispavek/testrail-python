@@ -27,6 +27,9 @@ class Case(TestRailBase):
         raise AttributeError("'{}' object has no attribute '{}'".format(
             self.__class__.__name__, attr))
 
+    def __str__(self):
+        return self.title
+
     @property
     def created_by(self):
         user_id = self._content.get('created_by')

@@ -11,6 +11,9 @@ class Suite(TestRailBase):
         self._content = content or dict()
         self.api = api.API()
 
+    def __str__(self):
+        return self.name
+
     @property
     def id(self):
         return self._content.get('id')

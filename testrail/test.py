@@ -15,6 +15,9 @@ class Test(TestRailBase):
         self._content = content or dict()
         self.api = api.API()
 
+    def __str__(self):
+        return self.title
+
     @property
     def assigned_to(self):
         return User(self.api.user_with_id(self._content.get('assignedto_id')))
