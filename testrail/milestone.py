@@ -12,6 +12,9 @@ class Milestone(TestRailBase):
         self._content = content or dict()
         self.api = api.API()
 
+    def __str__(self):
+        return self.name
+
     @property
     def completed_on(self):
         try:
