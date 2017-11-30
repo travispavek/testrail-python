@@ -245,7 +245,7 @@ class TestRail(object):
     @run.register(int)
     @singleresult
     def _run_by_id(self, run_id):
-        filter(lambda p: p.id == run_id, self.runs())
+        return filter(lambda p: p.id == run_id, self.runs())
 
     @add.register(Run)
     def _add_run(self, obj):
