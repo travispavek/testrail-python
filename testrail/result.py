@@ -3,7 +3,7 @@ import re
 
 from testrail.base import TestRailBase
 from testrail import api
-from testrail.helper import ContainerIter, TestRailError
+from testrail.helper import custom_methods, ContainerIter, TestRailError
 from testrail.status import Status
 from testrail.test import Test
 from testrail.user import User
@@ -14,6 +14,13 @@ class Result(TestRailBase):
     def __init__(self, content=None):
         self._content = content or dict()
         self.api = api.API()
+        self._custom_methods = custom_methods(self._content)
+
+    def __getattr__(self, attr):
+        if attr in self._custom_methods:
+            return self._content.get(self._custom_methods[attr])
+        raise AttributeError("'{}' object has no attribute '{}'".format(
+            self.__class__.__name__, attr))
 
     @property
     def assigned_to(self):
