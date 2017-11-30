@@ -74,7 +74,11 @@ class ContainerIter(object):
     def __getitem__(self, index):
         return self._objs[index]
 
+
+custom_methods_re = re.compile(r'^custom_(\w+)')
+
+
 def custom_methods(content):
-    custom = filter(lambda x: re.match(r'^custom_\w+', x), content)
-    return dict(zip([re.sub(r'^custom_', '', attr) for attr in custom], custom))
+    matches = [custom_methods_re.match(method) for method in content]
+    return dict({match[1]: match[0] for match in matches if match})
 
