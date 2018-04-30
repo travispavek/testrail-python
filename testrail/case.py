@@ -81,10 +81,10 @@ class Case(TestRailBase):
             raise TestRailError('input must be a Priority')
         self._content['priority_id'] = value.id
 
-
     @property
     def refs(self):
-        return self._content.get('refs').split(',')
+        refs = self._content.get('refs')
+        return refs.split(',') if refs else list()
 
     @refs.setter
     def refs(self, value):
@@ -159,5 +159,3 @@ class Case(TestRailBase):
     
     def raw_data(self):
         return self._content
-
-    
