@@ -390,6 +390,19 @@ class TestRun(unittest.TestCase):
 
     @mock.patch('testrail.api.API._refresh')
     @mock.patch('testrail.api.requests.get')
+    def test_set_milestone(self, mock_get, refresh_mock):
+        refresh_mock.return_value = True
+        mock_response = mock.Mock()
+        mock_response.json.return_value = copy.deepcopy(self.mock_mstone_data)
+        mock_response.status_code = 200
+        mock_get.return_value = mock_response
+
+        mstone = Milestone(self.mock_mstone_data[0])
+        self.run.milestone = mstone
+        self.assertEqual(self.run.milestone.id, 9)
+
+    @mock.patch('testrail.api.API._refresh')
+    @mock.patch('testrail.api.requests.get')
     def test_milestone_with_no_id(self, mock_get, refresh_mock):
         refresh_mock.return_value = True
         mock_response = mock.Mock()
