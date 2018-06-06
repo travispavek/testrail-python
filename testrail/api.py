@@ -278,9 +278,9 @@ class API(object):
             self._cases[project_id][suite_id]['ts'] = datetime.now()
         return self._cases[project_id][suite_id]['value']
 
-    def case_with_id(self, case_id):
+    def case_with_id(self, case_id, suite_id=None):
         try:
-            return list(filter(lambda x: x['id'] == case_id, self.cases()))[0]
+            return list(filter(lambda x: x['id'] == case_id, self.cases(suite_id=suite_id)))[0]
         except IndexError:
             raise TestRailError("Case ID '%s' was not found" % case_id)
 
