@@ -114,6 +114,13 @@ class Run(TestRailBase):
             return Milestone()
         return Milestone(self.api.milestone_with_id(milestone_id,
                          self._content.get('project_id')))
+    
+    @milestone.setter
+    def milestone(self, value):
+        if not isinstance(value, Milestone):
+            raise TestRailError('input must be a Milestone')
+        self.api.milestone_with_id(value.id)  # verify milestone is valid
+        self._content['milestone_id'] = value.id
 
     @property
     def name(self):
