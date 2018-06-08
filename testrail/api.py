@@ -588,7 +588,7 @@ class API(object):
 
         return response
 
-    def _custom_field_discover(self, entity: dict):
+    def _custom_field_discover(self, entity):
         return [field for field in entity.keys() if field.startswith('custom_')]
 
     # Status Requests
