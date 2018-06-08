@@ -12,6 +12,7 @@ from testrail.test import Test
 from testrail.user import User
 from testrail.status import Status
 from testrail.milestone import Milestone
+from testrail.suite import Suite
 
 
 class TestTest(unittest.TestCase):
@@ -171,9 +172,10 @@ class TestTest(unittest.TestCase):
         mock_get.return_value = mock_response
         self.assertEqual(self.test.assigned_to.id, 5)
 
+    @mock.patch('testrail.test.Test.run')
     @mock.patch('testrail.api.API._refresh')
     @mock.patch('testrail.api.requests.get')
-    def test_get_test_case_type(self, mock_get, refresh_mock):
+    def test_get_test_case_type(self, mock_get, refresh_mock, _):
         refresh_mock.return_value = True
         mock_response = mock.Mock()
         mock_response.json.return_value = self.mock_case_data
@@ -181,9 +183,10 @@ class TestTest(unittest.TestCase):
         mock_get.return_value = mock_response
         self.assertTrue(isinstance(self.test.case, Case))
 
+    @mock.patch('testrail.test.Test.run')
     @mock.patch('testrail.api.API._refresh')
     @mock.patch('testrail.api.requests.get')
-    def test_get_test_case(self, mock_get, refresh_mock):
+    def test_get_test_case(self, mock_get, refresh_mock, _):
         refresh_mock.return_value = True
         mock_response = mock.Mock()
         mock_response.json.return_value = self.mock_case_data
