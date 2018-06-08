@@ -24,7 +24,7 @@ class Test(TestRailBase):
 
     @property
     def case(self):
-        return Case(self.api.case_with_id(self._content.get('case_id')))
+        return Case(self.api.case_with_id(self._content.get('case_id'), suite_id=self.run.suite.id))
 
     @property
     def estimate(self):

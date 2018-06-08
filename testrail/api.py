@@ -263,6 +263,8 @@ class API(object):
     @UpdateCache(_shared_state['_suites'])
     def add_suite(self, suite):
         fields = ['name', 'description']
+        fields.extend(self._custom_field_discover(suite))
+
         project_id = suite.get('project_id')
         payload = self._payload_gen(fields, suite)
         return self._post('add_suite/%s' % project_id, payload)
@@ -278,15 +280,17 @@ class API(object):
             self._cases[project_id][suite_id]['ts'] = datetime.now()
         return self._cases[project_id][suite_id]['value']
 
-    def case_with_id(self, case_id):
+    def case_with_id(self, case_id, suite_id=None):
         try:
-            return list(filter(lambda x: x['id'] == case_id, self.cases()))[0]
+            return list(filter(lambda x: x['id'] == case_id, self.cases(suite_id=suite_id)))[0]
         except IndexError:
             raise TestRailError("Case ID '%s' was not found" % case_id)
 
     def add_case(self, case):
         fields = ['title', 'template_id', 'type_id', 'priority_id', 'estimate',
                   'milestone_id', 'refs']
+        fields.extend(self._custom_field_discover(case))
+
         section_id = case.get('section_id')
         payload = self._payload_gen(fields, case)
         #TODO get update cache working for now reset cache
@@ -332,6 +336,8 @@ class API(object):
     @UpdateCache(_shared_state['_milestones'])
     def add_milestone(self, milestone):
         fields = ['name', 'description', 'due_on']
+        fields.extend(self._custom_field_discover(milestone))
+
         project_id = milestone.get('project_id')
         payload = self._payload_gen(fields, milestone)
         return self._post('add_milestone/%s' % project_id, payload)
@@ -339,6 +345,8 @@ class API(object):
     @UpdateCache(_shared_state['_milestones'])
     def update_milestone(self, milestone):
         fields = ['name', 'description', 'due_on', 'is_completed']
+        fields.extend(self._custom_field_discover(milestone))
+
         data = self._payload_gen(fields, milestone)
         return self._post('update_milestone/%s' % milestone.get('id'), data)
 
@@ -384,6 +392,8 @@ class API(object):
 
     def add_section(self, section):
         fields = ['description', 'suite_id', 'parent_id', 'name']
+        fields.extend(self._custom_field_discover(section))
+
         project_id = section.get('project_id') or self._project_id
         payload = self._payload_gen(fields, section)
         #TODO get update cache working for now reset cache
@@ -412,6 +422,8 @@ class API(object):
     @UpdateCache(_shared_state['_plans'])
     def add_plan(self, plan):
         fields = ['name', 'description', 'milestone_id', 'entries']
+        fields.extend(self._custom_field_discover(plan))
+
         project_id = plan.get('project_id')
         payload = self._payload_gen(fields, plan)
         return self._post('add_plan/%s' % project_id, payload)
@@ -420,6 +432,8 @@ class API(object):
     def add_plan_entry(self, plan_entry):
         fields = ['suite_id', 'name', 'description', 'assignedto_id',
                   'include_all', 'case_ids', 'config_ids', 'runs']
+        fields.extend(self._custom_field_discover(plan_entry))
+
         plan_id = plan_entry.get('plan_id')
         payload = self._payload_gen(fields, plan_entry)
         return self._post('add_plan_entry/%s' % plan_id, payload)
@@ -447,6 +461,8 @@ class API(object):
     def add_run(self, run):
         fields = ['name', 'description', 'suite_id', 'milestone_id',
                   'assignedto_id', 'include_all', 'case_ids']
+        fields.extend(self._custom_field_discover(run))
+
         project_id = run.get('project_id')
         payload = self._payload_gen(fields, run)
         return self._post('add_run/%s' % project_id, payload)
@@ -455,6 +471,8 @@ class API(object):
     def update_run(self, run):
         fields = [
             'name', 'description', 'milestone_id', 'include_all', 'case_ids']
+        fields.extend(self._custom_field_discover(run))
+
         data = self._payload_gen(fields, run)
         return self._post('update_run/%s' % run.get('id'), data)
 
@@ -469,6 +487,8 @@ class API(object):
     @UpdateCache(_shared_state['_plans'])
     def add_plan(self, plan):
         fields = ['name', 'description', 'milestone_id']
+        fields.extend(self._custom_field_discover(plan))
+
         project_id = plan.get('project_id')
         payload = self._payload_gen(fields, plan)
         return self._post('add_plan/%s' % project_id, payload)
@@ -476,6 +496,8 @@ class API(object):
     @UpdateCache(_shared_state['_plans'])
     def update_plan(self, plan):
         fields = ['name', 'description', 'milestone_id']
+        fields.extend(self._custom_field_discover(plan))
+
         data = self._payload_gen(fields, plan)
         return self._post('update_plan/%s' % plan.get('id'), data)
 
@@ -530,6 +552,7 @@ class API(object):
                   'elapsed',
                   'defects',
                   'assignedto_id']
+        fields.extend(self._custom_field_discover(data))
 
         payload = self._payload_gen(fields, data)
         result = self._post('add_result/%s' % data['test_id'], payload)
@@ -555,7 +578,8 @@ class API(object):
 
         payload = {'results': list()}
         for result in results:
-            payload['results'].append(self._payload_gen(fields, result))
+            custom_field = fields + self._custom_field_discover(result)
+            payload['results'].append(self._payload_gen(custom_field + fields, result))
 
         response = self._post('add_results/%s' % run_id, payload)
 
@@ -563,6 +587,9 @@ class API(object):
         self._tests[run_id]['ts'] = None
 
         return response
+
+    def _custom_field_discover(self, entity):
+        return [field for field in entity.keys() if field.startswith('custom_')]
 
     # Status Requests
     def statuses(self):
