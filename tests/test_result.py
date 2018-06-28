@@ -245,6 +245,15 @@ class TestUser(unittest.TestCase):
     def test_get_elapsed_type(self):
         self.assertEqual(type(self.result.elapsed), timedelta)
 
+    def test_get_elapsed_int_type(self):
+        self.result._content['elapsed'] = 1
+        self.assertEqual(type(self.result.elapsed), timedelta)
+
+    def test_get_elapsed_int_seconds(self):
+        self.result._content['elapsed'] = 60
+        td = timedelta(seconds=60)
+        self.assertEqual(self.result.elapsed, td)
+
     def test_get_elapsed_null(self):
         self.result._content['elapsed'] = None
         self.assertEqual(self.result.elapsed, None)
