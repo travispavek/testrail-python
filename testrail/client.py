@@ -336,7 +336,7 @@ class TestRail(object):
     def _add_results(self, results):
         obj, value = results
         if isinstance(obj, Run):
-            self.api.add_results(list(map(lambda x: x.raw_data(), value), obj.id))
+            self.api.add_results(list(map(lambda x: x.raw_data(), value)), obj.id)
 
     # Section Methods
     def sections(self, suite=None):
