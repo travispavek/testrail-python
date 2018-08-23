@@ -32,7 +32,7 @@ class Entry(TestRailBase):
 
     @property
     def runs(self):
-        return map(EntryRun, self._content.get('runs'))
+        return list(map(EntryRun, self._content.get('runs')))
 
     @property
     def suite(self):

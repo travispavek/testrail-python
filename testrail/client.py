@@ -67,7 +67,7 @@ class TestRail(object):
 
     # User Methods
     def users(self):
-        return map(User, self.api.users())
+        return list(map(User, self.api.users()))
 
     @methdispatch
     def user(self):
@@ -95,7 +95,7 @@ class TestRail(object):
 
     # Suite Methods
     def suites(self):
-        return map(Suite, self.api.suites(self._project_id))
+        return list(map(Suite, self.api.suites(self._project_id)))
 
     @methdispatch
     def suite(self):
@@ -133,7 +133,7 @@ class TestRail(object):
 
     # Milestone Methods
     def milestones(self):
-        return map(Milestone, self.api.milestones(self._project_id))
+        return list(map(Milestone, self.api.milestones(self._project_id)))
 
     @methdispatch
     def milestone(self):
@@ -266,7 +266,7 @@ class TestRail(object):
 
     # Case Methods
     def cases(self, suite):
-        return map(Case, self.api.cases(self._project_id, suite.id))
+        return list(map(Case, self.api.cases(self._project_id, suite.id)))
 
     @methdispatch
     def case(self):
@@ -293,7 +293,7 @@ class TestRail(object):
 
     # Test Methods
     def tests(self, run):
-        return map(Test, self.api.tests(run.id))
+        return list(map(Test, self.api.tests(run.id)))
 
     @methdispatch
     def test(self):
@@ -336,11 +336,11 @@ class TestRail(object):
     def _add_results(self, results):
         obj, value = results
         if isinstance(obj, Run):
-            self.api.add_results(map(lambda x: x.raw_data(), value), obj.id)
+            self.api.add_results(list(map(lambda x: x.raw_data(), value), obj.id))
 
     # Section Methods
     def sections(self, suite=None):
-        return map(Section, self.api.sections(suite_id=suite.id))
+        return list(map(Section, self.api.sections(suite_id=suite.id)))
 
     @methdispatch
     def section(self):
@@ -362,7 +362,7 @@ class TestRail(object):
 
     # Status Methods
     def statuses(self):
-        return map(Status, self.api.statuses())
+        return list(map(Status, self.api.statuses()))
 
     @methdispatch
     def status(self):
@@ -380,4 +380,4 @@ class TestRail(object):
         return filter(lambda s: s.id == status_id, self.statuses())
 
     def configs(self):
-        return ConfigContainer(map(Config, self.api.configs()))
+        return ConfigContainer(list(map(Config, self.api.configs())))
