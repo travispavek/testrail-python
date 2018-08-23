@@ -79,6 +79,9 @@ class Result(TestRailBase):
         duration = self._content.get('elapsed')
         if duration is None:
             return None
+
+        if isinstance(duration, int):
+            return timedelta(seconds=duration)
         return testrail_duration_to_timedelta(duration)
 
     @elapsed.setter
