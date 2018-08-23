@@ -80,5 +80,5 @@ custom_methods_re = re.compile(r'^custom_(\w+)')
 
 def custom_methods(content):
     matches = [custom_methods_re.match(method) for method in content]
-    return dict({match[1]: match[0] for match in matches if match})
+    return dict({match.group(1): match.group(0) for match in matches if match})
 
