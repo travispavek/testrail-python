@@ -302,14 +302,14 @@ class TestRail(object):
     @test.register(str)
     @test.register(unicode)
     @singleresult
-    def _test_by_name(self, name):
-        return filter(lambda t: t.name.lower() == name.lower(), self.tests())
+    def _test_by_name(self, name, run):
+        return filter(lambda t: t.title.lower() == name.lower(), self.tests(run))
 
     @test.register(int)
     @singleresult
     def _test_by_id(self, test_id, run):
         return filter(
-            lambda t: t.raw_data()['case_id'] == test_id, self.tests(run))
+            lambda t: t.raw_data()['id'] == test_id, self.tests(run))
 
     # Result Methods
     @methdispatch
