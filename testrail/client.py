@@ -327,6 +327,10 @@ class TestRail(object):
     @methdispatch
     def result(self):
         return Result()
+    
+    @result.register(dict)
+    def _result_for_dict(self, content):
+        return Result(content)
 
     @add.register(Result)
     def _add_result(self, obj):
