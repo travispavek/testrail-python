@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 import yaml
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from retry import retry
 
 from testrail.helper import TestRailError, TooManyRequestsError, ServiceUnavailableError
@@ -107,10 +108,10 @@ class API(object):
                      '_timeout': 30,
                      '_project_id': None}
 
-    def __init__(self, email=None, key=None, url=None):
+    def __init__(self, email=None, key=None, url=None, verify_ssl=True):
         self.__dict__ = self._shared_state
         if email is not None and key is not None and url is not None:
-            config = dict(email=email, key=key, url=url)
+            config = dict(email=email, key=key, url=url, verify_ssl=verify_ssl)
             self._config = config
         elif self._config is not None:
             config = self._config
@@ -121,6 +122,8 @@ class API(object):
         self._url = config['url']
         self.headers = {'Content-Type': 'application/json'}
         self.verify_ssl = config.get('verify_ssl', True)
+        if not self.verify_ssl:
+            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     def _conf(self):
         TR_EMAIL = 'TESTRAIL_USER_EMAIL'
