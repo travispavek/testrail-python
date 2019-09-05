@@ -120,6 +120,9 @@ class API(object):
 
         self._auth = (config['email'], config['key'])
         self._url = config['url']
+        self._session = requests.Session()
+        self._session.headers.update({'Content-Type': 'application/json'})
+        self._session.auth=self._auth
         self.headers = {'Content-Type': 'application/json'}
         self.verify_ssl = config.get('verify_ssl', True)
         if not self.verify_ssl:
@@ -617,8 +620,7 @@ class API(object):
     @retry((TooManyRequestsError, ValueError), tries=3, delay=1, backoff=2)
     def _get(self, uri, params=None):
         uri = '/index.php?/api/v2/%s' % uri
-        r = requests.get(self._url+uri, params=params, auth=self._auth,
-                         headers=self.headers, verify=self.verify_ssl)
+        r = self._session.get(self._url+uri, params=params,verify=self.verify_ssl)
 
         self._raise_on_429_or_503_status(r)
 
@@ -641,8 +643,7 @@ class API(object):
     @retry(TooManyRequestsError, tries=3, delay=1, backoff=2)
     def _post(self, uri, data={}):
         uri = '/index.php?/api/v2/%s' % uri
-        r = requests.post(self._url+uri, json=data, auth=self._auth,
-                          verify=self.verify_ssl)
+        r = self._session.post(self._url+uri, json=data, verify=self.verify_ssl)
 
         self._raise_on_429_or_503_status(r)
 
