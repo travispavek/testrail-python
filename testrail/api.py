@@ -108,10 +108,10 @@ class API(object):
                      '_timeout': 30,
                      '_project_id': None}
 
-    def __init__(self, email=None, key=None, url=None, verify_ssl=True):
+    def __init__(self, email=None, key=None, url=None, verify_ssl=True, proxies=None):
         self.__dict__ = self._shared_state
         if email is not None and key is not None and url is not None:
-            config = dict(email=email, key=key, url=url, verify_ssl=verify_ssl)
+            config = dict(email=email, key=key, url=url, verify_ssl=verify_ssl, proxies=proxies)
             self._config = config
         elif self._config is not None:
             config = self._config
@@ -125,6 +125,7 @@ class API(object):
         self._session.auth=self._auth
         self.headers = {'Content-Type': 'application/json'}
         self.verify_ssl = config.get('verify_ssl', True)
+        self.proxies = config.get('proxies', None)
         if not self.verify_ssl:
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -620,7 +621,7 @@ class API(object):
     @retry((TooManyRequestsError, ValueError), tries=3, delay=1, backoff=2)
     def _get(self, uri, params=None):
         uri = '/index.php?/api/v2/%s' % uri
-        r = self._session.get(self._url+uri, params=params,verify=self.verify_ssl)
+        r = self._session.get(self._url+uri, params=params,verify=self.verify_ssl, proxies=self.proxies)
 
         self._raise_on_429_or_503_status(r)
 
@@ -643,7 +644,7 @@ class API(object):
     @retry(TooManyRequestsError, tries=3, delay=1, backoff=2)
     def _post(self, uri, data={}):
         uri = '/index.php?/api/v2/%s' % uri
-        r = self._session.post(self._url+uri, json=data, verify=self.verify_ssl)
+        r = self._session.post(self._url+uri, json=data, verify=self.verify_ssl, proxies=self.proxies)
 
         self._raise_on_429_or_503_status(r)
 
