@@ -131,7 +131,7 @@ class API(object):
 
         if os.path.isfile(conf_path):
             with open(conf_path, 'r') as f:
-                config = yaml.load(f)
+                config = yaml.load(f, Loader=yaml.BaseLoader)
         else:
             config = {
                 'testrail': {
