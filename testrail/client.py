@@ -4,7 +4,7 @@ import sys
 from testrail.api import API
 from testrail.case import Case
 from testrail.configuration import Config, ConfigContainer
-from testrail.helper import methdispatch, singleresult
+from testrail.helper import methdispatch, singleresult, TestRailError
 from testrail.milestone import Milestone
 from testrail.plan import Plan, PlanContainer
 from testrail.project import Project, ProjectContainer
