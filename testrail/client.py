@@ -291,6 +291,10 @@ class TestRail(object):
     def _add_case(self, obj):
         return Case(self.api.add_case(obj.raw_data()))
 
+    @update.register(Case)
+    def _update_case(self, obj):
+        return Case(self.api.update_case(obj.raw_data()))
+
     # Test Methods
     def tests(self, run):
         return list(map(Test, self.api.tests(run.id)))
