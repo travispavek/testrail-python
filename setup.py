@@ -15,7 +15,7 @@ if sys.version_info[:3] < (2, 7, 0):
 setup(
     name='testrail',
     packages=['testrail'],
-    version='0.3.13',
+    version='0.3.14',
     description='Python library for interacting with TestRail via REST APIs.',
     author='Travis Pavek',
     author_email='travis.pavek@gmail.com',
