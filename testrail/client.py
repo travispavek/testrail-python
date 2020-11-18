@@ -20,8 +20,8 @@ if sys.version_info >= (3,0):
     unicode = str
 
 class TestRail(object):
-    def __init__(self, project_id=0, email=None, key=None, url=None):
-        self.api = API(email=email, key=key, url=url)
+    def __init__(self, project_id=0, email=None, key=None, url=None, verify_ssl=True, proxies=None):
+        self.api = API(email=email, key=key, url=url, verify_ssl=verify_ssl, proxies=proxies)
         self.api.set_project_id(project_id)
         self._project_id = project_id
 
@@ -331,6 +331,10 @@ class TestRail(object):
     @methdispatch
     def result(self):
         return Result()
+    
+    @result.register(dict)
+    def _result_for_dict(self, content):
+        return Result(content)
 
     @add.register(Result)
     def _add_result(self, obj):
