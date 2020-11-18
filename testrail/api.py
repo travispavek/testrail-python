@@ -138,7 +138,7 @@ class API(object):
 
         if os.path.isfile(conf_path):
             with open(conf_path, 'r') as f:
-                config = yaml.load(f)
+                config = yaml.load(f, Loader=yaml.BaseLoader)
         else:
             config = {
                 'testrail': {
@@ -301,6 +301,17 @@ class API(object):
         #TODO get update cache working for now reset cache
         self.flush_cache()
         return self._post('add_case/%s' % section_id, payload)
+
+    def update_case(self, case):
+        fields = ['title', 'template_id', 'type_id', 'priority_id', 'estimate',
+                  'milestone_id', 'refs']
+        fields.extend(self._custom_field_discover(case))
+
+        data = self._payload_gen(fields, case)
+        #TODO get update cache working for now reset cache
+        self.flush_cache()
+        return self._post('update_case/%s' % case.get('id'), data)
+
 
     def case_types(self):
         if self._refresh(self._case_types['ts']):
@@ -560,6 +571,7 @@ class API(object):
         fields.extend(self._custom_field_discover(data))
 
         payload = self._payload_gen(fields, data)
+        payload['elapsed'] = str(payload['elapsed']) + 's'
         result = self._post('add_result/%s' % data['test_id'], payload)
 
         # Need to update the _tests cache to mark the run for refresh
@@ -586,6 +598,7 @@ class API(object):
             custom_field = fields + self._custom_field_discover(result)
             payload['results'].append(self._payload_gen(custom_field + fields, result))
 
+        payload['elapsed'] = str(payload['elapsed']) + 's'
         response = self._post('add_results/%s' % run_id, payload)
 
         # Need to update the _tests cache to mark the run for refresh

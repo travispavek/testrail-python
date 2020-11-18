@@ -20,7 +20,7 @@ setup(
     author='Travis Pavek',
     author_email='travis.pavek@gmail.com',
     url='https://github.com/travispavek/testrail-python',
-    download_url='https://github.com/travispavek/testrail-python/tarball/0.3.12',
+    download_url='https://github.com/travispavek/testrail-python/tarball/0.3.13',
     keywords=['testrail', 'api', 'client', 'library', 'rest'],
     install_requires=install_requires,
     classifiers=[
