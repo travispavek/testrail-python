@@ -351,26 +351,35 @@ class TestUser(unittest.TestCase):
 class TestProject(unittest.TestCase):
     def setUp(self):
         self.client = API()
-        self.mock_project_data = [
-            {
-                "announcement": "..",
-                "completed_on": None,
-                "id": 1,
-                "is_completed": False,
-                "name": "Project1",
-                "show_announcement": True,
-                "url": "http://<server>/index.php?/projects/overview/1"
+        self.mock_project_data = {
+            "offset": 0,
+            "limit": 250,
+            "size": 2,
+            "_links": {
+                "next": None,
+                "prev": None,
             },
-            {
-                "announcement": "..",
-                "completed_on": False,
-                "id": 2,
-                "is_completed": True,
-                "name": "Project2",
-                "show_announcement": True,
-                "url": "http://<server>/index.php?/projects/overview/2"
-            }
-        ]
+            "projects": [
+                {
+                    "announcement": "..",
+                    "completed_on": None,
+                    "id": 1,
+                    "is_completed": False,
+                    "name": "Project1",
+                    "show_announcement": True,
+                    "url": "http://<server>/index.php?/projects/overview/1"
+                },
+                {
+                    "announcement": "..",
+                    "completed_on": False,
+                    "id": 2,
+                    "is_completed": True,
+                    "name": "Project2",
+                    "show_announcement": True,
+                    "url": "http://<server>/index.php?/projects/overview/2"
+                }
+            ]
+        }
 
         self.projects = copy.deepcopy(self.mock_project_data)
 
