@@ -164,6 +164,17 @@ class API(object):
 
         return {'email': _email, 'key': _key, 'url': _url, 'verify_ssl': verify_ssl}
 
+    def _paginate_request(self, end_point, params, field):
+        params["offset"] = 0
+        params["limit"] = 250
+        values = []
+        while True:
+            items = self._get(end_point, params=params)
+            if items["size"] == 0:
+                return values
+            values.extend(items[field])
+            params["offset"] += params["limit"]
+
     @staticmethod
     def _raise_on_429_or_503_status(resp):
         """ 429 is TestRail's status for too many API requests
@@ -234,7 +245,7 @@ class API(object):
     def projects(self):
         if self._refresh(self._projects['ts']):
             # get new value, if request is good update value with new ts.
-            self._projects['value'] = self._get('get_projects')
+            self._projects['value'] = self._paginate_request("get_projects", {}, "projects")
             self._projects['ts'] = datetime.now()
         return self._projects['value']
 
@@ -270,13 +281,13 @@ class API(object):
         return self._post('add_suite/%s' % project_id, payload)
 
     # Case Requests
-    def cases(self, project_id=None, suite_id=10):
+    def cases(self, project_id=None, suite_id=-1):
         project_id = project_id or self._project_id
         if self._refresh(self._cases[project_id][suite_id]['ts']):
             # get new value, if request is good update value with new ts.
-            params = {'suite_id': suite_id} if suite_id != -1 else None
-            _cases = self._get('get_cases/%s' % project_id, params=params)
-            self._cases[project_id][suite_id]['value'] = _cases
+            endpoint = 'get_cases/%s' % project_id
+            params = {'suite_id': suite_id} if suite_id != -1 else {}
+            self._cases[project_id][suite_id]["value"] = self._paginate_request(endpoint, params, "cases")
             self._cases[project_id][suite_id]['ts'] = datetime.now()
         return self._cases[project_id][suite_id]['value']
 
@@ -326,8 +337,8 @@ class API(object):
     def milestones(self, project_id):
         if self._refresh(self._milestones[project_id]['ts']):
             # get new value, if request is good update value with new ts.
-            _milestones = self._get('get_milestones/%s' % project_id)
-            self._milestones[project_id]['value'] = _milestones
+            endpoint = 'get_milestones/%s' % project_id
+            self._milestones[project_id]['value'] = self._paginate_request(endpoint, {}, "milestones")
             self._milestones[project_id]['ts'] = datetime.now()
         return self._milestones[project_id]['value']
 
@@ -384,9 +395,8 @@ class API(object):
         project_id = project_id or self._project_id
         if self._refresh(self._sections[project_id][suite_id]['ts']):
             params = {'suite_id': suite_id} if suite_id != -1 else None
-            _sections = self._get(
-                'get_sections/%s' % project_id, params=params)
-            self._sections[project_id][suite_id]['value'] = _sections
+            endpoint = 'get_sections/%s' % project_id
+            self._sections[project_id][suite_id]['value'] = self._paginate_request(endpoint, params, "sections")
             self._sections[project_id][suite_id]['ts'] = datetime.now()
         return self._sections[project_id][suite_id]['value']
 
@@ -414,8 +424,8 @@ class API(object):
         project_id = project_id or self._project_id
         if self._refresh(self._plans[project_id]['ts']):
             # get new value, if request is good update value with new ts.
-            _plans = self._get('get_plans/%s' % project_id)
-            self._plans[project_id]['value'] = _plans
+            endpoint = 'get_plans/%s' % project_id
+            self._plans[project_id]['value'] = self._paginate_request(endpoint, {}, "plans")
             self._plans[project_id]['ts'] = datetime.now()
         return self._plans[project_id]['value']
 
@@ -452,11 +462,10 @@ class API(object):
         project_id = project_id or self._project_id
         if self._refresh(self._runs[project_id]['ts']):
             # get new value, if request is good update value with new ts.
-            end_point = 'get_runs/%s' % project_id
+            endpoint = 'get_runs/%s' % project_id
             if completed is not None:
-                end_point += '&is_completed=%s' % str(int(completed))
-            _runs = self._get(end_point)
-            self._runs[project_id]['value'] = _runs
+                endpoint += '&is_completed=%s' % str(int(completed))
+            self._runs[project_id]['value'] = self._paginate_request(endpoint, {}, "runs")
             self._runs[project_id]['ts'] = datetime.now()
         return self._runs[project_id]['value']
 
@@ -521,8 +530,8 @@ class API(object):
     # Test Requests
     def tests(self, run_id):
         if self._refresh(self._tests[run_id]['ts']):
-            _tests = self._get('get_tests/%s' % run_id)
-            self._tests[run_id]['value'] = _tests
+            endpoint = 'get_tests/%s' % run_id
+            self._tests[run_id]['value'] = self._paginate_request(endpoint, {}, "tests")
             self._tests[run_id]['ts'] = datetime.now()
         return self._tests[run_id]['value']
 
@@ -541,15 +550,15 @@ class API(object):
     # Result Requests
     def results_by_run(self, run_id):
         if self._refresh(self._results[run_id]['ts']):
-            _results = self._get('get_results_for_run/%s' % run_id)
-            self._results[run_id]['value'] = _results
+            endpoint = 'get_results_for_run/%s' % run_id
+            self._results[run_id]['value'] = self._paginate_request(endpoint, {}, "results")
             self._results[run_id]['ts'] = datetime.now()
         return self._results[run_id]['value']
 
     def results_by_test(self, test_id):
         if self._refresh(self._results[test_id]['ts']):
-            _results = self._get('get_results/%s' % test_id)
-            self._results[test_id]['value'] = _results
+            endpoint = 'get_results/%s' % test_id
+            self._results[test_id]['value'] = self._paginate_request(endpoint, {}, "results")
             self._results[test_id]['ts'] = datetime.now()
         return self._results[test_id]['value']
 

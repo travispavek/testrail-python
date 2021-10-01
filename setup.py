@@ -15,12 +15,12 @@ if sys.version_info[:3] < (2, 7, 0):
 setup(
     name='testrail',
     packages=['testrail'],
-    version='0.3.13',
+    version='0.3.14',
     description='Python library for interacting with TestRail via REST APIs.',
     author='Travis Pavek',
     author_email='travis.pavek@gmail.com',
     url='https://github.com/travispavek/testrail-python',
-    download_url='https://github.com/travispavek/testrail-python/tarball/0.3.13',
+    download_url='https://github.com/travispavek/testrail-python/tarball/0.3.14',
     keywords=['testrail', 'api', 'client', 'library', 'rest'],
     install_requires=install_requires,
     classifiers=[
@@ -37,8 +37,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
 )
