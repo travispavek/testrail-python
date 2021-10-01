@@ -85,6 +85,10 @@ class Run(TestRailBase):
     def description(self):
         return self._content.get('description')
 
+    @description.setter
+    def description( self, text ):
+        self._content['description'] = text
+
     @property
     def failed_count(self):
         return self._content.get('failed_count')

@@ -300,6 +300,7 @@ class API(object):
     def add_case(self, case):
         fields = ['title', 'template_id', 'type_id', 'priority_id', 'estimate',
                   'milestone_id', 'refs']
+        fields.extend(self._custom_field_discover(case))
         section_id = case.get('section_id')
         payload = self._payload_gen(fields, case)
         #TODO get update cache working for now reset cache

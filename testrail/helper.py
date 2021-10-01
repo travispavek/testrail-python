@@ -51,7 +51,7 @@ def testrail_duration_to_timedelta(duration):
 
 def singleresult(func):
     def func_wrapper(*args, **kw):
-        items = func(*args)
+        items = func(*args, **kw)
         if hasattr(items, '__iter__'):
             items = list(items)
         if len(items) > 1:
