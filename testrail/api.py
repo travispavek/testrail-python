@@ -598,9 +598,10 @@ class API(object):
         payload = {'results': list()}
         for result in results:
             custom_field = fields + self._custom_field_discover(result)
-            payload['results'].append(self._payload_gen(custom_field + fields, result))
+            result = self._payload_gen(custom_field + fields, result)
+            result['elapsed'] = str(result['elapsed']) + 's'
+            payload['results'].append(result)
 
-        payload['elapsed'] = str(payload['elapsed']) + 's'
         response = self._post('add_results/%s' % run_id, payload)
 
         # Need to update the _tests cache to mark the run for refresh
